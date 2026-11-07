@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+// Usage example: one small FP64 GEMM through the library, checked against its exact result.
 #include <ozTTgemm/ozTTgemm.hpp>
 #include <iostream>
 #include <vector>

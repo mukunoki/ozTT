@@ -1,111 +1,138 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""codecheck.py BASELINE NEW [--allow-nonascii]
+"""codecheck.py BASELINE NEW [--allow-nonascii]   |   codecheck.py --selftest
 
-Checks that the C/C++ source NEW differs from BASELINE only in comments and
-whitespace, and in string literals that contained non-ASCII text in BASELINE
-(such messages may be reworded).  NEW must also be pure ASCII unless
---allow-nonascii is given.  Prints "OK NEW" or "FAIL NEW: reason";
-the exit status is 0 only for OK.
+Checks that the C/C++ source NEW differs from BASELINE only in comments,
+whitespace and digit separators.  NEW must also be pure ASCII unless
+--allow-nonascii is given.  Prints "OK NEW" or "FAIL NEW: reason"; the exit
+status is 0 only for OK.
 
-Both files are tokenized the same way: comments become whitespace, whitespace
-is dropped, string literals (including raw and adjacent literals) are kept as
-single tokens, and character literals stay with the code.  The two token
-streams must then be identical.  No preprocessor is run: a changed macro is a
-changed token.
+Both files are split into C++ preprocessing tokens the same way: line
+continuations are joined, comments become whitespace, whitespace separates
+tokens and is otherwise dropped, and the end of a preprocessor directive line
+is a token of its own (so two directives on one line differ from two lines).
+Identifiers, numbers (without digit separators: 1'000 equals 1000), character
+literals and punctuators (longest match) are single tokens; string literals,
+including raw strings, are kept whole and adjacent literals are concatenated.
+The two token streams must then be identical: a changed string or character
+literal is a difference, and no preprocessor is run, so a changed macro is a
+changed token.  A // comment ending in a backslash continues on the next line
+(as in C++), on both sides alike.  --selftest checks these rules on built-in
+snippets.
 """
 import re
 import sys
 
+TOKEN = re.compile(r'''
+    (?P<ws> \s+ | //[^\n]* | /\*.*?\*/ )
+  | (?P<str> (?:u8|u|U|L)?R"(?P<d>[^()\\\s]*)\(.*?\)(?P=d)" | (?:u8|u|U|L)?"(?:[^"\\\n]|\\.)*" )
+  | (?P<chr> (?:u8|u|U|L)?'(?:[^'\\\n]|\\.)*' )
+  | (?P<num> \.?[0-9](?:[eEpP][+-]|'?[0-9A-Za-z_]|\.)* )
+  | (?P<id> [A-Za-z_][A-Za-z0-9_]* )
+  | (?P<op> <<=|>>=|\.\.\.|->\*|<=>|->|::|\#\#|<<|>>|<=|>=|==|!=|&&|\|\||\+\+|--|\+=|-=|\*=|/=|%=|&=|\|=|\^=|\.\*
+           | [-+*/%^&|=<>!~?:;,.(){}\[\]\#] )
+''', re.X | re.S)
+
 
 def tokens(text):
+    """Preprocessing tokens of a C++ source as (kind, text) pairs."""
     text = text.replace('\\\n', '')   # line continuations
-    out = []          # list of ('code', str) / ('str', str)
-    i, n = 0, len(text)
-    code = []
-
-    def flush():
-        s = re.sub(r'\s+', '', ''.join(code))
-        code.clear()
-        if s:
-            out.append(('code', s))
-
-    while i < n:
-        c = text[i]
-        if text.startswith('//', i):
-            j = text.find('\n', i)
-            # line continuation inside a // comment
-            while j != -1 and text[j - 1] == '\\':
-                j = text.find('\n', j + 1)
-            i = n if j == -1 else j
-            code.append(' ')
-        elif text.startswith('/*', i):
-            j = text.find('*/', i + 2)
-            if j == -1:
-                raise SystemExit('unterminated /* comment')
-            i = j + 2
-            code.append(' ')
-        elif c == '"':
-            m = re.search(r'(?:u8|u|U|L)?R$', ''.join(code)[-3:]) if code else None
-            if m:  # raw string
-                k = text.index('(', i)
-                delim = text[i + 1:k]
-                j = text.index(')' + delim + '"', k)
-                lit = text[i:j + len(delim) + 2]
-                i = j + len(delim) + 2
-            else:
-                j = i + 1
-                while text[j] != '"':
-                    j += 2 if text[j] == '\\' else 1
-                lit = text[i:j + 1]
-                i = j + 1
-            flush()
-            if out and out[-1][0] == 'str':
-                out[-1] = ('str', out[-1][1][:-1] + lit[1:])   # adjacent literals concatenate
-            else:
-                out.append(('str', lit))
-        elif c == "'" and not (code and re.search(r'[0-9A-Za-z_]$', ''.join(code)[-1:])):
-            j = i + 1
-            while text[j] != "'":
-                j += 2 if text[j] == '\\' else 1
-            code.append(text[i:j + 1])
-            i = j + 1
+    out, i, bol, directive = [], 0, True, False
+    while i < len(text):
+        m = TOKEN.match(text, i)
+        if not m:
+            line = text.count('\n', 0, i) + 1
+            raise ValueError(f'cannot tokenize line {line}: {text[i:i + 20]!r}')
+        i, kind, tok = m.end(), m.lastgroup, m.group()
+        if kind == 'ws':
+            if '\n' in tok:
+                if directive:
+                    out.append(('nl', '\n'))
+                bol, directive = True, False
+            continue
+        if kind == 'num':
+            tok = tok.replace("'", '')
+        if kind == 'str' and out and out[-1][0] == 'str':
+            out[-1] = ('str', out[-1][1][:-1] + tok[tok.index('"') + 1:])   # adjacent literals
         else:
-            code.append(c)
-            i += 1
-    flush()
+            out.append((kind, tok))
+        directive = directive or (tok == '#' and bol)
+        bol = False
+    if directive:
+        out.append(('nl', '\n'))
     return out
 
 
+def compare(base, new):
+    """None when the two sources have the same tokens, else a message."""
+    tb, tn = tokens(base), tokens(new)
+    for k, (a, b) in enumerate(zip(tb, tn)):
+        if a != b:
+            return f'code differs at token {k}: baseline {a[1][:200]!r}, new {b[1][:200]!r}'
+    if len(tb) != len(tn):
+        return f'token count differs ({len(tb)} baseline vs {len(tn)} new)'
+    return None
+
+
+def selftest():
+    same = [   # (baseline, new) that must be OK
+        ('int a; // one\n', 'int a; /* two */\n'),
+        ('int a=b+c;', 'int a = b\n + c ;\n'),
+        ('int a; /* x \\ */ int b;', 'int a; int b;'),
+        ('// a \\\nint x;\nint y;', '// b \\\nint x;\nint y;'),   # the comment continues on both sides
+        ('#define A \\\n  1\nint a\\\n= 2;', '#define A 1\nint a = 2;'),
+        ('int n = 1\'000;', 'int n = 1000;'),
+        ('const char *s = "a" "b";', 'const char *s = "ab";'),
+        ('/* c */ #define A 1\n', '#define A 1 // c\n'),
+    ]
+    differ = [   # (baseline, new) that must FAIL
+        ('a + +b;', 'a++ + b;'),
+        ('a <<= 1;', 'a << = 1;'),
+        ('#define A 1\n#define B 2\n', '#define A 1 #define B 2\n'),
+        ('const char *s = "abc";', 'const char *s = "abd";'),
+        ("char c = 'a';", "char c = 'b';"),
+        ("int c = u'a';", "int c = u'b';"),
+        ('// a \\\nint x;\nint y;', '// a\nint x;\nint y;'),   # the backslash swallows "int x;"
+        ('int n = 10;', 'int n = 1 0;'),
+    ]
+    bad = [(a, b) for a, b in same if compare(a, b)] + [(a, b) for a, b in differ if not compare(a, b)]
+    for a, b in bad:
+        print(f'selftest FAILED: {a!r} vs {b!r}')
+    print(f'selftest: {len(same) + len(differ) - len(bad)} of {len(same) + len(differ)} cases OK')
+    sys.exit(1 if bad else 0)
+
+
+def read(path):
+    with open(path, encoding='utf-8', errors='surrogateescape') as f:
+        return f.read()
+
+
 def main():
+    opts = [a for a in sys.argv[1:] if a.startswith('--')]
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
-    if len(args) != 2:
+    if opts == ['--selftest'] and not args:
+        selftest()
+    if len(args) != 2 or set(opts) - {'--allow-nonascii'}:
         print(__doc__.strip().splitlines()[0], file=sys.stderr)
         sys.exit(2)
     base, new = args
-    tb = tokens(open(base, encoding='utf-8').read())
-    newtext = open(new, encoding='utf-8').read()
-    tn = tokens(newtext)
-    bad = [(k, ch) for k, ch in enumerate(newtext) if ord(ch) > 127]
-    ok = True
-    if bad and '--allow-nonascii' not in sys.argv:
-        line = newtext.count('\n', 0, bad[0][0]) + 1
-        print(f'FAIL {new}: {len(bad)} non-ASCII characters remain (first at line {line}: {bad[0][1]!r})')
-        ok = False
-    if len(tb) != len(tn):
-        print(f'FAIL {new}: token count differs ({len(tb)} baseline vs {len(tn)} new)')
-        ok = False
-    for k, (a, b) in enumerate(zip(tb, tn)):
-        if a == b:
-            continue
-        if a[0] == 'str' and b[0] == 'str' and any(ord(ch) > 127 for ch in a[1]):
-            continue   # a non-ASCII message was reworded: allowed
-        print(f'FAIL {new}: code differs at token {k}:\n  baseline: {a[1][:300]}\n  new:      {b[1][:300]}')
-        ok = False
-        break
-    if ok:
+    newtext = read(new)
+    msgs = []
+    bad = [k for k, ch in enumerate(newtext) if ord(ch) > 127]
+    if bad and '--allow-nonascii' not in opts:
+        line = newtext.count('\n', 0, bad[0]) + 1
+        msgs.append(f'{len(bad)} non-ASCII characters remain (first at line {line}: {newtext[bad[0]]!r})')
+    try:
+        d = compare(read(base), newtext)
+    except ValueError as e:
+        d = str(e)
+    if d:
+        msgs.append(d)
+    for m in msgs:
+        print(f'FAIL {new}: {m}')
+    if not msgs:
         print(f'OK {new}')
-    sys.exit(0 if ok else 1)
+    sys.exit(1 if msgs else 0)
 
 
 main()

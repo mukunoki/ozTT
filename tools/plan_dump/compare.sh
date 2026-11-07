@@ -7,29 +7,39 @@
 # diffed per format and part.  Exits 0 when all outputs are identical, 1 on a
 # difference or a build/run failure, 2 on a usage error.
 #   tools/plan_dump/compare.sh [REV]      default REV is HEAD
-# Environment:
-#   TT_METAL_BUILD   Metalium build directory (default /tt-metal/build_Release);
-#                    headers and lib/libspdlog.a are used
-#   OUT              work directory for sources, binaries and outputs (default:
-#                    a temporary directory, removed at exit when identical)
+# Environment (as in the Makefile):
+#   TT_BUILD         Metalium build directory (default $TT_METAL_HOME/build_Release,
+#                    then /tt-metal/build_Release); headers and lib/libspdlog.a
+#                    are used
+#   OUT              work directory; its base/, bin/ and out/ are emptied first
+#                    and kept (default: a temporary directory, removed at exit)
 #   JOBS             parallel builds and runs (default 16)
 #   CXX              compiler (default g++)
 set -uo pipefail
 here=$(cd -- "$(dirname -- "$0")" && pwd)
 root=$(cd -- "$here/../.." && pwd)
 rev=${1:-HEAD}
-TB=${TT_METAL_BUILD:-/tt-metal/build_Release}
+if (( $# > 1 )) || [[ $rev == -* ]]; then echo "usage: $0 [REV]" >&2; exit 2; fi
+TB=${TT_BUILD:-${TT_METAL_HOME:-/tt-metal}/build_Release}
 CXX=${CXX:-g++}
 JOBS=${JOBS:-16}
+[[ $JOBS =~ ^[1-9][0-9]*$ ]] || { echo "compare.sh: JOBS must be a positive integer (JOBS=$JOBS)" >&2; exit 2; }
 [[ -f $TB/include/tt-metalium/host_api.hpp && -f $TB/lib/libspdlog.a ]] ||
-  { echo "compare.sh: Metalium headers or lib/libspdlog.a not found under TT_METAL_BUILD=$TB" >&2; exit 2; }
+  { echo "compare.sh: Metalium headers or lib/libspdlog.a not found under $TB (set TT_BUILD or TT_METAL_HOME)" >&2; exit 2; }
 cd "$root"
 git rev-parse --verify --quiet "$rev^{commit}" >/dev/null ||
   { echo "compare.sh: unknown revision '$rev'" >&2; exit 2; }
-if [[ -n ${OUT:-} ]]; then mkdir -p -- "$OUT"; work=$(cd -- "$OUT" && pwd); keep=1
-else work=$(mktemp -d); keep=0; fi
+if [[ -n ${OUT:-} ]]; then
+  mkdir -p -- "$OUT" && work=$(cd -- "$OUT" && pwd) || exit 2
+  rm -rf -- "$work/base" "$work/bin" "$work/out"   # no stale binary or output may stand in
+  where="work directory $work"
+else
+  work=$(mktemp -d) || exit 2
+  trap 'rm -rf -- "$work"' EXIT
+  where="set OUT to keep the work directory"
+fi
 mkdir -p "$work/base" "$work/bin" "$work/out"
-# Paths in the archive are relative to this directory (the release root).
+# Paths in the archive are relative to this directory (the repository root).
 git archive --format=tar "$rev" include src | tar -x -C "$work/base" ||
   { echo "compare.sh: git archive of $rev failed" >&2; exit 2; }
 
@@ -51,6 +61,7 @@ build() {  # build SIDE SCHEME FORMAT
     "-DOZ_FMT_$macro=1" -DOZTTGEMM_BACKEND_NS=plan_dump "-DOZTTGEMM_PUBLIC_FORMAT=::ozTTgemm::Format::$fmt" \
     "$here/ozaki${sch}_plan_dump.cpp" -o "$work/bin/${side}_ozaki${sch}_$fmt" \
     "$TB/lib/libspdlog.a" -lquadmath > "$work/out/build_${side}_ozaki${sch}_$fmt.log" 2>&1
+  echo "$?" > "$work/out/build_${side}_ozaki${sch}_$fmt.rc"
 }
 
 echo "building 32 dump programs (base: $rev, new: working tree) ..."
@@ -60,10 +71,11 @@ done; done; done
 wait
 fail=0
 for side in base new; do for sch in 1 2; do for fmt in $formats; do
-  [[ -x $work/bin/${side}_ozaki${sch}_$fmt ]] && continue
-  echo "BUILD FAILED ${side} ozaki${sch} $fmt:"; head -n 20 "$work/out/build_${side}_ozaki${sch}_$fmt.log"; fail=1
+  tag=${side}_ozaki${sch}_$fmt
+  [[ -x $work/bin/$tag && $(cat "$work/out/build_$tag.rc" 2>/dev/null) == 0 ]] && continue
+  echo "BUILD FAILED ${side} ozaki${sch} $fmt:"; head -n 20 "$work/out/build_$tag.log"; fail=1
 done; done; done
-(( fail )) && { echo "plan_dump: build failure (work directory $work)"; exit 1; }
+(( fail )) && { echo "plan_dump: build failure ($where)"; exit 1; }
 
 echo "running ..."
 run() {  # run SIDE SCHEME FORMAT PART
@@ -96,8 +108,7 @@ for sch in 1 2; do
 done
 if (( differ == 0 )); then
   echo "plan_dump: identical ($same outputs, base $rev vs working tree)"
-  (( keep )) || rm -rf -- "$work"
   exit 0
 fi
-echo "plan_dump: $differ differing, $same identical (base $rev vs working tree; outputs in $work/out)"
+echo "plan_dump: $differ differing, $same identical (base $rev vs working tree; $where)"
 exit 1

@@ -87,7 +87,6 @@ static void run_case(const Case& c) {
     r.M = c.M;
     r.N = c.N;
     r.K = c.K;
-    r.S_req = c.smax ? c.smax : OZ2_PARAM.def_s;
     Oz2Knobs kn;
     kn.max_moduli = c.smax;
     if (c.fixed_b > 0) kn.b = (uint32_t)c.fixed_b;

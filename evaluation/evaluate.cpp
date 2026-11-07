@@ -206,6 +206,7 @@ class Monitor {
         std::ifstream f(path);
         return f >> v ? v : std::numeric_limits<double>::quiet_NaN();
     }
+    std::exception_ptr failure_;  // an exception of the worker, rethrown by clock()
     std::jthread worker_;
 
 public:
@@ -221,19 +222,25 @@ public:
         if (required && (!std::isfinite(read(clock_)) || !std::isfinite(temperature())))
             throw std::runtime_error("device clock/temperature sysfs readings are required for a paper run");
         worker_ = std::jthread([this](std::stop_token stop) {
-            while (!stop.stop_requested()) {
-                const Sample s{ev::now(), read(clock_)};
-                {
-                    std::lock_guard lock(mutex_);
-                    samples_.push_back(s);
+            try {
+                while (!stop.stop_requested()) {
+                    const Sample s{ev::now(), read(clock_)};
+                    {
+                        std::lock_guard lock(mutex_);
+                        samples_.push_back(s);
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(20));
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(20));
+            } catch (...) {  // e.g. allocation failure: reported when the clock is asked for
+                std::lock_guard lock(mutex_);
+                failure_ = std::current_exception();
             }
         });
     }
     double temperature() const { return read(temperature_) / 1000; }
     double clock(double begin, double end) const {
         std::lock_guard lock(mutex_);
+        if (failure_) std::rethrow_exception(failure_);
         if (samples_.empty() || samples_.front().t > begin || samples_.back().t + 0.1 < end) return NAN;
         double sum = 0, weight = 0;
         for (std::size_t i = 0; i < samples_.size(); ++i) {

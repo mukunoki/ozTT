@@ -117,13 +117,13 @@ struct OzDigits {
     double value() const { return th + tl; }
 };
 
-// Parameters of the expansion and the search bound.
+// Problem size, the format's constants (ozaki1/format.hpp) and the search bound.
 struct Oz1Fp64Cfg {
     uint32_t M = 0, N = 0, K = 0;
-    double beta = 0.0, dmax = 0.0;  // radix and digit bound
-    int32_t nshift = 0;             // normalization target 2^nshift
-    uint32_t ceil_mode = 0;         // rounding selector of the scaling stage (OZ1_CEIL_MODE)
-    int pmax = 0;                   // largest p that is searched
+    const double beta = OZ1_RADIX, dmax = OZ1_DMAX;  // radix and digit bound
+    const int32_t nshift = OZ1_NSHIFT;               // normalization target 2^nshift
+    const uint32_t ceil_mode = OZ1_CEIL_MODE;        // rounding selector of the scaling stage
+    int pmax = 0;                                    // largest p that is searched
 };
 
 // Normalization of the rows of A and columns of B: the exponents e (oz1_dev_exp) and
@@ -508,10 +508,6 @@ static int oz_fp64_p(const std::vector<double>& A, const std::vector<double>& Bm
     g.M = M;
     g.N = N;
     g.K = K;
-    g.beta = (double)OZ1_RADIX;
-    g.dmax = (double)OZ1_DMAX;
-    g.nshift = OZ1_NSHIFT;
-    g.ceil_mode = OZ1_CEIL_MODE;
 
     // Search bound: 160 bits below the normalization position. Only inputs with an
     // extreme exponent range need deeper slicing; pmax is returned if the target is not

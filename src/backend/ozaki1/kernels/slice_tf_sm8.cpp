@@ -10,7 +10,7 @@
 //   weight (radix) is taken from it as beta = 2d = 254. The upper bound of the representable range is
 //   R = d/(beta-1) = 127/253, which exceeds the target T = 1/2 of the normalization by 0.4%. This margin is
 //   below 1/128, so the host rounds the conversion of the maximum to BF16 upward and guarantees
-//   |x/tau| <= T (bf_ceil in src/ozaki1.cpp). With that, the residual stays within |t| <= R, and the
+//   |x/tau| <= T (OZ1_BF_CEIL in ozaki1/format.hpp). With that, the residual stays within |t| <= R, and the
 //   truncation error after p steps falls to at most R*beta^-p.
 //   The earlier implementation ozIMMU takes 2^7 as the weight and keeps the digits within 7 bits
 //   (weight = digit + 1).

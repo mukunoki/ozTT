@@ -105,8 +105,8 @@ static FillStage fill(Device& md, const RunCfg& c, const PanelPlan& pp, InputBuf
     const uint32_t kt = c.K / 32;
     fs.edA = expdelta_build(md, in.maxAb, in.dltAb, in.flgA, c.Mt, true, OZ1_NSHIFT);
     fs.edB = expdelta_build(md, in.maxBb, in.dltBb, in.flgB, c.Nt, false, OZ1_NSHIFT);
-    fs.scA = scale_build(md, 0u, kt, in.rAf64, in.maxAb, c.Mt, 0u, OZ1_BF_CEIL, OZ1_TAU_ABOVE);
-    fs.scB = scale_build(md, 1u, kt, in.rBf64, in.maxBb, c.Nt, c.Nt, OZ1_BF_CEIL, OZ1_TAU_ABOVE);
+    fs.scA = scale_build(md, 0u, kt, in.rAf64, in.maxAb, c.Mt, 0u, OZ1_CEIL_MODE);
+    fs.scB = scale_build(md, 1u, kt, in.rBf64, in.maxBb, c.Nt, c.Nt, OZ1_CEIL_MODE);
     fs.slc = slice_build(md, c.nslice(), in.rAf64, in.dltAb, in.shA);
     fs.sliceA = SliceRun{in.rAf64, in.dltAb, in.shA, c.Mt * kt, kt, 0u, 0u, pp.Kbt};
     fs.sliceB = SliceRun{in.rBf64, in.dltBb, in.shB, kt * c.Nt, kt, c.Nt, 1u, pp.Kbt};

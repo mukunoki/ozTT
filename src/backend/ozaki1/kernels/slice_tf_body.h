@@ -44,10 +44,10 @@
 // The host is responsible for |t0| <= R at entry (R is the upper bound of the representable range,
 // d/(beta-1). T is the target of the normalization, a power of two).
 // For the normalized value x, the formats that truncate (BF16 and others) have |x| < T(1+2^-7) <= R, and the
-// configurations in which R hardly exceeds T (INT8, BFP2) round the scale up to get |x| <= T (bf_ceil in
-// src/ozaki1.cpp. BFP2 raises the scale one step even when the maximum is exactly a power of two, to get
-// |x| < T; tau_above in the same file). t0 is the top limb obtained by rounding x to FP32, so it can be
-// equal to the upper bound of x (t0 = 1 = T for x = 1-2^-53 in BFP2), but |t0| <= R holds in every case.
+// configurations in which R hardly exceeds T (INT8, BFP2) round the scale up to get |x| <= T (OZ1_BF_CEIL
+// in ozaki1/format.hpp. BFP2 raises the scale one step even when the maximum is exactly a power of two, to
+// get |x| < T; OZ1_TAU_ABOVE in the same file). t0 is the top limb obtained by rounding x to FP32, so it can
+// be equal to the upper bound of x (t0 = 1 = T for x = 1-2^-53 in BFP2), but |t0| <= R holds in every case.
 //
 // Compile-time arguments (order: SlicerCT in args.h): number of slices NSLICE (L+1), bit pattern of radix as
 //   a float, whether the reader is the soft-float version, bit pattern of the upper bound of a digit as a

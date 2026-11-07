@@ -34,7 +34,7 @@
 //   In Ozaki scheme II, a normalized value above 1 violates |A'| <= 2^b and leaves the CRT window, so
 //   the maximum must never be below the true value. In Ozaki scheme I, rounding down is enough for the
 //   formats whose expansion bound R = d/(beta-1) exceeds the target by at least 1/128; only INT8
-//   (R = 127/253) and BFP2 (R = 1), which have little margin, round up (bf_ceil in src/ozaki1.cpp).
+//   (R = 127/253) and BFP2 (R = 1), which have little margin, round up (OZ1_BF_CEIL in ozaki1/format.hpp).
 //   Rounding up acts only on maxima that fall in the normalized range of BF16.
 //   CEIL=2 does what CEIL=1 does and also moves the value up by one when the maximum is exactly a power
 //   of two (all significand bits 0). The BF16 value itself is at least the maximum but not necessarily
@@ -44,10 +44,10 @@
 //   whose maximum is exactly a power of two, where it is one step higher).
 //   It is used by BFP2 (R = target = 1), which cannot represent the target value 2^nshift itself with
 //   a single digit: when the maximum element is exactly the target, its expansion never terminates, with
-//   digit 1 and residual 1 at every step (tau_above in src/ozaki1.cpp). A row / column whose maximum is
-//   just below a power of two (1-delta after normalization) also starts with a run of about log2(1/delta)
-//   digits 1, but the run is finite, so it is handled by the slice count p and not here in the scale (the
-//   default p = 59 of BFP2 is chosen accordingly).
+//   digit 1 and residual 1 at every step (OZ1_TAU_ABOVE in ozaki1/format.hpp). A row / column whose
+//   maximum is just below a power of two (1-delta after normalization) also starts with a run of about
+//   log2(1/delta) digits 1, but the run is finite, so it is handled by the slice count p and not here in
+//   the scale (the default p = 59 of BFP2 is chosen accordingly).
 //
 // Accepted magnitude range (the limits imposed by this path)
 //   The host (check_values in src/context.cpp) rejects NaN and infinity and every nonzero row / column

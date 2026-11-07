@@ -2,7 +2,12 @@
 // Fitted coefficients of the stage-time model of Ozaki scheme II (included by awe.hpp).
 // Rows: the model rows OZ2_AWE_BFP4, OZ2_AWE_BFP2, OZ2_AWE_BF16, OZ2_AWE_FP16, OZ2_AWE_BFP8
 // (split.hpp), each at K = 3520, 7040, 14080.
-// Columns: K, gp, go, co, cs, sop, spl, R0, ra, rb (Oz2AweCoef). Data; do not edit by hand.
+// Columns: K, gp, go, co, cs, sop, spl, R0, ra, rb (Oz2AweCoef); all times in milliseconds
+// per unit of the formulas in awe.hpp, measured on the validation machine (VALIDATION.md).
+// Frozen calibration data, emitted by the research repository's fitting tool
+// (mukunoki/ttgemm, tools/awe_plan.cpp `emit-coef`, at the paper's measurement revision;
+// docs/awe_moduli.md there describes the fit); do not edit by hand. Different values
+// change which moduli are selected, and thereby the results.
 static constexpr Oz2AweCoef OZ2_AWE_COEF[OZ2_AWE_COUNT][3] = {
     {
         { 3520, 0.15104, 0.32008, 0.22464, 0.019534, 0.03579, 0.0079022, 17.049, 0.48024, 1.1506},

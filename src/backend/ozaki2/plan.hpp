@@ -165,13 +165,13 @@ static std::string oz2_short_cause(const Oz2Plan& r, const Ozaki2Moduli& mo, con
     if (want >= OZ2_MAXS)
         return s +
                fmt::format("The maximum of {} moduli is not enough; use a smaller K or a different format.", OZ2_MAXS);
+    Ozaki2Moduli t;  // after the loop: the selection with all OZ2_MAXS moduli
     for (uint32_t n = r.S_req + 1; n <= (uint32_t)OZ2_MAXS; n++) {
-        const Ozaki2Moduli t = rq.choose(n);
+        t = rq.choose(n);
         if (t.ok && t.b >= target)
             return s + fmt::format("The limit of {} moduli is too small; set Options::max_moduli to {} or more.",
                                    r.S_req, n);
     }
-    const Ozaki2Moduli t = rq.choose(OZ2_MAXS);
     return s + fmt::format(
                    "The limit of {} moduli is too small, and the maximum of {} moduli still gives only {} bits; "
                    "use a smaller K or a different format.",
@@ -212,14 +212,16 @@ static std::string oz2_short_cause(const Oz2Plan& r, const Ozaki2Moduli& mo, con
                     r.K, cause));
 }
 
-// No usable moduli set (mo.ok is false): throw with the cause and the remedy.
+// No usable moduli set (mo.ok is false): throw with the cause and the remedy. The remedy
+// is judged against the width the call needs: OZ2_TARGET_BITS unless the caller fixed the
+// width (b_fixed, the evaluator), when any covered width is acceptable.
 [[noreturn]] static inline void oz2_report_moduli_failure(const Oz2Plan& r, const Ozaki2Moduli& mo,
-                                                          const Oz2ModuliRequest& rq) {
+                                                          const Oz2ModuliRequest& rq, bool b_fixed) {
     if (!mo.acc_ok) oz2_report_accumulation_failure(r, mo);
     throw std::runtime_error(
         fmt::format("Ozaki II: the available moduli do not cover the CRT window for the padded inner "
                     "dimension K={}. {}",
-                    r.K, oz2_short_cause(r, mo, rq, 1)));
+                    r.K, oz2_short_cause(r, mo, rq, b_fixed ? 1 : OZ2_TARGET_BITS)));
 }
 
 // The width that the window allows can be smaller than requested: the CRT window is set by
@@ -271,11 +273,11 @@ static inline void choose_moduli_and_width(Oz2Plan& r, const Oz2Knobs& k, const 
         b_cap = pol.b_cap;
     }
     // Limit on the number of moduli: the caller's, if given. Otherwise all OZ2_MAXS moduli
-    // when the width is chosen from the input: a larger b needs a wider window
-    // (2b+1+log2 K bits), and the moduli selection drops every modulus the window does not
-    // need, so it settles at the smallest number that covers b_cap (surplus moduli would
-    // widen the window and lower the accuracy). With a fixed width (the evaluator) the
-    // default of the path applies.
+    // may be used when the width is chosen from the input: a larger b needs a wider window
+    // (2b+1+log2 K bits); the table selection takes moduli until the window of b_cap is
+    // covered and drops surplus moduli from the end (oz2_trim_tail: a surplus would only
+    // widen the window and lower the accuracy), and a set chosen by the stage-time model is
+    // used as chosen. With a fixed width (the evaluator) the default of the path applies.
     r.S_req = k.max_moduli ? k.max_moduli : (b_fixed ? OZ2_PARAM.def_s : OZ2_MAXS);
     // The estimate of the number of passes needs the input statistics; with a fixed width
     // they have not been measured yet.
@@ -286,7 +288,7 @@ static inline void choose_moduli_and_width(Oz2Plan& r, const Oz2Knobs& k, const 
     const Oz2ModuliRequest rq{M, N, K, b_cap};
     Ozaki2Moduli& mo = r.mo;
     mo = rq.choose(r.S_req);
-    if (!mo.ok) oz2_report_moduli_failure(r, mo, rq);
+    if (!mo.ok) oz2_report_moduli_failure(r, mo, rq, b_fixed);
     oz2_check_width(r, mo, rq, b_fixed);
     const uint32_t b = (uint32_t)mo.b;
     r.b = b;

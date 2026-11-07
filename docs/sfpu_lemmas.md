@@ -4,7 +4,11 @@ This note gives the proofs behind two contracts stated in
 `src/backend/common/kernels/sfpu_tf_proc.h`:
 
 * Part A: the final `FastTwoSum` of `tfMulR` and `tfMulP2` is exact for every triple
-  that reaches these procedures in the library (Lemmas P and R).
+  that reaches these procedures in the library (Lemmas P and R), under the standing
+  assumption that the FP32 arithmetic on the way neither overflows nor produces a
+  subnormal number. The section "The arithmetic stays in the normal range" shows
+  that this assumption holds for every element that the FP64 loader delivers exactly
+  (normalized magnitude at least `2^-72`), which is the loader's own scope.
 * Part B: why the second step of `tfAddSmall` uses `TwoSum` and not `FastTwoSum`.
 
 The procedures themselves are in that header; the names of intermediate values used
@@ -25,8 +29,8 @@ b" (Dekker); otherwise about half an ulp of b is lost. The condition fails when 
 input triple overlaps: multiplying `(1, 2^50, 2^26)` by the radix 2 gives
 `(2^51, 2^27, 0)` and loses the trailing +2 of the true value (in both procedures).
 The following shows that the precondition holds for the triples that occur in actual
-use, so that the six operations of `TwoSum` are not needed (they would add three
-operations to each procedure).
+use, under the assumptions listed in the Notation, so that the six operations of
+`TwoSum` are not needed (they would add three operations to each procedure).
 
 ### Notation
 
@@ -40,7 +44,9 @@ operations to each procedure).
   pair is known to break the final precondition, but the proof does not cover them.)
 * `beta` is the radix: an integer with `2 <= beta <= 2^20` (at most 255 for `tfMulR`).
 * FP32 arithmetic rounds to nearest even, and no overflow or subnormal number occurs
-  on the way (inside the value range stated at `tfMulP2`).
+  on the way. This is a standing assumption of both lemmas (it is the value range
+  stated at `tfMulP2` in the header); for the calls in the library it is discharged in
+  the section "The arithmetic stays in the normal range" below.
 * Shape of a FastTwoSum output: with `r1 = fl(t)` and `r2 = t - r1` (exact), if
   `|t| <= v` for a power of two v, then v is representable and rounding is monotone,
   so `|r1| <= v`, `|r2| <= ulp(r1)/2 <= 2^-24 v`, and `|r1| + |r2| <= c1 v`. This is
@@ -181,6 +187,48 @@ integers below `2^20` and exact (`F1 = 0`, `e_a = 0`). In (i) and (ii) `G = 0` a
 precondition is trivial; in (iii) `|s_b| <= ulp(P0)/2 + 2^19 << |P0|` (`F0 != 0`
 implies `|P0| >= 2^24`) gives the same argument.
 
+### The arithmetic stays in the normal range
+
+Both lemmas assume that no FP32 operation on the way overflows or produces a
+subnormal number (Notation). For the calls in the library this follows from the
+bounds on the limbs as follows; where it does not follow, the lemmas are not claimed.
+
+*Upper side.* In the slicers the leading limb is at most `R <= 1` before every
+multiplication in scheme I (the invariant of the residual, `slice_tf_body.h`) and
+below 1 after a digit has been subtracted in scheme II (the digits are bounded by
+`2^19 + 2^16 + 1`, which is `2^20` times the residual; `digits.h`; at the entry
+`|x| <= 2^20`), so after the multiplication it is below `2^8` and `2^20`
+respectively, and the tail is at most `c1 u <= c1` (the grid is at most 1, shown
+above). The largest intermediate value, `4097` times a limb in the Dekker splitting
+of `tfMulR`, is therefore below `2^20`.
+In the Horner recurrence the limbs are integers whose magnitude the host check
+`oz_horner_fits` (`ozaki1/format.hpp`) keeps small enough for `4097` times the limb
+to stay below `2^128`, as explained at that function.
+
+*Lower side.* In the Horner recurrence every limb and every intermediate value is an
+integer (the limbs, the radix, the digits and `4097` are integers, and a rounded sum,
+difference or product of integers is an integer), so a nonzero value is at least 1.
+In the slicers let `x = S 2^P` be the normalized value of the element, with `S` its
+53-bit integer significand, so that `P` is the exponent of its last bit (`elsb` in
+`f64_tf.h`). The entry limbs `hi = a 2^(P+30)`, `mid = b 2^(P+7)`, `lo = c 2^P` are
+integer multiples of `2^P` (the loader `tf_load_f64` in `slice_tf_core.h` forms `mid`
+and `lo` as exact products of the same multiples), and the radix, the digits and
+`4097` are integers. Let `P >= -124`, i.e. `|x| >= 2^-72` (as `2^52 <= S < 2^53`).
+Then, by induction over the operations, every value that occurs is a multiple of
+`2^P`: the exact sum, difference or product of multiples of `2^P` is `k 2^P` for an
+integer k, which is either 0 or at least `2^-124 > 2^-126` in magnitude, so it is
+rounded as a normalized FP32 number, either exactly (`|k| < 2^24`) or on a grid
+`2^(P+j)` with `j >= 1`, and the result is again a multiple of `2^P`. Hence no
+subnormal number is produced. This range is exactly the one in which the FP64 loader
+is verified to deliver the triple exactly (`split_f64` in `f64_tf.h`, "Scope of
+application": below `2^-72` the loader may lose `lo`, then `mid`, depending on
+whether the SFPU flushes subnormals). For an element below `2^-72` the lemmas are
+therefore not claimed; with the default settings such an element lies below the width
+that the later stages retain anyway (54 to 64 bits below the row or column maximum;
+"Precision and input range" in `README.md`, and the binade counts relative to the
+maximum in `f64_tf.h`), and for larger slice counts or widths the loader's comment
+states what is lost first.
+
 ### Checks performed on the research implementation (not reproducible from this distribution)
 
 The lemmas above do not depend on the following check, whose programs are not
@@ -197,9 +245,10 @@ also established the proposition W for `tfMulP2`: if the input satisfies "`x0 = 
 `|x1 + x2| <= |x0|`", the precondition holds, the multiplication by the radix is exact,
 and the output satisfies W again. The model was confirmed to agree bit for bit with the
 hardware for the tile-operation wrappers, `Rnd`, `tfMulRadix` (radices 2, 32, 64, 14,
-254), `tfMulR`, `tfAddS` and the FP64 loader; `tfAddSmall` and `ModRound` were not run
-on the device, but they instantiate the same procedure templates, so the agreement of
-the single operations carries over to them.
+254), `tfMulR`, `tfAddS` and the FP64 loader. `tfAddSmall` and `ModRound` (which the
+device executes in every call of scheme II) were not part of this model-versus-device
+comparison, but they instantiate the same procedure templates on the same wrapper
+operations, so the agreement of the single operations carries over to them.
 
 ## Part B: the second step of tfAddSmall, and the error of the CRT fraction
 

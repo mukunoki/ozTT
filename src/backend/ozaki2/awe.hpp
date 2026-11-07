@@ -59,7 +59,7 @@ struct Oz2AweCoef {
 };
 
 // OZ2_AWE_COEF[row][i]: rows in the order of the OZ2_AWE_* numbers (1-based), each with
-// K = 3520, 7040, 14080. Fitted data; not to be edited by hand.
+// K = 3520, 7040, 14080. Fitted data (provenance in awe_coef.inc); not to be edited by hand.
 #include "ozaki2/awe_coef.inc"
 
 // The table is declared with OZ2_AWE_COUNT rows, so a missing row would be zero-filled and

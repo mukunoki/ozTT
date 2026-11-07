@@ -4,8 +4,8 @@ Validated on 2026-11-06 with the sources as distributed, using a Tenstorrent Bla
 P150a (110 compute cores), firmware 19.15.0.0 and KMD 2.11.0 on an AMD Ryzen
 Threadripper PRO 9975WX host. Host compilation used GCC 12.3.0 in the Metalium Ubuntu
 22.04 container. The built TT-Metalium checkout was
-`ec685d2af0a5374016b76f67b5677a12b360988a`; this is the tested API version, not a claim
-of compatibility with other releases.
+`ec685d2af0a5374016b76f67b5677a12b360988a` (release tag `v0.73.1`); this is the tested
+API version, not a claim of compatibility with other releases.
 
 ## What was checked
 
@@ -121,6 +121,26 @@ byte-identical to the revision before the rename (56 outputs), and on the device
 correctness checks passed and `evaluate.sh quick` reproduced the 25 output hashes and
 parameters of `tools/validated/quick.csv`.
 
+A third review round (2026-11-07, six independent readers of the repository as
+published) led to document corrections (stale wording from before the split, the
+subnormal-input contract, the limits of the automatic selections, install and
+environment notes, provenance of the fitted coefficients), to kernel comment
+corrections (references to renamed host constants, the `ModRound` preconditions, the
+margin arithmetic of `tfAddSmall`) and to a section of `docs/sfpu_lemmas.md` that
+discharges the normal-range assumption of the lemmas, to small host simplifications
+(the GEMM runner's redundant plane argument, one rounding selector for the scale
+stage, format constants as defaults of the precision-selection parameters, the moduli
+failure message judged against the width the call needs, evaluator records discarded
+on every exit of a call, the evaluator's telemetry thread reporting its failures),
+and to the maintainer tools (a real token comparison with a self-test in
+`codecheck.py`, the Makefile's `TT_BUILD`/`TT_METAL_HOME` in the tool scripts, work
+directories that cannot hide a failed build, CSV comparisons that reject empty or
+duplicated input). The same checks were repeated: kernel code identical to the
+revision before the round (45 files), host compile clean (21 units), planner dumps
+byte-identical (56 outputs), and on the device the correctness checks passed and
+`evaluate.sh quick` reproduced the 25 output hashes and parameters of
+`tools/validated/quick.csv`.
+
 The evaluator output files behind these statements are kept in `tools/validated/`:
 `all.csv` (the complete paper plan, 63 cases, run on 2026-11-06 after the clean-up;
 its hashes equal those of the first complete run), `quick.csv` (the 25 cases of
@@ -130,7 +150,7 @@ with them.
 
 ## Not repeated in this validation
 
-These were checked on 2026-10-27 with an earlier state of this directory; the build
+These were checked on 2026-10-27 with an earlier state of this repository; the build
 system has changed only in details since (object names, warning flags, the installed
 documents):
 

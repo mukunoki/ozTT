@@ -30,11 +30,11 @@
 //   Exactness: the partial sums in DST are FP32 (Int32 on the INT8 path), and the L1 adder adds in the
 //   same format. If all integer partial sums are at most 2^24 (FP32 represents 2^24 exactly), no addition
 //   rounds. This is the same condition as for the accumulation inside DST (K_eff*d^2 <= 2^24 for one
-//   segment; ozaki_max_digit in ozaki1/format.hpp), and the host already imposes it. The Int32 addition in
+//   segment; ozaki_check_exact in ozaki1/format.hpp), and the host already imposes it. The Int32 addition in
 //   L1 is a sign-magnitude integer addition, verified on hardware to be exact up to just below 2^31
 //   (2,147,092,480; including odd intermediate sums, negative values and block sums of opposite signs).
 //   The bound that the host imposes on the partial sums of the INT8 path with the digits +-127
-//   (K_eff*127^2 <= 2^31-1 with K a multiple of 32: ozaki_max_digit / ozaki_block_k in
+//   (K_eff*127^2 <= 2^31-1 with K a multiple of 32: ozaki_check_exact / ozaki_block_k in
 //   ozaki1/format.hpp for scheme I, the modulus cap in ozaki2/moduli.hpp for scheme II) stays within
 //   that verified range.
 //

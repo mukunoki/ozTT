@@ -140,8 +140,8 @@ ALWI void tfAddS() { SfpuDev w; sfpu_proc::tfAddS<NL>(w); }
 // is described in sfpu_tf_proc.h)
 template <uint32_t NL>
 ALWI void tfAddSmall() { SfpuDev w; sfpu_proc::tfAddSmall<NL>(w); }
-// d -= round(d/m)*m (o and d may be the same; s is a work register different from d; the guaranteed
-// range is described in sfpu_tf_proc.h)
+// d -= round(d/m)*m (o and d may be the same; s is a work register different from d; the contract, i.e.
+// the preconditions on d, m and rinv and the guaranteed range, is at ModRound in sfpu_tf_proc.h)
 ALWI void ModRound(uint32_t d, uint32_t o, uint32_t s, float m, float rinv) {
     SfpuDev w; sfpu_proc::ModRound(w, d, o, s, m, rinv);
 }

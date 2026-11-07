@@ -47,7 +47,8 @@
 //             in_addr, num_tiles, start_id, ntot, S, mask,
 //             nlimb, Whi, Wlo, qw, sh2, jsplit, sem_pub, sem_done
 //   When SHARE (compile-time argument CT_FINAL_OR_SHARE: whether the assembly is shared) is 0 (the
-//   configuration without sharing), only the first 6 words are read.
+//   configuration without sharing; the library never uses it, the host always passes 1), only the
+//   first 6 words are read.
 
 #include "api/dataflow/dataflow_api.h"
 #include "../../common/kernels/f64_tf.h"
@@ -76,10 +77,10 @@ void kernel_main() {
     constexpr uint32_t cb_q    = CB_A128;
     constexpr auto ia = TensorAccessorArgs<0>();
     const auto in = TensorAccessor(ia, in_addr);
-    // Only with SHARE (decided by the host, ReconPassShape::split_asm in ozaki2/stages.hpp: in the
-    // final pass of the one-pass configuration and in both passes of the two-pass configuration)
-    // does this kernel take the first part of the assembly (in the first pass of the two-pass
-    // configuration, of the conversion to 128-bit fixed point)
+    // Only with SHARE does this kernel take the first part of the assembly (in the first pass of the
+    // two-pass configuration, of the conversion to 128-bit fixed point). The host passes 1 in every
+    // pass of every configuration (recon_make_kernels in ozaki2/stages.hpp, append_rw_ct(ra, 1u, ..));
+    // the branch for SHARE = 0 (reads only) is kept for completeness.
     constexpr uint32_t SHARE = get_compile_time_arg_val(ia.next_compile_time_args_offset() + CT_FINAL_OR_SHARE);
     // Role of the pass (ReconRole of recon_args.h. ROLE_SINGLE = final pass of the one-pass
     // configuration (assembles the 3 limbs), ROLE_TWO_FINAL = final pass of the two-pass configuration

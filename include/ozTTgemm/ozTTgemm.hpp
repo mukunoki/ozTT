@@ -28,8 +28,8 @@ enum class Scheme { I, II };
 // TT-Metalium's block floating-point formats; TF32 is its 32-bit float path.
 enum class Format { BF16, FP16, TF32, BFP8, FP8, INT8, BFP4, BFP2 };
 
-// Number of reconstruction passes of scheme II. Automatic selects one pass when the
-// input allows it and two otherwise.
+// Number of reconstruction passes of scheme II. Automatic selects one pass when an
+// error estimate from the input statistics allows it and two otherwise (README.md).
 enum class Reconstruction { Automatic, OnePass, TwoPass };
 
 // The options of the scheme not selected must keep their defaults; otherwise the
@@ -96,7 +96,9 @@ public:
     // of B must lie in [2^-126, largest finite BF16] (the device normalizes by BF16
     // maxima). Dimensions whose tile counts exceed the device's 32-bit offsets are
     // rejected.
-    // Numerical limits (README.md has the details): subnormal inputs count as zero;
+    // Numerical limits (README.md has the details): subnormal elements of an
+    // admissible row or column count as zero (a row or column whose maximum is
+    // subnormal is rejected by the range check above);
     // an element far below the maximum of its row of A or column of B keeps fewer
     // bits or is dropped, and no check detects this; a result that would be subnormal
     // is zero; cancellation is not protected, and automatic precision is a model

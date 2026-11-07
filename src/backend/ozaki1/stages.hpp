@@ -157,7 +157,7 @@ template <class Note>
 static void issue_panel_diagonals(std::shared_ptr<tt::tt_metal::distributed::MeshDevice>& md, GemmCtx& ctx, int L,
                                   Note&& note) {
     for (int d = 0; d <= L; d++) {
-        gemm_run(md, ctx, (uint32_t)d, (uint32_t)d);
+        gemm_run(md, ctx, (uint32_t)d);
         note(evaluation::GemmStep);
     }
 }
@@ -192,7 +192,7 @@ struct Oz1Sweep {
         for (uint32_t pi = bd.p0; pi < bd.p1; pi++) {
             auto& ctx = ctxs[pi];
             for (int d = (pairwise ? (int)a : 0); d <= L; d++) {
-                gemm_run(s.md, ctx, (uint32_t)d, (uint32_t)d, b, pairwise ? (int)a : -1, first ? 0u : 1u);
+                gemm_run(s.md, ctx, (uint32_t)d, b, pairwise ? (int)a : -1, first ? 0u : 1u);
                 note(evaluation::GemmStep);
             }
         }

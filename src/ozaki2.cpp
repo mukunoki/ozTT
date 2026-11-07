@@ -140,8 +140,8 @@ static void upload_operands(Oz2Run& r, const std::vector<double>& A, const std::
 static void scale_and_slice(Oz2Run& r) {
     auto& md = r.md;
     auto& q = md->mesh_command_queue();
-    r.scCA.emplace(scale_build(md, 0u, r.Kt, r.rAf64, r.maxAb, r.Mt, 0u, true));
-    r.scCB.emplace(scale_build(md, 1u, r.Kt, r.rBf64, r.maxBb, r.Nt, r.Nt, true));
+    r.scCA.emplace(scale_build(md, 0u, r.Kt, r.rAf64, r.maxAb, r.Mt, 0u, 1u));  // round the scale up
+    r.scCB.emplace(scale_build(md, 1u, r.Kt, r.rBf64, r.maxBb, r.Nt, r.Nt, 1u));
     r.edA.emplace(expdelta_build(md, r.maxAb, r.dltAb, r.flgA, r.Mt, true, oz2_shift(r)));
     r.edB.emplace(expdelta_build(md, r.maxBb, r.dltBb, r.flgB, r.Nt, false, oz2_shift(r)));
     ev::execute(ev::Scale, [&] {

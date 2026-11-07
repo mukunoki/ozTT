@@ -216,12 +216,17 @@ ALWI void tfAddS(W& w) {
 // the ulp of the current a0 and becomes
 //   |a1| <= n * max(max_t ulp(a0^(t))/2, eps) * (1 + 2^-24)^n
 // (a0^(t) is a0 after the t-th addition, and (1 + 2^-24)^n is the rounding of the updates of a1).
-// As long as eps is chosen sufficiently smaller than the magnitude of ulp(a0)/2, this bound is the same
-// as for tfAddS.
-// In scheme II the integer part is removed for each modulus, so |a0| < 2 (k_i of ModRound is within
-// floor(m/2)+1 ((a') in the note of ModRound below; oz2_crt_k_bound in ozaki2/moduli.hpp; exceeding the
-// symmetric residue by 1 does not change this bound)) and ulp(a0)/2 <= 2^-24; eps is set to 2^-30
-// (relative to the largest term), which leaves a margin of 7 bits.
+// As long as eps is chosen sufficiently smaller than the bound on max_t ulp(a0^(t))/2, this bound is
+// the same as for tfAddS.
+// In scheme II the integer part is removed for each modulus, so |a0| < 2 at every step (k_i of ModRound
+// is within floor(m/2)+1 ((a') in the note of ModRound below; oz2_crt_k_bound in ozaki2/moduli.hpp;
+// exceeding the symmetric residue by 1 does not change this bound)) and max_t ulp(a0^(t))/2 <= 2^-24;
+// eps is set to vmax * 2^-30 with vmax the largest term, capped at 1 (oz2_choose_small_tail in
+// ozaki2/moduli.hpp), so eps <= 2^-30 is 6 bits below this bound on ulp(a0)/2 (7 bits below the bound
+// ulp(a0) <= 2^-23, which is how oz2_choose_small_tail counts its margin). The margin is against the
+// maximum of ulp(a0^(t))/2 over the whole accumulation, the quantity in the bound above, and not
+// against the ulp of the current a0, which can be far smaller after cancellation; the bound does not
+// need it to be.
 // This bound is loose. In measurements the worst absolute error of frac agrees with the case that uses
 // tfAddS only.
 //
@@ -253,9 +258,14 @@ ALWI void SmallTwoSum(W& w) {
 }
 
 // --- Residue modulo m -------------------------------------------------------
-// d -= round(d/m)*m. The guarantee covers only the range |d| < 2^22, where the result lies in the
-// symmetric residue range [-m/2, m/2] modulo m (the calls that leave this range are collected in [ ]
-// below).
+// d -= round(d/m)*m. Preconditions: d is an integer that FP32 represents exactly (|d| <= 2^24; at every
+// call site (a)-(e) below d is a digit, a residue, a product of a residue and an integer coefficient,
+// the integer output of the GEMM, or an exact sum of such terms), m is an integer modulus of the sets in
+// ozaki2/moduli.hpp (2 <= m <= 4096; the float m is exact), and rinv is the FP32 nearest to 1/m (the
+// host rounds 1/m, computed in quadruple precision, to FP32: o.rinv in ozaki2/moduli.hpp; for every
+// integer m up to 4096 that is the correctly rounded reciprocal, |rinv - 1/m| <= 2^-24/m). The
+// guarantee covers only the range |d| < 2^22, where the result lies in the symmetric residue range
+// [-m/2, m/2] modulo m (the calls that leave this range are collected in [ ] below).
 // Beyond it the result breaks down in two steps: first round selects the neighboring integer (reason
 // below), and then, when round(d/m)*m exceeds 2^24, the product itself is rounded in FP32 and even the
 // residue class changes (d=2^24, m=29 returns -8, while the correct symmetric residue is -9).
@@ -263,8 +273,10 @@ ALWI void SmallTwoSum(W& w) {
 // even modulus (254) d/m can be exactly a half-integer, and both +m/2 and -m/2 appear depending on the
 // direction in which Rnd resolves a tie. Both are in the same residue class and have the absolute value
 // m/2, so the later stages (7-bit sign-magnitude, another reduction) are not affected.
-// Why 2^22 comes out from the rounding side: fl(d*rinv) deviates from d/m by a relative 2^-23, while
-// the distance between d/m and a half-integer is at least 1/(2m), so as long as
+// Why 2^22 comes out from the rounding side: fl(d*rinv) deviates from d/m by a relative 2^-23 (2^-24
+// from rinv and 2^-24 from the rounding of the product), while the distance between d/m and a
+// half-integer is at least 1/(2m) because d and m are integers (2d - (2k+1)m is an integer; it is 0
+// only in the tie case of an even modulus above, where both neighbors are correct), so as long as
 // |d|/m * 2^-23 < 1/(2m), i.e. |d| < 2^22, round always selects the correct integer.
 // [This general bound is not enough for the BF16 / BFP8 / FP16 / TF32 paths, whose moduli go up to 4096]
 // Four of the five calls (a)-(e) leave 2^22: (a) r_i*y_i in recon_crt.cpp (up to m^2/2 = 2^23),

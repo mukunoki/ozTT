@@ -8,37 +8,39 @@
 #   tools/hostcc.sh [1|2|all]   all (default): scheme I and II drivers for
 #                               the eight formats, plus context, dispatch,
 #                               evaluator, tests and the example
-# Environment:
-#   TT_METAL_BUILD   Metalium build directory (default /tt-metal/build_Release)
-#   OBJ              directory for objects and logs (default: a temporary
-#                    directory that is removed at exit)
+# Environment (as in the Makefile):
+#   TT_BUILD         Metalium build directory (default $TT_METAL_HOME/build_Release,
+#                    then /tt-metal/build_Release)
+#   OBJ              directory for objects and logs; previous logs are removed
+#                    (default: a temporary directory that is removed at exit)
 #   CXX, CXXFLAGS    compiler and optimization flags (g++, -O3 -DNDEBUG)
 set -uo pipefail
 root=$(cd -- "$(dirname -- "$0")/.." && pwd)
 what=${1:-all}
 case $what in 1|2|all) ;; *) echo "usage: $0 [1|2|all]" >&2; exit 2 ;; esac
-TB=${TT_METAL_BUILD:-/tt-metal/build_Release}
+TB=${TT_BUILD:-${TT_METAL_HOME:-/tt-metal}/build_Release}
 [[ -f $TB/include/tt-metalium/host_api.hpp ]] ||
-  { echo "hostcc.sh: Metalium headers not found under TT_METAL_BUILD=$TB" >&2; exit 2; }
+  { echo "hostcc.sh: Metalium headers not found under $TB (set TT_BUILD or TT_METAL_HOME)" >&2; exit 2; }
 CXX=${CXX:-g++}
 CXXFLAGS=${CXXFLAGS:--O3 -DNDEBUG}
-if [[ -n ${OBJ:-} ]]; then mkdir -p -- "$OBJ"; obj=$(cd -- "$OBJ" && pwd)
-else obj=$(mktemp -d); trap 'rm -rf -- "$obj"' EXIT; fi
+if [[ -n ${OBJ:-} ]]; then mkdir -p -- "$OBJ" && obj=$(cd -- "$OBJ" && pwd) || exit 2; rm -f -- "$obj"/*.log
+else obj=$(mktemp -d) || exit 2; trap 'rm -rf -- "$obj"' EXIT; fi
 
 # The Makefile's flags (LOCAL_CPPFLAGS, METAL_CPPFLAGS, WARNINGS, REQUIRED_CXXFLAGS).
-FL="-I$root/include -I$root/src -I$root/src/backend -I$obj
-    -isystem $TB/include -isystem $TB/include/metalium-thirdparty
-    -isystem $TB/libexec/tt-metalium -isystem $TB/libexec/tt-metalium/tt_metal/hostdevcommon/api
+# shellcheck disable=SC2206  # CXXFLAGS is a flag list and is split on purpose
+FL=(-I"$root/include" -I"$root/src" -I"$root/src/backend" -I"$obj"
+    -isystem "$TB/include" -isystem "$TB/include/metalium-thirdparty"
+    -isystem "$TB/libexec/tt-metalium" -isystem "$TB/libexec/tt-metalium/tt_metal/hostdevcommon/api"
     -DENCHANTUM_ENABLE_MSVC_SPEEDUP=1 -DFMT_HEADER_ONLY=1 -DNTEST
     -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL -DTRACY_IMPORTS
     -DTRACY_TIMER_FALLBACK -DTT_UMD_BUILD_SIMULATION
     $CXXFLAGS -Wall -Wextra -Wno-missing-field-initializers
-    -std=gnu++20 -fno-fast-math -ffp-contract=off -fPIC -fopenmp -Wno-int-to-pointer-cast"
+    -std=gnu++20 -fno-fast-math -ffp-contract=off -fPIC -fopenmp -Wno-int-to-pointer-cast)
 formats="BF16 FP16 TF32 BFP8 FP8 INT8 BFP4 BFP2"
 : > "$obj/rc.txt"
 compile() {  # compile NAME SOURCE [FLAGS...]
   local name=$1 src=$2; shift 2
-  ( $CXX $FL "$@" -c "$src" -o "$obj/$name.o" > "$obj/$name.log" 2>&1
+  ( $CXX "${FL[@]}" "$@" -c "$src" -o "$obj/$name.o" > "$obj/$name.log" 2>&1
     echo "$name rc=$?" >> "$obj/rc.txt" ) &
 }
 cd "$root"

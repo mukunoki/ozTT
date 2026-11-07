@@ -304,16 +304,15 @@ static GemmCtx gemm_build(std::shared_ptr<tt::tt_metal::distributed::MeshDevice>
 //   reader, start of B   += (blk*nslice + (nslice-1-d) + a0) * Kbt * Nt   [tiles]
 //   reader, kernel blocks        nb = n * Kbt / bw
 //   compute kernel               nb, acc and the kernel blocks per pair
-//   writer, first output tile    dWblock + slot * planeStride, and acc
+//   writer, first output tile    dWblock + d * planeStride (plane d of the partial sums), and acc
 // pair < 0: the d+1 pairs of the diagonal are concatenated along K and run as one GEMM
 //   (n = d+1, a0 = 0): slices 0..d of A against slices d..0 of B.
 // pair >= 0: only the pair of slice `pair` of A and slice d-pair of B is run (n = 1,
 //   a0 = pair). K_eff is then K_c instead of (d+1) K_c.
-// slot is the plane of the partial-sum buffer that receives the result. acc matters only
-// in the fused mode: 0 stores the result (first write to the plane), 1 adds it to the
+// The result goes to plane d of the partial-sum buffer. acc matters only in the fused mode: 0 stores the result (first write to the plane), 1 adds it to the
 // Int32 values already there.
 // The workload is enqueued without waiting.
-static void gemm_run(std::shared_ptr<tt::tt_metal::distributed::MeshDevice>& md, GemmCtx& c, uint32_t d, uint32_t slot,
+static void gemm_run(std::shared_ptr<tt::tt_metal::distributed::MeshDevice>& md, GemmCtx& c, uint32_t d,
                      uint32_t blk = 0, int pair = -1, uint32_t acc = 0) {
     auto& cq = md->mesh_command_queue();
     tt::tt_metal::Program& prog = c.workload.get_programs().at(c.range);
@@ -333,7 +332,7 @@ static void gemm_run(std::shared_ptr<tt::tt_metal::distributed::MeshDevice>& md,
     for (const auto& e : c.mg.cores) {
         const uint32_t cx = (uint32_t)e.core.x, cy = (uint32_t)e.core.y;
         auto wa = mcast_writer_args((uint32_t)c.Cbuf->address(), c.Nt, c.pm, c.pn, c.sh, c.sw, cx, cy,
-                                    c.dWblock + slot * plane, c.fuse ? acc : 0u);
+                                    c.dWblock + d * plane, c.fuse ? acc : 0u);
         c.mg.retarget_k(prog, e, aoff, boff, nb, wa);
         tt::tt_metal::SetRuntimeArgs(prog, c.mg.ck, e.core, spill_compute_rt(nb, c.fuse ? acc : 0u, bpp));
     }

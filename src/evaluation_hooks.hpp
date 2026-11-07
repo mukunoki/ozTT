@@ -68,8 +68,9 @@ struct Settings {
     bool whole_checked = false;           // sentinel, replay-identical and step-count checks all passed
     Counts whole_expected, whole_ran;
     // Device steps recorded for the whole pass. They borrow state of the call that
-    // recorded them and live from the start of that call (the Context discards earlier
-    // records) to the end of its whole pass, at the latest to the end of the Scope.
+    // recorded them and live from the start of that call to the end of its whole pass;
+    // the Context discards them on every exit of the call, so a call that throws leaves
+    // none behind, and the Scope discards them too.
     std::vector<RecordedStep> steps;
 };
 inline thread_local Settings* active = nullptr;

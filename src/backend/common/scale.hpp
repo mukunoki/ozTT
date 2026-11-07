@@ -221,20 +221,20 @@ struct ScaleCtx {
 // input tiles of the FP64 operand refIn; the input tile index is o*Kt+kt in mode 0 (A, along the rows)
 // and kt*stride+o in mode 1 (B, along the columns). scale_f64_reader.cpp finds the maximum of |x| on the
 // FP64 bit patterns and converts only the 32 results of a tile to BF16.
-// bf_ceil rounds the BF16 conversion up instead of down. above_pow2 (requires bf_ceil) additionally
-// moves the BF16 value one step up when the maximum is exactly a power of two, so that the scale is a
-// power of two strictly larger than the maximum (CEIL = 2 of scale_f64_reader.cpp).
+// ceil_mode is CEIL of scale_f64_reader.cpp: 0 rounds the BF16 conversion down, 1 rounds it up, and 2
+// additionally moves the BF16 value one step up when the maximum is exactly a power of two, so that
+// the scale is a power of two strictly larger than the maximum.
 // The program is placed on the whole grid (the grid of full_grid_span, which also distributes the tiles).
 inline ScaleCtx scale_build(std::shared_ptr<tt::tt_metal::distributed::MeshDevice>& md, uint32_t mode, uint32_t Kt,
                             std::shared_ptr<tt::tt_metal::distributed::MeshBuffer> refIn,
                             std::shared_ptr<tt::tt_metal::distributed::MeshBuffer> refOut, uint32_t nout,
-                            uint32_t stride, bool bf_ceil = false, bool above_pow2 = false) {
+                            uint32_t stride, uint32_t ceil_mode) {
     namespace tm = tt::tt_metal;
     // Empty matrices are not accepted: with Kt = 0 the kernel would prefetch tile 0 and finish without
     // waiting for the read, and with nout = 0 the assignment of the cores would be meaningless.
     TT_FATAL(nout > 0 && Kt > 0, "scale_build: {} output tiles or {} K tiles is zero (empty matrices are not accepted)",
              nout, Kt);
-    TT_FATAL(!above_pow2 || bf_ceil, "scale_build: above_pow2 requires bf_ceil (rounding up)");
+    TT_FATAL(ceil_mode <= 2u, "scale_build: ceil_mode {} is not 0, 1 or 2", ceil_mode);
     tm::distributed::MeshWorkload workload;
     auto device_range = tm::distributed::MeshCoordinateRange(md->shape());
     tm::Program program{};
@@ -261,7 +261,7 @@ inline ScaleCtx scale_build(std::shared_ptr<tt::tt_metal::distributed::MeshDevic
         tm::TensorAccessorArgs(*refOut).append_to(a);
         const size_t o = a.size();
         a.resize(o + sc::CT_COUNT);
-        a[o + sc::CT_CEIL] = above_pow2 ? 2u : bf_ceil ? 1u : 0u;  // CEIL of scale_f64_reader.cpp
+        a[o + sc::CT_CEIL] = ceil_mode;
         a[o + sc::CT_MODE] = mode;
         a[o + sc::CT_CB_F64] = cbf;
         a[o + sc::CT_CB_OUT] = cbo;

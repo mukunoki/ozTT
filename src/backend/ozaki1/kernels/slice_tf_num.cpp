@@ -28,7 +28,7 @@
 // the target T of the normalization (for the formats with T = 1/2: 1.6% for digit 32, 3.2% for digit 16,
 // 7.7% for digit 7. BFP2 has R = T = 1; the host rounds the scale up and, in addition, takes a power of
 // two strictly greater than the maximum, because for an element that becomes exactly T = 1 the expansion
-// would stay at digit 1 and residual 1 and never end; bf_ceil and tau_above in src/ozaki1.cpp).
+// would stay at digit 1 and residual 1 and never end; OZ1_BF_CEIL and OZ1_TAU_ABOVE in ozaki1/format.hpp).
 // With weight 2*digit+1 the margin would be 0 (R = T); the margin absorbs the effect of rounding only
 // the top limb of the triple (see "Invariant of the residual" in slice_tf_body.h).
 // If the compile-time argument OUT_HALF (SC_OUT_HALF in args.h) is 1, the slices are output as binary16 bit

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Two paper evaluations, without the research repository's experiment harness.
+# Runs the two paper evaluations with the evaluator in evaluation/ (one process per
+# case for the paper-sized plans, so that the device idles between cases).
 set -euo pipefail
 root=$(cd -- "$(dirname -- "$0")" && pwd)
 usage() {
@@ -38,18 +39,20 @@ case $mode in
   *) usage >&2; exit 2 ;;
 esac
 for arg in "$@"; do
-  if [[ $arg == --case ]]; then
-    echo "evaluate.sh: --case is reserved for the per-case processes this script starts;" \
-         "run the evaluator binary directly to select one case of the plan." >&2
-    exit 2
-  fi
+  case $arg in
+    --case|--output)
+      echo "evaluate.sh: $arg is set by this script (one case per process, results.csv in the" \
+           "results directory); run the evaluator binary directly to choose them yourself." >&2
+      exit 2 ;;
+    --help|-h) usage; exit 0 ;;
+  esac
 done
 make -s -C "$root" -j"${JOBS:-2}" evaluation >&2
 build=${BUILD_DIR:-build}
 [[ $build == /* ]] || build="$root/$build"
 for arg in "$@"; do
   if [[ $arg == --list ]]; then
-    exec "$build/ozTTgemm_evaluate" --suite "$mode" "${extra[@]}" "$@"
+    exec "$build/ozTTgemm_evaluate" --suite "$mode" ${extra[@]+"${extra[@]}"} "$@"
   fi
 done
 mkdir -p "$root/evaluation_results"
@@ -57,13 +60,13 @@ out=$(mktemp -d "$root/evaluation_results/$(date +%Y%m%d-%H%M%S)-XXXXXX")
 printf 'Results directory: %s\n' "$out"
 {
   printf 'Date: %s\n' "$(date -Iseconds)"
-  printf 'Command:'; printf ' %q' "$build/ozTTgemm_evaluate" --suite "$mode" "${extra[@]}" "$@"; printf '\n'
+  printf 'Command:'; printf ' %q' "$build/ozTTgemm_evaluate" --suite "$mode" ${extra[@]+"${extra[@]}"} "$@"; printf '\n'
   sha256sum "$build/libozTTgemm.a"
   cat "$build/.build-config"
 } > "$out/run.log"
 if [[ ${#extra[@]} -gt 0 ]]; then
   # quick: all cases in one process (no cooling between cases).
-  "$build/ozTTgemm_evaluate" --suite "$mode" "${extra[@]}" --output "$out/results.csv" "$@" 2>&1 | tee -a "$out/run.log"
+  "$build/ozTTgemm_evaluate" --suite "$mode" ${extra[@]+"${extra[@]}"} --output "$out/results.csv" "$@" 2>&1 | tee -a "$out/run.log"
 else
   # One process per case: the device returns to its idle clock, where it can cool,
   # only when the process that opened it exits. A failed case stops the run.

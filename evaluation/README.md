@@ -1,8 +1,9 @@
 # Paper evaluation
 
-The entry point is `../evaluate.sh`. It builds a small C++ evaluator with GNU
-Make and runs only the two main PDP evaluations. The source copy is standalone;
-no files from the parent research repository are read.
+The entry point is `evaluate.sh` in the repository root. It builds a small C++
+evaluator with GNU Make and runs the two main evaluations of the paper (the
+throughput table over 16 implementations and three sizes, and the exponent-range
+experiment).
 
 ```sh
 ./evaluate.sh quick                   # small checks first
@@ -12,7 +13,7 @@ no files from the parent research repository are read.
 ./evaluate.sh all                     # both
 ```
 
-Run these commands from the release directory in a working TT-Metalium runtime
+Run these commands from the repository root in a working TT-Metalium runtime
 environment. `quick` uses 128^3, three phi points, one timed repetition and no
 steady-state warmup or cooling. It evaluates 25 cases; its timings are **not**
 paper performance measurements. A first run also compiles device kernels.

@@ -107,9 +107,9 @@ enum ReconRole : uint32_t { ROLE_SINGLE = 0, ROLE_TWO_FINAL = 1, ROLE_TWO_FIRST 
 // The meaning of CT_FINAL_OR_SHARE differs per side, so the kernels receive it under different
 // names: the writer (FINAL) is passed "whether this pass is the final pass that assembles FP64", and
 // the reader (SHARE) is passed "whether it takes the first part of the assembly (in the first pass
-// of the two-pass configuration, of the conversion to 128-bit fixed point)" (ReconPassShape::split_asm
-// in ozaki2/stages.hpp: 1 in the final pass of the one-pass configuration and in both passes of the
-// two-pass configuration).
+// of the two-pass configuration, of the conversion to 128-bit fixed point)". The host passes
+// SHARE = 1 in every pass of every configuration (recon_make_kernels in ozaki2/stages.hpp) and
+// FINAL = 1 in every pass but the first of two (ReconPassShape::FINAL in the same file).
 enum ReaderWriterCT : uint32_t {
     // Writer: whether this is the final pass that assembles FP64. Reader: whether it takes the first
     // part of the assembly (see the note above)

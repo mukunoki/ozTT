@@ -159,9 +159,16 @@ Info Context::Impl::execute(std::span<const double> a, std::span<const double> b
         }
         device = std::move(opened);
     }
-    // The evaluator's records of device steps live from here to the end of the call's
-    // whole pass; a call that failed earlier inside the same Scope leaves none behind.
-    if (detail::evaluation::active) detail::evaluation::active->steps.clear();
+    // The evaluator's records of device steps (closures over the backend's local
+    // state) live only inside the backend call: cleared here before it, and again on
+    // every exit so that a call that throws leaves none behind.
+    struct ClearSteps {
+        ClearSteps() { clear(); }
+        ~ClearSteps() { clear(); }
+        static void clear() {
+            if (detail::evaluation::active) detail::evaluation::active->steps.clear();
+        }
+    } clear_steps;
     const detail::Problem problem{mp, np, kp, ap, bp, options};
     detail::Output output = detail::backend_for(options.format, options.scheme)(device, problem);
     if (output.values.size() != std::size_t(mp) * np)
@@ -190,7 +197,7 @@ namespace detail {
 KernelScope::KernelScope(const std::string& root) : previous_(active_kernel_root) { active_kernel_root = &root; }
 KernelScope::~KernelScope() { active_kernel_root = previous_; }
 std::string kernel_path(std::string_view relative) {
-    if (!active_kernel_root) throw std::logic_error("kernel path requested outside a ozTTgemm call");
+    if (!active_kernel_root) throw std::logic_error("kernel path requested outside an ozTTgemm call");
     return *active_kernel_root + "/" + std::string(relative);
 }
 }  // namespace detail

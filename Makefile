@@ -174,6 +174,8 @@ help:
 	    'make test                   device correctness checks' \
 	    'make FORMATS="BF16 BFP8"     select internal formats' \
 	    'make PREFIX=/path install   library, headers, kernels, pkg-config metadata' \
+	    'make print-cflags           compiler flags for a program using the library' \
+	    'make print-libs             linker flags for such a program' \
 	    'make clean                  remove generated build files'
 
 clean:

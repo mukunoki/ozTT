@@ -19,7 +19,7 @@
 //   0 round down; 1 round up (one up when any dropped significand bit is nonzero); 2 round up and, in
 //   addition, one up when the value is exactly a power of two (the upper 7 significand bits and the
 //   dropped bits are all 0) (only the significand becomes 1 and the exponent does not change, so even
-//   2^127 does not become inf; used by BFP2 in Ozaki scheme I, see tau_above in src/ozaki1.cpp).
+//   2^127 does not become inf; used by BFP2 in Ozaki scheme I, see OZ1_TAU_ABOVE in ozaki1/format.hpp).
 //   A carry propagates naturally into the exponent.
 // Out-of-range cases are returned as markers that do not appear as the BF16 of an |x| (all have exponent
 // 255; they are distinguished by the sign and the significand; see "Accepted magnitude range" in
