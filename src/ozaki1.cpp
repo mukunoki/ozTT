@@ -2,8 +2,8 @@
 //
 // Ozaki scheme I backend: driver of one GEMM call.
 //
-// Compiled once per format into the namespace ttgemm::detail::ozaki1_<format>
-// (TTGEMM_BACKEND_NS; the format is selected by an OZ_FMT_* macro). run() carries out the
+// Compiled once per format into the namespace ozTTgemm::detail::ozaki1_<format>
+// (OZTTGEMM_BACKEND_NS; the format is selected by an OZ_FMT_* macro). run() carries out the
 // whole pipeline on the device: scaling (row/column maxima and exponent deltas), slicing,
 // the partial-product GEMMs per diagonal with their accumulation, and the reconstruction
 // to FP64. The host plans the run, selects the number of slices from the operand values
@@ -20,9 +20,9 @@
 #include "ozaki1/stages.hpp"
 #include "ozaki1/auto_precision.hpp"
 #include <stdexcept>
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 namespace dist = tt::tt_metal::distributed;
-namespace ev = ::ttgemm::detail::evaluation;
+namespace ev = ::ozTTgemm::detail::evaluation;
 // Allocates the buffer of partial sums: one plane per diagonal, each of one row band.
 // It is allocated before the input buffers; the order of the allocations determines the
 // DRAM layout and is kept as is.
@@ -276,8 +276,8 @@ Output run(Device& md, const Problem& p) {
     // all the same; the flags are read only now, after the result, as a defensive check.
     expdelta_check(md, fs.edA, "rows of A");
     expdelta_check(md, fs.edB, "columns of B");
-    Info info{Scheme::I, TTGEMM_PUBLIC_FORMAT};
+    Info info{Scheme::I, OZTTGEMM_PUBLIC_FORMAT};
     info.slices = c.p;
     return {untilize_f64(tiles, c.M, c.N), info};
 }
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

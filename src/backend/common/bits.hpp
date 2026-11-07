@@ -11,12 +11,12 @@
 #include <cstdint>
 #include <limits>
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // The host arithmetic in long double (the scale below, the sums of common/norm_estimate.hpp) assumes
 // the x86 extended format with a 64-bit significand.
 static_assert(std::numeric_limits<long double>::digits == 64,
-              "ttgemm requires a long double with a 64-bit significand (x86 extended precision)");
+              "ozTTgemm requires a long double with a 64-bit significand (x86 extended precision)");
 
 inline uint32_t f32_bits(float f) { return std::bit_cast<uint32_t>(f); }
 inline uint64_t f64_bits(double x) { return std::bit_cast<uint64_t>(x); }
@@ -39,4 +39,4 @@ inline OzScale64 oz_split_scale_ld(long double w) {
     return {(uint32_t)(W >> 32), (uint32_t)W, e - 64};
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

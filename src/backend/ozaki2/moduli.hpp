@@ -28,7 +28,7 @@
 #include "ozaki2/split.hpp"
 #include "ozaki2/awe.hpp"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Decomposition of the reciprocals 1/m_i used by the reconstruction (see oz2_crt_constants).
 //   OZ2_RGRAN     common granularity 2^-OZ2_RGRAN of the first pass of the two-pass
@@ -842,4 +842,4 @@ static inline Oz2ReconCT oz2_recon_ct(const Ozaki2Moduli& mo, const float* rp, u
             oz2_recon_rawmask(mo)};
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

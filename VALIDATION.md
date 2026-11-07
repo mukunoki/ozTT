@@ -113,6 +113,14 @@ parameters of the complete run, with times within 1.1 percent (whole pass) and 2
 percent (phase sum) of `paper_reference.csv`. The sequence of device programs of scheme
 I is shorter by the removed construction-time executions; the results are unchanged.
 
+On 2026-11-07 the library, its namespace, header, macros and build products were
+renamed from `ttgemm` to `ozTTgemm` (`OZTTGEMM_*`); the kernels were not touched and
+the host code changed only in the names and in line breaks. The kernel check reported
+all 45 files unchanged, the host compile check was clean, the planner dumps were
+byte-identical to the revision before the rename (56 outputs), and on the device the
+correctness checks passed and `evaluate.sh quick` reproduced the 25 output hashes and
+parameters of `tools/validated/quick.csv`.
+
 The evaluator output files behind these statements are kept in `tools/validated/`:
 `all.csv` (the complete paper plan, 63 cases, run on 2026-11-06 after the clean-up;
 its hashes equal those of the first complete run), `quick.csv` (the 25 cases of

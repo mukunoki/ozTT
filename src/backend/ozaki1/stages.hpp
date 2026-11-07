@@ -20,7 +20,7 @@
 #include "ozaki1/plan.hpp"
 #include "evaluation_hooks.hpp"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Device buffers of the input side.
 struct InputBufs {
@@ -221,4 +221,4 @@ struct Oz1Sweep {
 // The `note` of the normal execution: counts nothing.
 inline constexpr auto oz1_no_note = [](evaluation::Step) {};
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

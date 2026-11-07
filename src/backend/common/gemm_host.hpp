@@ -22,7 +22,7 @@
 #include <vector>
 #include "common/kernels/mcast_args.h"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Distributes ntiles tiles evenly over the whole compute grid. Every stage other than the GEMM uses all
 // cores and hands out the tiles in order, so the enumeration of the cores, the core range and the share
@@ -349,4 +349,4 @@ static inline std::vector<uint32_t> mcast_writer_args(uint32_t Caddr, uint32_t N
     return w;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

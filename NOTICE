@@ -1,4 +1,4 @@
-ttgemm: Ozaki I/II GEMM for Tenstorrent Blackhole
+ozTTgemm: Ozaki I/II GEMM for Tenstorrent Blackhole
 
 This distribution contains an independent, adapted copy of the calculation code of
 the research repository mukunoki/ttgemm (paper-data snapshot, revision

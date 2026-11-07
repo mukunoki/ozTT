@@ -3,7 +3,7 @@
 // Paper evaluator: runs the planned cases through the public API with the timing hooks
 // of src/evaluation_hooks.hpp enabled, checks the result against a Dot2 reference and
 // an optional CPU DGEMM, and writes one CSV row per case. See evaluation/README.md.
-#include <ttgemm/ttgemm.hpp>
+#include <ozTTgemm/ozTTgemm.hpp>
 #include "evaluation_hooks.hpp"
 #include "numerics.hpp"
 #include <algorithm>
@@ -24,7 +24,7 @@
 #include <string>
 #include <thread>
 
-namespace ev = ttgemm::detail::evaluation;
+namespace ev = ozTTgemm::detail::evaluation;
 namespace {
 // Command-line settings (defaults are the paper conditions).
 struct Config {
@@ -36,9 +36,9 @@ struct Config {
     std::vector<double> phis{0.5, 1, 2, 4, 8};
     double warmup = 10, cooldown = 60, timeout = 300;
     bool list = false, reference = true, cpu = true;
-    std::vector<ttgemm::Format> formats{ttgemm::Format::BF16, ttgemm::Format::FP16, ttgemm::Format::TF32,
-                                        ttgemm::Format::BFP8, ttgemm::Format::FP8,  ttgemm::Format::INT8,
-                                        ttgemm::Format::BFP4, ttgemm::Format::BFP2};
+    std::vector<ozTTgemm::Format> formats{ozTTgemm::Format::BF16, ozTTgemm::Format::FP16, ozTTgemm::Format::TF32,
+                                          ozTTgemm::Format::BFP8, ozTTgemm::Format::FP8,  ozTTgemm::Format::INT8,
+                                          ozTTgemm::Format::BFP4, ozTTgemm::Format::BFP2};
 };
 // Comma-separated list; empty entries are rejected.
 std::vector<std::string> split(const std::string& text) {
@@ -89,7 +89,7 @@ Config args(int argc, char** argv) {
             for (auto& name : split(value())) {
                 bool found = false;
                 for (auto f : all)
-                    if (name == ttgemm::format_name(f)) {
+                    if (name == ozTTgemm::format_name(f)) {
                         c.formats.push_back(f);
                         found = true;
                         break;
@@ -144,8 +144,8 @@ Config args(int argc, char** argv) {
         throw std::invalid_argument("suite must be table, phi or all");
     if (c.suite != "phi")
         for (auto f : c.formats)
-            if (!ttgemm::is_available(f)) throw std::invalid_argument("a requested table format was not built");
-    if (c.suite != "table" && !ttgemm::is_available(ttgemm::Format::BFP8))
+            if (!ozTTgemm::is_available(f)) throw std::invalid_argument("a requested table format was not built");
+    if (c.suite != "table" && !ozTTgemm::is_available(ozTTgemm::Format::BFP8))
         throw std::invalid_argument("phi evaluation requires BFP8");
     return c;
 }
@@ -155,7 +155,7 @@ struct Case {
     std::string suite;
     unsigned n;
     double phi;
-    ttgemm::Options options;
+    ozTTgemm::Options options;
     unsigned bits;
 };
 // The evaluation plan in its fixed order; --case indexes into this list.
@@ -165,29 +165,29 @@ std::vector<Case> cases(const Config& c) {
     if (c.suite != "phi")
         for (auto n : c.sizes)
             for (auto f : c.formats)
-                for (auto scheme : {ttgemm::Scheme::I, ttgemm::Scheme::II}) {
-                    ttgemm::Options o;
+                for (auto scheme : {ozTTgemm::Scheme::I, ozTTgemm::Scheme::II}) {
+                    ozTTgemm::Options o;
                     o.format = f;
                     o.scheme = scheme;
-                    if (scheme == ttgemm::Scheme::I)
+                    if (scheme == ozTTgemm::Scheme::I)
                         o.slices = slices[unsigned(f)];
                     else {
                         o.max_moduli = moduli[unsigned(f)];
-                        o.reconstruction = ttgemm::Reconstruction::OnePass;
+                        o.reconstruction = ozTTgemm::Reconstruction::OnePass;
                     }
-                    out.push_back({"table", n, -1, o, scheme == ttgemm::Scheme::II ? 54u : 0u});
+                    out.push_back({"table", n, -1, o, scheme == ozTTgemm::Scheme::II ? 54u : 0u});
                 }
     if (c.suite != "table")
         for (auto phi : c.phis) {
-            ttgemm::Options o;
-            o.format = ttgemm::Format::BFP8;
-            o.scheme = ttgemm::Scheme::I;
+            ozTTgemm::Options o;
+            o.format = ozTTgemm::Format::BFP8;
+            o.scheme = ozTTgemm::Scheme::I;
             out.push_back({"phi", c.phi_size, phi, o, 0});
-            o.scheme = ttgemm::Scheme::II;
+            o.scheme = ozTTgemm::Scheme::II;
             o.max_moduli = 24;
-            o.reconstruction = ttgemm::Reconstruction::OnePass;
+            o.reconstruction = ozTTgemm::Reconstruction::OnePass;
             out.push_back({"phi", c.phi_size, phi, o, 0});
-            o.reconstruction = ttgemm::Reconstruction::TwoPass;
+            o.reconstruction = ozTTgemm::Reconstruction::TwoPass;
             out.push_back({"phi", c.phi_size, phi, o, 0});
         }
     return out;
@@ -351,13 +351,13 @@ public:
         return paper_eval::accuracy(c, hi, lo).ebits;
     }
 };
-const char* scheme(ttgemm::Scheme s) { return s == ttgemm::Scheme::I ? "I" : "II"; }
+const char* scheme(ozTTgemm::Scheme s) { return s == ozTTgemm::Scheme::I ? "I" : "II"; }
 // Requested reconstruction passes: 0 for scheme I, "auto" when the library selects them.
-const char* passes(const ttgemm::Options& o) {
-    if (o.scheme == ttgemm::Scheme::I) return "0";
+const char* passes(const ozTTgemm::Options& o) {
+    if (o.scheme == ozTTgemm::Scheme::I) return "0";
     switch (o.reconstruction) {
-    case ttgemm::Reconstruction::OnePass: return "1";
-    case ttgemm::Reconstruction::TwoPass: return "2";
+    case ozTTgemm::Reconstruction::OnePass: return "1";
+    case ozTTgemm::Reconstruction::TwoPass: return "2";
     default: return "auto";
     }
 }
@@ -365,7 +365,7 @@ void list(const std::vector<Case>& plan) {
     std::cout << "suite,n,scheme,format,phi,slices,max_moduli,fixed_bits,passes\n";
     for (const auto& c : plan)
         std::cout << c.suite << ',' << c.n << ',' << scheme(c.options.scheme) << ','
-                  << ttgemm::format_name(c.options.format) << ',' << c.phi << ',' << c.options.slices << ','
+                  << ozTTgemm::format_name(c.options.format) << ',' << c.phi << ',' << c.options.slices << ','
                   << c.options.max_moduli << ',' << c.bits << ',' << passes(c.options) << '\n';
 }
 }  // namespace
@@ -394,9 +394,9 @@ int main(int argc, char** argv) {
             csv << "suite,n,scheme,format,phi,timing,reference,slices,integer_bits,moduli,passes,partial_products,bw,scale_ms,slice_ms,gemm_ms,compose_ms,recon_ms,phase_sum_ms,total_ms,effective_tflops,gemm_tops,nominal_peak_percent,gemm_aiclk_mhz,evaluation_wall_ms,effective_bits,relative_fro,output_hash,cpu_dgemm_bits,fp64_equivalent,start_temperature_c\n";
         csv << std::setprecision(12);
         Monitor monitor(cfg.sysfs_device.value_or(cfg.device), cfg.warmup > 0 || cfg.cooldown > 0);
-        ttgemm::DeviceOptions device;
+        ozTTgemm::DeviceOptions device;
         device.device_id = cfg.device;
-        ttgemm::Context context(device);
+        ozTTgemm::Context context(device);
         std::vector<double> a, b, hi, lo, c;
         unsigned current_n = 0;
         double current_phi = -2, cpu_bits = NAN;
@@ -411,7 +411,7 @@ int main(int argc, char** argv) {
                 current_phi = task.phi;
             }
             std::cout << "Evaluating " << task.suite << ' ' << task.n << ' ' << scheme(task.options.scheme) << '-'
-                      << ttgemm::format_name(task.options.format) << " phi=" << task.phi
+                      << ozTTgemm::format_name(task.options.format) << " phi=" << task.phi
                       << " passes=" << passes(task.options) << std::endl;
             monitor.cool(cfg.cooldown, cfg.timeout);
             const double temperature = monitor.temperature();
@@ -431,7 +431,7 @@ int main(int argc, char** argv) {
                 warmup.measured(stage == ev::Compose ? "gemm" : ev::name(stage), end);
             };
             const double call_begin = ev::now();
-            ttgemm::Info info;
+            ozTTgemm::Info info;
             {
                 ev::Scope scope(settings);
                 info = context.gemm(a, b, c, task.n, task.n, task.n, task.options);
@@ -458,14 +458,14 @@ int main(int argc, char** argv) {
             const double operations = 2.0 * task.n * task.n * task.n;
             const double tops = operations * settings.partial_products / settings.seconds[ev::Gemm] / 1e12;
             const double peak =
-                4096.0 * 1.35e9 * settings.cores / (task.options.format == ttgemm::Format::INT8 ? 4 : 1) / 1e12;
+                4096.0 * 1.35e9 * settings.cores / (task.options.format == ozTTgemm::Format::INT8 ? 4 : 1) / 1e12;
             const char* equivalent = !cfg.reference               ? "unknown"
                                      : accuracy.ebits < 53        ? "no"
                                      : !std::isfinite(cpu_bits)   ? "unknown"
                                      : accuracy.ebits >= cpu_bits ? "yes"
                                                                   : "no";
             csv << task.suite << ',' << task.n << ',' << scheme(task.options.scheme) << ','
-                << ttgemm::format_name(task.options.format) << ',' << task.phi << ','
+                << ozTTgemm::format_name(task.options.format) << ',' << task.phi << ','
                 << (cfg.warmup > 0 ? "steady" : "quick") << ',' << (cfg.reference ? "Dot2" : "none") << ','
                 << info.slices << ',' << info.integer_bits << ',' << info.moduli << ',' << info.reconstruction_passes
                 << ',' << settings.partial_products << ',' << settings.bandwidth;

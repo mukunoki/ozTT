@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace ttgemm {
+namespace ozTTgemm {
 namespace {
 // Serializes device use by all contexts of the process.
 std::mutex runtime_mutex;
@@ -71,12 +71,12 @@ std::string resolve_kernels(const std::string& requested) {
     };
     if (!requested.empty()) {
         const auto path = fs::absolute(requested);
-        if (!valid(path)) throw std::invalid_argument("kernel_directory does not contain the ttgemm compute kernels");
+        if (!valid(path)) throw std::invalid_argument("kernel_directory does not contain the ozTTgemm compute kernels");
         return path.lexically_normal().string();
     }
-    for (const fs::path& path : {fs::path(TTGEMM_SOURCE_KERNEL_DIR), fs::path(TTGEMM_INSTALL_KERNEL_DIR)})
+    for (const fs::path& path : {fs::path(OZTTGEMM_SOURCE_KERNEL_DIR), fs::path(OZTTGEMM_INSTALL_KERNEL_DIR)})
         if (valid(path)) return fs::absolute(path).lexically_normal().string();
-    throw std::runtime_error("ttgemm kernels were not found; set DeviceOptions::kernel_directory");
+    throw std::runtime_error("ozTTgemm kernels were not found; set DeviceOptions::kernel_directory");
 }
 // Enum values are checked too: a caller can pass any integer through a cast.
 void check_options(const Options& o) {
@@ -155,7 +155,7 @@ Info Context::Impl::execute(std::span<const double> a, std::span<const double> b
         auto opened = tt::tt_metal::distributed::MeshDevice::create_unit_mesh(this->options.device_id);
         if (opened->arch() != tt::ARCH::BLACKHOLE) {
             opened->close();
-            throw std::runtime_error("ttgemm supports Blackhole devices only");
+            throw std::runtime_error("ozTTgemm supports Blackhole devices only");
         }
         device = std::move(opened);
     }
@@ -190,8 +190,8 @@ namespace detail {
 KernelScope::KernelScope(const std::string& root) : previous_(active_kernel_root) { active_kernel_root = &root; }
 KernelScope::~KernelScope() { active_kernel_root = previous_; }
 std::string kernel_path(std::string_view relative) {
-    if (!active_kernel_root) throw std::logic_error("kernel path requested outside a ttgemm call");
+    if (!active_kernel_root) throw std::logic_error("kernel path requested outside a ozTTgemm call");
     return *active_kernel_root + "/" + std::string(relative);
 }
 }  // namespace detail
-}  // namespace ttgemm
+}  // namespace ozTTgemm

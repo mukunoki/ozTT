@@ -31,7 +31,7 @@
 #include "ozaki2/kernels/args.h"
 #include "ozaki2/kernels/recon_args.h"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // ===== Stage 1: modular slicing =====
 // An operand of R x C elements is decomposed into planes of Rt*Ct tiles: one residue
@@ -134,8 +134,8 @@ static Oz2SliceKernels slice_make_kernels(tt::tt_metal::Program& program, const 
     const uint32_t S = mo.s;
     Oz2SliceKernels k;
     // The slicer kernel depends on whether residues are split into digits.
-    const std::string SLICE_KERNEL = OZ2_DIGIT ? ::ttgemm::detail::kernel_path("ozaki2/kernels/modslice_digit.cpp")
-                                               : ::ttgemm::detail::kernel_path("ozaki2/kernels/modslice_int8.cpp");
+    const std::string SLICE_KERNEL = OZ2_DIGIT ? ::ozTTgemm::detail::kernel_path("ozaki2/kernels/modslice_digit.cpp")
+                                               : ::ozTTgemm::detail::kernel_path("ozaki2/kernels/modslice_int8.cpp");
     // The reader is shared with scheme I: it reads the FP64 operand and splits it into a
     // triple-float with integer bit operations (the normalization is folded in as the
     // exponent delta).
@@ -162,11 +162,11 @@ static Oz2SliceKernels slice_make_kernels(tt::tt_metal::Program& program, const 
             for (uint32_t j = p0; j < p1; j++) k.perm[j] = p1 - 1 - (j - p0);
         }
     k.rk = tm::CreateKernel(
-        program, ::ttgemm::detail::kernel_path("common/kernels/slice_f64_reader.cpp"), all_cores,
+        program, ::ozTTgemm::detail::kernel_path("common/kernels/slice_f64_reader.cpp"), all_cores,
         tm::DataMovementConfig{
             .processor = tm::DataMovementProcessor::RISCV_1, .noc = tm::NOC::RISCV_1_default, .compile_args = ra});
     k.wk = tm::CreateKernel(
-        program, ::ttgemm::detail::kernel_path("ozaki2/kernels/modslice_writer.cpp"), all_cores,
+        program, ::ozTTgemm::detail::kernel_path("ozaki2/kernels/modslice_writer.cpp"), all_cores,
         tm::DataMovementConfig{
             .processor = tm::DataMovementProcessor::RISCV_0, .noc = tm::NOC::RISCV_0_default, .compile_args = wa});
     std::vector<tm::UnpackToDestMode> u2d(64, tm::UnpackToDestMode::Default);
@@ -446,18 +446,18 @@ static Oz2Compose build_compose(std::shared_ptr<tt::tt_metal::distributed::MeshD
         wa[o + oa::SW_CT_LAYOUT] = oa::LAYOUT_PLANES;
     }
     auto rk = tm::CreateKernel(
-        program, ::ttgemm::detail::kernel_path("ozaki2/kernels/plane_reader.cpp"), all_cores,
+        program, ::ozTTgemm::detail::kernel_path("ozaki2/kernels/plane_reader.cpp"), all_cores,
         tm::DataMovementConfig{
             .processor = tm::DataMovementProcessor::RISCV_1, .noc = tm::NOC::RISCV_1_default, .compile_args = ra});
     auto wk = tm::CreateKernel(
-        program, ::ttgemm::detail::kernel_path("ozaki2/kernels/modslice_writer.cpp"), all_cores,
+        program, ::ozTTgemm::detail::kernel_path("ozaki2/kernels/modslice_writer.cpp"), all_cores,
         tm::DataMovementConfig{
             .processor = tm::DataMovementProcessor::RISCV_0, .noc = tm::NOC::RISCV_0_default, .compile_args = wa});
     std::vector<tm::UnpackToDestMode> u2d(64, tm::UnpackToDestMode::Default);
     u2d[oa::CB_PLANE_IN] = tm::UnpackToDestMode::UnpackToDestFp32;
     // dst_full_sync_en is required: the composition uses DST registers 0..6.
     auto ck = tm::CreateKernel(
-        program, ::ttgemm::detail::kernel_path("ozaki2/kernels/compose.cpp"), all_cores,
+        program, ::ozTTgemm::detail::kernel_path("ozaki2/kernels/compose.cpp"), all_cores,
         tm::ComputeConfig{
             .fp32_dest_acc_en = true, .dst_full_sync_en = true, .unpack_to_dest_mode = u2d, .compile_args = {}});
     Oz2Compose c;
@@ -678,11 +678,11 @@ static ReconPassKernels recon_make_kernels(tt::tt_metal::Program& program, const
     // fraction form, and the writer stores FP64 (final pass) or the 128-bit fixed point
     // (first of two passes).
     k.rk = tm::CreateKernel(
-        program, ::ttgemm::detail::kernel_path("ozaki2/kernels/recon_reader.cpp"), all_cores,
+        program, ::ozTTgemm::detail::kernel_path("ozaki2/kernels/recon_reader.cpp"), all_cores,
         tm::DataMovementConfig{
             .processor = tm::DataMovementProcessor::RISCV_1, .noc = tm::NOC::RISCV_1_default, .compile_args = ra});
     k.wk = tm::CreateKernel(
-        program, ::ttgemm::detail::kernel_path("ozaki2/kernels/recon_writer.cpp"), all_cores,
+        program, ::ozTTgemm::detail::kernel_path("ozaki2/kernels/recon_writer.cpp"), all_cores,
         tm::DataMovementConfig{
             .processor = tm::DataMovementProcessor::RISCV_0, .noc = tm::NOC::RISCV_0_default, .compile_args = wa});
     std::vector<tm::UnpackToDestMode> u2d(64, tm::UnpackToDestMode::Default);
@@ -696,7 +696,7 @@ static ReconPassKernels recon_make_kernels(tt::tt_metal::Program& program, const
     // registers. With the default half synchronization the packer could still be reading
     // a tile while the next one overwrites registers 4..7.
     k.ck = tm::CreateKernel(
-        program, ::ttgemm::detail::kernel_path("ozaki2/kernels/recon_crt.cpp"), all_cores,
+        program, ::ozTTgemm::detail::kernel_path("ozaki2/kernels/recon_crt.cpp"), all_cores,
         tm::ComputeConfig{
             .fp32_dest_acc_en = true, .dst_full_sync_en = true, .unpack_to_dest_mode = u2d, .compile_args = [&] {
                 std::vector<uint32_t> v(rg::C_COUNT, 0u);
@@ -803,4 +803,4 @@ static tt::tt_metal::distributed::MeshWorkload recon_build_pass(
     return workload;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

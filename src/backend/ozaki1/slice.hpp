@@ -20,7 +20,7 @@
 #include "common/slice_f64_host.hpp"
 #include "common/kernels/f64_tf.h"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // The slicing program; built once and run for A and for B.
 struct SliceCtx {
@@ -97,11 +97,12 @@ static SliceCtx slice_build(std::shared_ptr<tt::tt_metal::distributed::MeshDevic
 
     // The reader is the same kernel for every format: the data formats of the CBs are set
     // by the host, so the kernel has no format-dependent path.
-    auto rk = tm::CreateKernel(program, ::ttgemm::detail::kernel_path("common/kernels/slice_f64_reader.cpp"), all_cores,
-                               tm::DataMovementConfig{.processor = tm::DataMovementProcessor::RISCV_1,
-                                                      .noc = tm::NOC::RISCV_1_default,
-                                                      .compile_args = rargs_ct});
-    auto wk = tm::CreateKernel(program, ::ttgemm::detail::kernel_path("ozaki1/kernels/slice_writer.cpp"), all_cores,
+    auto rk =
+        tm::CreateKernel(program, ::ozTTgemm::detail::kernel_path("common/kernels/slice_f64_reader.cpp"), all_cores,
+                         tm::DataMovementConfig{.processor = tm::DataMovementProcessor::RISCV_1,
+                                                .noc = tm::NOC::RISCV_1_default,
+                                                .compile_args = rargs_ct});
+    auto wk = tm::CreateKernel(program, ::ozTTgemm::detail::kernel_path("ozaki1/kernels/slice_writer.cpp"), all_cores,
                                tm::DataMovementConfig{.processor = tm::DataMovementProcessor::RISCV_0,
                                                       .noc = tm::NOC::RISCV_0_default,
                                                       .compile_args = wargs_ct});
@@ -128,8 +129,8 @@ static SliceCtx slice_build(std::shared_ptr<tt::tt_metal::distributed::MeshDevic
     // all 8 at once.
     auto ck = tm::CreateKernel(
         program,
-        OZ1_PARAM.signmag_slices ? ::ttgemm::detail::kernel_path("ozaki1/kernels/slice_tf_sm8.cpp")
-                                 : ::ttgemm::detail::kernel_path("ozaki1/kernels/slice_tf_num.cpp"),
+        OZ1_PARAM.signmag_slices ? ::ozTTgemm::detail::kernel_path("ozaki1/kernels/slice_tf_sm8.cpp")
+                                 : ::ozTTgemm::detail::kernel_path("ozaki1/kernels/slice_tf_num.cpp"),
         all_cores,
         tm::ComputeConfig{
             .fp32_dest_acc_en = true, .dst_full_sync_en = true, .unpack_to_dest_mode = u2d, .compile_args = cargs_ct});
@@ -208,4 +209,4 @@ static inline void slice_run(std::shared_ptr<tt::tt_metal::distributed::MeshDevi
     tt::tt_metal::distributed::EnqueueMeshWorkload(md->mesh_command_queue(), s.workload, false);
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

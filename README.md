@@ -1,13 +1,13 @@
-# ttgemm
+# ozTTgemm
 
 C++20 library for FP64 matrix multiplication using Ozaki schemes I and II on
 Tenstorrent Blackhole. The low-precision matrix engine computes exact integer
 partial products; device kernels split and reconstruct the FP64 values.
 
-This repository (`ozTT`, Ozaki schemes on Tenstorrent) is a complete project: all
-required source files are included, and TT-Metalium is the only external dependency.
-The library, its namespace, and its header are named `ttgemm`. Version 0.1.0 (the
-macros `TTGEMM_VERSION_*` in the public header).
+This repository is a complete project: all required source files are included, and
+TT-Metalium is the only external dependency. The library, its namespace, and its
+header are named `ozTTgemm`. Version 0.1.0 (the macros `OZTTGEMM_VERSION_*` in the
+public header).
 
 ## Build
 
@@ -30,14 +30,14 @@ export TT_METAL_HOME=/path/to/tt-metal
 export TT_METAL_RUNTIME_ROOT="$TT_METAL_HOME"
 export ARCH_NAME=blackhole
 make -j2
-./build/ttgemm_example
+./build/ozTTgemm_example
 ```
 
-The example prints `58 64` and `139 154`. Make produces `build/libttgemm.a`.
+The example prints `58 64` and `139 154`. Make produces `build/libozTTgemm.a`.
 All eight internal formats are built by default: BF16, FP16, TF32, BFP8, FP8,
 INT8, BFP4, and BFP2. BFP8/BFP4/BFP2 mean Metalium's block-floating formats.
 To build a subset, use e.g. `make -j2 FORMATS="BF16 BFP8 INT8"`.
-`ttgemm::is_available()` reports which formats were included.
+`ozTTgemm::is_available()` reports which formats were included.
 
 The build disables implicit FMA contraction and fast-math because the
 error-free transformations depend on the original evaluation order.
@@ -45,14 +45,14 @@ error-free transformations depend on the original evaluation order.
 ## Use from C++
 
 ```cpp
-#include <ttgemm/ttgemm.hpp>
+#include <ozTTgemm/ozTTgemm.hpp>
 #include <vector>
 
 int main() {
-    ttgemm::Context context;  // default device 0; opens on the first valid call
-    ttgemm::Options options;
-    options.scheme = ttgemm::Scheme::II;
-    options.format = ttgemm::Format::BFP8;
+    ozTTgemm::Context context;  // default device 0; opens on the first valid call
+    ozTTgemm::Options options;
+    options.scheme = ozTTgemm::Scheme::II;
+    options.format = ozTTgemm::Format::BFP8;
     std::vector<double> a{1, 2, 3, 4, 5, 6};  // 2 x 3, row-major
     std::vector<double> b{7, 8, 9, 10, 11, 12}; // 3 x 2, row-major
     auto c = context.multiply(a, b, 2, 2, 3, options);
@@ -120,8 +120,8 @@ For a library kept in its source tree, obtain the public compile/link flags
 from the Makefile. For example, build `my_application.cpp` from another directory:
 
 ```sh
-c++ $(make -s -C /path/to/ttgemm print-cflags) my_application.cpp \
-  $(make -s -C /path/to/ttgemm print-libs) -o my_application
+c++ $(make -s -C /path/to/ozTTgemm print-cflags) my_application.cpp \
+  $(make -s -C /path/to/ozTTgemm print-libs) -o my_application
 ```
 
 `make library` builds only the static library; `make example` builds the usage
@@ -139,17 +139,17 @@ make PREFIX=/desired/prefix install
 Use the same `PREFIX` for build and install. `DESTDIR=/staging/root` is supported
 for staged installation. Build flags and enabled formats are tracked, so a
 subsequent `make` with changed settings updates the affected outputs. The
-documents go to `share/ttgemm/` in the layout of this directory; the evaluator,
+documents go to `share/ozTTgemm/` in the layout of this directory; the evaluator,
 its README and `evaluation/paper_reference.csv` are part of the source tree only.
 
-The installation provides `lib/pkgconfig/ttgemm.pc`. With pkg-config available,
+The installation provides `lib/pkgconfig/ozTTgemm.pc`. With pkg-config available,
 a separate application can link with:
 
 ```sh
 export PKG_CONFIG_PATH=/desired/prefix/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}
-c++ $(pkg-config --cflags ttgemm) my_application.cpp \
-  $(pkg-config --libs ttgemm) -o my_application
-pkg-config --variable=kernelsdir ttgemm
+c++ $(pkg-config --cflags ozTTgemm) my_application.cpp \
+  $(pkg-config --libs ozTTgemm) -o my_application
+pkg-config --variable=kernelsdir ozTTgemm
 ```
 
 The pkg-config file derives its prefix from its own location, so it follows a
@@ -159,13 +159,13 @@ selected at build time.
 Kernels are compiled by Metalium at runtime, so the installed sources must
 remain available. The default lookup checks this library's source directory and
 configured install prefix. When moving the installation, pass the installed
-kernel directory explicitly (the value of `pkg-config --variable=kernelsdir ttgemm`):
+kernel directory explicitly (the value of `pkg-config --variable=kernelsdir ozTTgemm`):
 
 ```cpp
-ttgemm::DeviceOptions device;
+ozTTgemm::DeviceOptions device;
 device.device_id = 0;
-device.kernel_directory = "/desired/prefix/share/ttgemm/kernels";
-ttgemm::Context context(device);
+device.kernel_directory = "/desired/prefix/share/ozTTgemm/kernels";
+ozTTgemm::Context context(device);
 ```
 
 Default kernel lookup is independent of the process's working directory; an
@@ -214,7 +214,7 @@ of the build; [tools/README.md](tools/README.md) describes them and the workflow
 ## Source layout
 
 ```
-include/ttgemm/ttgemm.hpp     public API (the only installed header)
+include/ozTTgemm/ozTTgemm.hpp     public API (the only installed header)
 src/context.cpp               validation, padding, kernel lookup, device lifetime
 src/dispatch.cpp              (format, scheme) -> backend
 src/backend_interface.hpp     interface between the two above and the backends

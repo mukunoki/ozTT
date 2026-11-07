@@ -3,17 +3,17 @@
 // Interface between the public Context (context.cpp) and the backends.
 //
 // A backend is one (scheme, format) combination. ozaki1.cpp and ozaki2.cpp are each
-// compiled once per format into the namespace ttgemm::detail::TTGEMM_BACKEND_NS
+// compiled once per format into the namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS
 // (ozaki1_bf16, ozaki2_bfp8, ...), and dispatch.cpp maps (format, scheme) to the
 // backend's run() function.
 #pragma once
-#include <ttgemm/ttgemm.hpp>
+#include <ozTTgemm/ozTTgemm.hpp>
 #include <tt-metalium/distributed.hpp>
 #include <memory>
 #include <string>
 #include <string_view>
 
-namespace ttgemm::detail {
+namespace ozTTgemm::detail {
 using Device = std::shared_ptr<tt::tt_metal::distributed::MeshDevice>;
 
 // One GEMM after validation and zero padding: A is m x k and B is k x n, row-major,
@@ -52,4 +52,4 @@ public:
 private:
     const std::string* previous_;
 };
-}  // namespace ttgemm::detail
+}  // namespace ozTTgemm::detail

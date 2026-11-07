@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 #include <fmt/format.h>
-#include <ttgemm/ttgemm.hpp>
+#include <ozTTgemm/ozTTgemm.hpp>
 #include "common/bits.hpp"
 #include "ozaki2/format.hpp"
 #include "ozaki2/auto_precision.hpp"
@@ -32,12 +32,12 @@
 #include "common/kernels/f64_tf.h"
 #include "ozaki2/kernels/recon_args.h"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Settings of one calculation, filled by the driver (run in src/ozaki2.cpp).
 struct Oz2Knobs {
     // Requested number of reconstruction passes (Automatic: estimate from the input).
-    ttgemm::Reconstruction passes = ttgemm::Reconstruction::Automatic;
+    ozTTgemm::Reconstruction passes = ozTTgemm::Reconstruction::Automatic;
     // Width b fixed by the caller (the evaluator only); otherwise b is chosen from the
     // input (auto_precision.hpp).
     std::optional<uint32_t> b;
@@ -240,9 +240,9 @@ static inline void oz2_check_width(const Oz2Plan& r, const Ozaki2Moduli& mo, con
 // Number of reconstruction passes: as requested, or (Automatic) one pass when the
 // estimated error of the one-pass reconstruction is small enough (auto_precision.hpp; the
 // estimate needs the input statistics in pol).
-static inline void oz2_choose_passes(Oz2Plan& r, const Oz2PrecisionPolicy& pol, ttgemm::Reconstruction pq) {
-    if (pq != ttgemm::Reconstruction::Automatic) {
-        r.two_pass = pq == ttgemm::Reconstruction::TwoPass;
+static inline void oz2_choose_passes(Oz2Plan& r, const Oz2PrecisionPolicy& pol, ozTTgemm::Reconstruction pq) {
+    if (pq != ozTTgemm::Reconstruction::Automatic) {
+        r.two_pass = pq == ozTTgemm::Reconstruction::TwoPass;
         return;
     }
     r.two_pass = !(oz2_recon1_log2(r.mo, (int)r.b, pol) <= OZ2_RECON1_THR_LOG2);
@@ -279,8 +279,8 @@ static inline void choose_moduli_and_width(Oz2Plan& r, const Oz2Knobs& k, const 
     r.S_req = k.max_moduli ? k.max_moduli : (b_fixed ? OZ2_PARAM.def_s : OZ2_MAXS);
     // The estimate of the number of passes needs the input statistics; with a fixed width
     // they have not been measured yet.
-    const ttgemm::Reconstruction pq = k.passes;
-    if (b_fixed && pq == ttgemm::Reconstruction::Automatic) oz2_measure_stats(A, B, M, N, K, pol);
+    const ozTTgemm::Reconstruction pq = k.passes;
+    if (b_fixed && pq == ozTTgemm::Reconstruction::Automatic) oz2_measure_stats(A, B, M, N, K, pol);
 
     // The CRT window is the worst case |C'| <= K*2^(2b) (ozaki2_choose_moduli).
     const Oz2ModuliRequest rq{M, N, K, b_cap};
@@ -487,4 +487,4 @@ static inline uint32_t panel_off_Acat(const Oz2Plan& r, uint32_t PA, uint32_t pl
     return br * r.pMt * (PA * r.Kt) + plane * r.Kt;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

@@ -60,7 +60,7 @@
 #include "common/norm_estimate.hpp"
 #include "common/bits.hpp"
 #include "common/kernels/scale_bits.h"
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Rows and columns sampled for estimate (2): the TOP of largest norm and UNI drawn
 // uniformly from the rest (for rows and for columns separately).
@@ -528,4 +528,4 @@ static int oz_fp64_p(const std::vector<double>& A, const std::vector<double>& Bm
     for (int q = 2; q <= pmax; q++) r1[q] = nC > 0 ? e2r[q] / nC : (e2r[q] > 0 ? INFINITY : 0.0);
     return oz1_fp64_search(r1, e2sv, sm, pmax, tgt);
 }
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

@@ -27,7 +27,7 @@
 #include <array>
 #include <utility>
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // How the GEMM accumulates. The L1 estimate of the shape search depends on the set of
 // CBs, so the mode is passed to the search explicitly.
@@ -340,4 +340,4 @@ static void gemm_run(std::shared_ptr<tt::tt_metal::distributed::MeshDevice>& md,
     tt::tt_metal::distributed::EnqueueMeshWorkload(cq, c.workload, false);
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

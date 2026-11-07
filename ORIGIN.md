@@ -35,7 +35,7 @@ the library files are adapted as described below.
 
 ## What was written for the library
 
-* `include/ttgemm/ttgemm.hpp`, `src/context.cpp`, `src/dispatch.cpp`,
+* `include/ozTTgemm/ozTTgemm.hpp`, `src/context.cpp`, `src/dispatch.cpp`,
   `src/backend_interface.hpp`: the public interface, validation, padding, kernel
   lookup and device lifetime.
 * `src/ozaki1.cpp`, `src/ozaki2.cpp`: the execution sequence of one GEMM call. They

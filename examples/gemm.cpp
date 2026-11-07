@@ -1,21 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
-#include <ttgemm/ttgemm.hpp>
+#include <ozTTgemm/ozTTgemm.hpp>
 #include <iostream>
 #include <vector>
 
 int main() {
     try {
-        ttgemm::Options options;
-        options.scheme = ttgemm::Scheme::II;
-        options.format = ttgemm::Format::BFP8;
-        if (!ttgemm::is_available(options.format))
-            for (auto format : {ttgemm::Format::BF16, ttgemm::Format::FP16, ttgemm::Format::TF32, ttgemm::Format::FP8,
-                                ttgemm::Format::INT8, ttgemm::Format::BFP4, ttgemm::Format::BFP2})
-                if (ttgemm::is_available(format)) {
+        ozTTgemm::Options options;
+        options.scheme = ozTTgemm::Scheme::II;
+        options.format = ozTTgemm::Format::BFP8;
+        if (!ozTTgemm::is_available(options.format))
+            for (auto format :
+                 {ozTTgemm::Format::BF16, ozTTgemm::Format::FP16, ozTTgemm::Format::TF32, ozTTgemm::Format::FP8,
+                  ozTTgemm::Format::INT8, ozTTgemm::Format::BFP4, ozTTgemm::Format::BFP2})
+                if (ozTTgemm::is_available(format)) {
                     options.format = format;
                     break;
                 }
-        ttgemm::Context context;
+        ozTTgemm::Context context;
         // 2x3 times 3x2; padding and tiling are handled by the library.
         const std::vector<double> a{1, 2, 3, 4, 5, 6};
         const std::vector<double> b{7, 8, 9, 10, 11, 12};

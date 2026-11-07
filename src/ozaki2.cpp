@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Ozaki scheme II backend driver: one FP64 GEMM on the device. Compiled once per format
-// into namespace ttgemm::detail::ozaki2_<format>.
+// into namespace ozTTgemm::detail::ozaki2_<format>.
 //
 // Pipeline of run(): plan (moduli, width b, passes: backend/ozaki2/plan.hpp) -> upload
 // the FP64 operands -> scale (row/column maxima, exponent deltas) -> slice (residue or
@@ -17,9 +17,9 @@
 #include <memory>
 #include <optional>
 #include <stdexcept>
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 namespace dist = tt::tt_metal::distributed;
-namespace ev = ::ttgemm::detail::evaluation;
+namespace ev = ::ozTTgemm::detail::evaluation;
 // One calculation. When DRAM is short the output is processed in row bands
 // (plan_bands): B is sliced once for all moduli, and per band the A rows are sliced,
 // multiplied for every modulus, composed and reconstructed into the band's rows of
@@ -470,10 +470,10 @@ Output run(Device& md, const Problem& p) {
     // Flags raised by the scaling stage for row/column maxima outside the supported range.
     expdelta_check(md, *r.edA, "rows of A");
     expdelta_check(md, *r.edB, "columns of B");
-    Info info{Scheme::II, TTGEMM_PUBLIC_FORMAT};
+    Info info{Scheme::II, OZTTGEMM_PUBLIC_FORMAT};
     info.moduli = r.S;
     info.integer_bits = r.b;
     info.reconstruction_passes = r.two_pass ? 2 : 1;
     return {untilize_f64(tiles, r.M, r.N), info};
 }
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

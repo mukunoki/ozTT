@@ -48,14 +48,14 @@ for sch in 1 2; do
     macro=$f; [[ $f == TF32 ]] && macro=FP32
     name=$(echo "$f" | tr '[:upper:]' '[:lower:]')
     compile "ozaki${sch}_$name" "src/ozaki$sch.cpp" "-DOZ_FMT_$macro=1" \
-      "-DTTGEMM_BACKEND_NS=ozaki${sch}_$name" "-DTTGEMM_PUBLIC_FORMAT=::ttgemm::Format::$f"
+      "-DOZTTGEMM_BACKEND_NS=ozaki${sch}_$name" "-DOZTTGEMM_PUBLIC_FORMAT=::ozTTgemm::Format::$f"
   done
 done
 if [[ $what == all ]]; then
   # What the Makefile generates: build/formats.inc with one DECLARE per format.
   for f in $formats; do echo "DECLARE($f, $(echo "$f" | tr '[:upper:]' '[:lower:]'))"; done > "$obj/formats.inc"
-  compile context src/context.cpp "-DTTGEMM_SOURCE_KERNEL_DIR=\"$root/src/backend\"" \
-    "-DTTGEMM_INSTALL_KERNEL_DIR=\"/usr/local/share/ttgemm/kernels\""
+  compile context src/context.cpp "-DOZTTGEMM_SOURCE_KERNEL_DIR=\"$root/src/backend\"" \
+    "-DOZTTGEMM_INSTALL_KERNEL_DIR=\"/usr/local/share/ozTTgemm/kernels\""
   compile dispatch src/dispatch.cpp
   compile evaluation evaluation/evaluate.cpp -march=native
   compile test tests/correctness.cpp

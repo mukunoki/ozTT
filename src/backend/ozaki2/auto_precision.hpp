@@ -10,7 +10,7 @@
 #include <vector>
 #include "common/norm_estimate.hpp"
 #include "ozaki2/moduli.hpp"
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Statistics of the operands after the power-of-two scaling: tau is the power-of-two
 // scale of a row of A or a column of B (its maximum rounded up to a power of two).
@@ -136,4 +136,4 @@ static inline double oz2_recon1_log2(const Ozaki2Moduli& mo, int b, const Oz2Pre
     for (int m : mo.m) l2m += std::log2((double)m);
     return OZ2_RECON1_EPS_LOG2 + l2m - 2.0 * b + 0.5 * (std::log2(p.st.TA) + std::log2(p.st.TB) - std::log2(p.nC));
 }
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

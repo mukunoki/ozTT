@@ -13,7 +13,7 @@
 #include <vector>
 #include "common/bits.hpp"  // checks the width of long double, in which the sums below are formed
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Power of two by which a matrix is divided before sums of squares are formed (exact, so ratios are not
 // affected): the exponent of the largest magnitude. The exponent is clamped to the range of the normal
@@ -72,4 +72,4 @@ inline double estimate_product_norm(const std::vector<double>& A, const std::vec
     return (cs2 - cmax) / (L - 1) / (1.0 + 2.0 * std::sqrt(2.0 / (double)L));
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

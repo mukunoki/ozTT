@@ -5,7 +5,7 @@
 #include "backend_interface.hpp"
 #include <stdexcept>
 
-namespace ttgemm::detail {
+namespace ozTTgemm::detail {
 #define DECLARE(F, name)                     \
     namespace ozaki1_##name {                \
         Output run(Device&, const Problem&); \
@@ -24,8 +24,8 @@ Backend backend_for(Format format, Scheme scheme) {
     default: throw std::invalid_argument("requested format was not built");
     }
 }
-}  // namespace ttgemm::detail
-namespace ttgemm {
+}  // namespace ozTTgemm::detail
+namespace ozTTgemm {
 bool is_available(Format format) noexcept {
     switch (format) {
 #define DECLARE(F, name) \
@@ -48,4 +48,4 @@ const char* format_name(Format format) noexcept {
     default: return "unknown";
     }
 }
-}  // namespace ttgemm
+}  // namespace ozTTgemm

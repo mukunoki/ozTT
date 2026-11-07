@@ -11,10 +11,10 @@
 #include <random>
 #include <string>
 
-namespace ttgemm::detail {
+namespace ozTTgemm::detail {
 std::string kernel_path(std::string_view) { return {}; }
-}  // namespace ttgemm::detail
-using namespace ttgemm::detail::TTGEMM_BACKEND_NS;
+}  // namespace ozTTgemm::detail
+using namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS;
 
 static void dump_moduli(const Ozaki2Moduli& mo) {
     printf("  mo: s=%d b=%d nprod=%d nplane=%d nout=%d maxg=%d fold=%d KMl=%La\n", mo.s, mo.b, mo.nprod, mo.nplane,
@@ -91,8 +91,8 @@ static void run_case(const Case& c) {
     Oz2Knobs kn;
     kn.max_moduli = c.smax;
     if (c.fixed_b > 0) kn.b = (uint32_t)c.fixed_b;
-    kn.passes = c.passes == 1 ? ttgemm::Reconstruction::OnePass
-                              : (c.passes == 2 ? ttgemm::Reconstruction::TwoPass : ttgemm::Reconstruction::Automatic);
+    kn.passes = c.passes == 1 ? ozTTgemm::Reconstruction::OnePass
+                              : (c.passes == 2 ? ozTTgemm::Reconstruction::TwoPass : ozTTgemm::Reconstruction::Automatic);
     bool ok;
     try {
         choose_moduli_and_width(r, kn, A, B);

@@ -25,7 +25,7 @@
 #include <tt-metalium/base_types.hpp>
 #include <cstdint>
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 enum class OzFmt { INT8, FP8, BF16, FP16, FP32, BFP8, BFP4, BFP2 };
 
@@ -131,4 +131,4 @@ constexpr tt::tt_metal::MathFidelity oz_fidelity_rule(uint32_t digit_bound) {
     return (digit_bound <= 32) ? tt::tt_metal::MathFidelity::LoFi : tt::tt_metal::MathFidelity::HiFi4;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

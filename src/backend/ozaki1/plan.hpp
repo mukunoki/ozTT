@@ -34,7 +34,7 @@
 #include <utility>
 #include <vector>
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Problem size and number of slices of one run (filled by run() in src/ozaki1.cpp). The
 // values fixed by the format (radix, digit bound, fidelity, normalization) are the
@@ -473,4 +473,4 @@ static ReconScale recon_scale(const RunCfg& c) {
     return rs;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

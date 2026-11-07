@@ -26,7 +26,7 @@
 #include "common/dram_margin.hpp"
 #include "ozaki2/kernels/digit_limits.h"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // --- Paths: how each format takes its moduli ---------------------------------------
 
@@ -725,4 +725,4 @@ constexpr double oz2_dram_one_group(double nplane, double P, double compose_plan
     return nplane * P + (Q > F ? Q - F : 0.0) + OZ2_DRAM_MARGIN;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

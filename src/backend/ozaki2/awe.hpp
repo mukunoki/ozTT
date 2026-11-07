@@ -47,7 +47,7 @@
 #include <vector>
 #include "ozaki2/split.hpp"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Coefficients of the stage-time model at one K (see the formulas above): gp per matrix
 // product and go per output in the GEMM stage, co per output and cs per modulus in the
@@ -504,4 +504,4 @@ static inline std::vector<int> oz2_awe_choose(uint32_t K, int awe, int mod_cap, 
     return best;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

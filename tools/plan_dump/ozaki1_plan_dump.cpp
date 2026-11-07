@@ -12,10 +12,10 @@
 #include <string>
 #include <exception>
 
-namespace ttgemm::detail {
+namespace ozTTgemm::detail {
 std::string kernel_path(std::string_view) { return {}; }
-}  // namespace ttgemm::detail
-using namespace ttgemm::detail::TTGEMM_BACKEND_NS;
+}  // namespace ozTTgemm::detail
+using namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS;
 
 struct Case {
     const char* tag;

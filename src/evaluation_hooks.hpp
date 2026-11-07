@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-namespace ttgemm::detail::evaluation {
+namespace ozTTgemm::detail::evaluation {
 enum Stage { Scale, Slice, Gemm, Compose, Recon, Count };
 inline const char* name(Stage stage) {
     constexpr const char* names[]{"scale", "slice", "gemm", "compose", "recon"};
@@ -216,4 +216,4 @@ void replay(Note&& note) {
         note(step.kind);
     }
 }
-}  // namespace ttgemm::detail::evaluation
+}  // namespace ozTTgemm::detail::evaluation

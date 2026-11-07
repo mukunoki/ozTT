@@ -48,7 +48,7 @@
 #include "common/kernels/mcast_args.h"
 #include "common/kernels/gemm_compute_args.h"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // One additional CB (capacity ntiles pages of `page` bytes), passed to make_cb.
 struct McastCB {
@@ -305,7 +305,7 @@ static inline McastGemmSpec spill_gemm_spec(const OptConfig& g, uint32_t Kt, con
     if (o.fuse) u2d[ga::CB_S] = tm::UnpackToDestMode::UnpackToDestFp32;
     if (o.fuse || o.pairloop) u2d[ga::CB_TMP] = tm::UnpackToDestMode::UnpackToDestFp32;
     if (o.pairloop) u2d[ga::CB_SL] = tm::UnpackToDestMode::UnpackToDestFp32;
-    s.compute = ::ttgemm::detail::kernel_path("common/kernels/bmm_int32_spill.cpp");
+    s.compute = ::ozTTgemm::detail::kernel_path("common/kernels/bmm_int32_spill.cpp");
     s.ccfg = tm::ComputeConfig{
         .math_fidelity = o.fidelity, .fp32_dest_acc_en = true, .unpack_to_dest_mode = u2d, .compile_args = cargs};
     return s;
@@ -464,7 +464,7 @@ static inline McastDmKernels mcast_make_kernels(tt::tt_metal::Program& program,
     tm::TensorAccessorArgs(*Abuf).append_to(ct);
     tm::TensorAccessorArgs(*Bbuf).append_to(ct);
     tm::TensorAccessorArgs(*Cbuf).append_to(ct);
-    const std::string dm_kernel = ::ttgemm::detail::kernel_path("common/kernels/mcast_split_dm.cpp");
+    const std::string dm_kernel = ::ozTTgemm::detail::kernel_path("common/kernels/mcast_split_dm.cpp");
     const std::string W = s.writer_fused ? "2" : "1";
     // operand: 0 = A, 1 = B. role: 1 = first-half sender, 2 = receiver, 3 = second-half sender. Only the
     // B side writes the output (WRITER 1 = standard, 2 = fused).
@@ -599,4 +599,4 @@ static inline McastGemm build_mcast_gemm(tt::tt_metal::Program& program,
     return r;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

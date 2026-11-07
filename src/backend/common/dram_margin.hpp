@@ -11,8 +11,8 @@
 
 #include <cstdint>
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 inline constexpr uint64_t OZ_DRAM_MARGIN_BYTES = 512ull << 20;  // 0.5 GiB
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

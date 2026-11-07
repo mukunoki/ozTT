@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 //
-// ttgemm: FP64 matrix multiplication on Tenstorrent Blackhole with the Ozaki schemes.
+// ozTTgemm: FP64 matrix multiplication on Tenstorrent Blackhole with the Ozaki schemes.
 //
 // The device multiplies low-precision matrices exactly; the library splits the FP64
 // operands into such matrices (slices for scheme I, residues for scheme II), runs the
@@ -14,11 +14,11 @@
 #include <string>
 #include <vector>
 
-#define TTGEMM_VERSION_MAJOR 0
-#define TTGEMM_VERSION_MINOR 1
-#define TTGEMM_VERSION_PATCH 0
+#define OZTTGEMM_VERSION_MAJOR 0
+#define OZTTGEMM_VERSION_MINOR 1
+#define OZTTGEMM_VERSION_PATCH 0
 
-namespace ttgemm {
+namespace ozTTgemm {
 
 // Ozaki scheme I splits each operand into slices and multiplies slice pairs;
 // scheme II multiplies residues modulo several small moduli and applies the CRT.
@@ -118,4 +118,4 @@ private:
     std::unique_ptr<Impl> impl_;
 };
 
-}  // namespace ttgemm
+}  // namespace ozTTgemm

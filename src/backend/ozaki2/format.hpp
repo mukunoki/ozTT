@@ -17,7 +17,7 @@
 #include "common/format.hpp"
 #include "ozaki2/split.hpp"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Path of the selected format.
 using Oz2Param = Oz2Route;
@@ -48,4 +48,4 @@ inline tt::tt_metal::MathFidelity oz2_fidelity() {
     return oz_fidelity_rule((uint32_t)std::max(OZ2_PARAM.digit_bound, OZ2_PARAM.sparse_max));
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

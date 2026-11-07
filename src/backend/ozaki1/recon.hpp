@@ -39,7 +39,7 @@
 #include "backend_interface.hpp"
 #include "common/kernels/f64_tf.h"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Radix and final scale in the form the reconstruction kernels take them (computed on
 // the host by recon_scale in ozaki1/plan.hpp).
@@ -189,14 +189,14 @@ static ReconProg recon_build_prog(std::shared_ptr<tt::tt_metal::distributed::Mes
     }
 
     auto rk = tm::CreateKernel(program,
-                               i32_in ? ::ttgemm::detail::kernel_path("ozaki1/kernels/recon_reader_i32in.cpp")
-                                      : ::ttgemm::detail::kernel_path("ozaki1/kernels/recon_reader_f32in.cpp"),
+                               i32_in ? ::ozTTgemm::detail::kernel_path("ozaki1/kernels/recon_reader_i32in.cpp")
+                                      : ::ozTTgemm::detail::kernel_path("ozaki1/kernels/recon_reader_f32in.cpp"),
                                all_cores,
                                tm::DataMovementConfig{.processor = tm::DataMovementProcessor::RISCV_1,
                                                       .noc = tm::NOC::RISCV_1_default,
                                                       .compile_args = rargs_ct});
     auto wk = tm::CreateKernel(
-        program, ::ttgemm::detail::kernel_path("ozaki1/kernels/recon_f64_writer.cpp"), all_cores,
+        program, ::ozTTgemm::detail::kernel_path("ozaki1/kernels/recon_f64_writer.cpp"), all_cores,
         tm::DataMovementConfig{.processor = tm::DataMovementProcessor::RISCV_0,
                                .noc = tm::NOC::RISCV_0_default,
                                // The trailing WriterCT arguments: whether to write the limbs and whether
@@ -237,8 +237,8 @@ static ReconProg recon_build_prog(std::shared_ptr<tt::tt_metal::distributed::Mes
     // registers 4..7 while the packer still reads the previous tile.
     auto ck = tm::CreateKernel(
         program,
-        i32_in ? ::ttgemm::detail::kernel_path("ozaki1/kernels/recon_tf_i32in.cpp")
-               : ::ttgemm::detail::kernel_path("ozaki1/kernels/recon_tf_f32in.cpp"),
+        i32_in ? ::ozTTgemm::detail::kernel_path("ozaki1/kernels/recon_tf_i32in.cpp")
+               : ::ozTTgemm::detail::kernel_path("ozaki1/kernels/recon_tf_f32in.cpp"),
         all_cores,
         tm::ComputeConfig{
             .fp32_dest_acc_en = true, .dst_full_sync_en = true, .unpack_to_dest_mode = u2d, .compile_args = cargs_ct});
@@ -389,4 +389,4 @@ static void recon_read_f64(std::shared_ptr<tt::tt_metal::distributed::MeshDevice
     tt::tt_metal::distributed::EnqueueReadMeshBuffer(cq, Ot, rc.out, true);
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

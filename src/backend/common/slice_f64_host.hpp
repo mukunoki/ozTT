@@ -15,7 +15,7 @@
 #include <vector>
 #include "common/kernels/slice_f64_args.h"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Compile-time arguments: the TensorAccessorArgs of the FP64 operand and of the exponent deltas, followed
 // by ReaderCT (CT_SF selects the soft-float variant of the kernel, a diagnostic that the library never
@@ -50,4 +50,4 @@ inline std::vector<uint32_t> f64_reader_rt(uint32_t f64_addr, uint32_t dlt_addr,
     return rt;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

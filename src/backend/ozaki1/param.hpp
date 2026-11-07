@@ -8,7 +8,7 @@
 #include <cstdint>
 #include "common/format.hpp"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // Per-format parameters of scheme I. The slicing and reconstruction algorithms are the
 // same for every format; what differs per format is this table, OZ_FMT
@@ -99,4 +99,4 @@ constexpr uint32_t oz1_digit_max(uint32_t radix, uint32_t exact_int_max) {
     return half < exact_int_max ? half : exact_int_max;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

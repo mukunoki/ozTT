@@ -3,7 +3,7 @@
 #   make -j2                  library and usage example
 #   make test-host            API validation without opening a device
 #   make test                 small device correctness cases
-#   make PREFIX=/opt/ttgemm install
+#   make PREFIX=/opt/ozTTgemm install
 .DEFAULT_GOAL := all
 .DELETE_ON_ERROR:
 
@@ -17,7 +17,7 @@ CXXFLAGS ?= -O3 -DNDEBUG
 # Metalium's aggregate types are initialized by designated initializers throughout.
 WARNINGS ?= -Wall -Wextra -Wno-missing-field-initializers
 # Single source of the version: the macros in the public header.
-VERSION := $(shell sed -n 's/^\#define TTGEMM_VERSION_[A-Z]* //p' include/ttgemm/ttgemm.hpp | paste -sd.)
+VERSION := $(shell sed -n 's/^\#define OZTTGEMM_VERSION_[A-Z]* //p' include/ozTTgemm/ozTTgemm.hpp | paste -sd.)
 
 SUPPORTED := BF16 FP16 TF32 BFP8 FP8 INT8 BFP4 BFP2
 ifeq ($(strip $(FORMATS)),)
@@ -55,9 +55,9 @@ COMPILE = $(CXX) $(CPPFLAGS) $(LOCAL_CPPFLAGS) $(METAL_CPPFLAGS) $(CXXFLAGS) $(W
 METAL_LIBS := -L$(TT_BUILD)/lib -Wl,-rpath,$(abspath $(TT_BUILD)/lib) \
     -ltt_metal -ltracy -ldl -ltt-umd -ltt_stl -lspdlog -fopenmp -lquadmath
 PUBLIC_CFLAGS := -std=c++20 -I$(abspath include)
-PUBLIC_LIBS := -L$(abspath $(BUILD_DIR)) -lttgemm $(METAL_LIBS)
+PUBLIC_LIBS := -L$(abspath $(BUILD_DIR)) -lozTTgemm $(METAL_LIBS)
 
-LIBRARY := $(BUILD_DIR)/libttgemm.a
+LIBRARY := $(BUILD_DIR)/libozTTgemm.a
 BACKENDS := $(foreach f,$(FORMATS),$(foreach s,1 2,$(BUILD_DIR)/ozaki$(s)_$(name_$(f)).o))
 OBJECTS := $(BUILD_DIR)/context.o $(BUILD_DIR)/dispatch.o $(BACKENDS)
 CONFIG := $(BUILD_DIR)/.build-config
@@ -71,13 +71,13 @@ quote = '$(subst ','"'"',$(1))'
 .PHONY: all library example evaluation test test-host install clean help print-cflags print-libs print-kernel-dir check-metal FORCE
 all: library example
 library: $(LIBRARY)
-example: $(BUILD_DIR)/ttgemm_example
-evaluation: $(BUILD_DIR)/ttgemm_evaluate
+example: $(BUILD_DIR)/ozTTgemm_example
+evaluation: $(BUILD_DIR)/ozTTgemm_evaluate
 
-test-host: $(BUILD_DIR)/ttgemm_test
-	"$(BUILD_DIR)/ttgemm_test" --host-only
-test: $(BUILD_DIR)/ttgemm_test
-	"$(BUILD_DIR)/ttgemm_test"
+test-host: $(BUILD_DIR)/ozTTgemm_test
+	"$(BUILD_DIR)/ozTTgemm_test" --host-only
+test: $(BUILD_DIR)/ozTTgemm_test
+	"$(BUILD_DIR)/ozTTgemm_test"
 
 $(BUILD_DIR):
 	mkdir -p "$@"
@@ -103,8 +103,8 @@ check-metal:
 	    { echo 'Built libtt_metal.so not found under TT_BUILD/lib.' >&2; exit 2; }
 
 $(BUILD_DIR)/context.o: src/context.cpp $(CONFIG) | check-metal
-	$(COMPILE) -DTTGEMM_SOURCE_KERNEL_DIR='"$(abspath src/backend)"' \
-	    -DTTGEMM_INSTALL_KERNEL_DIR='"$(abspath $(PREFIX)/share/ttgemm/kernels)"' \
+	$(COMPILE) -DOZTTGEMM_SOURCE_KERNEL_DIR='"$(abspath src/backend)"' \
+	    -DOZTTGEMM_INSTALL_KERNEL_DIR='"$(abspath $(PREFIX)/share/ozTTgemm/kernels)"' \
 	    -MMD -MP -MF "$(@:.o=.d)" -MT "$@" -c "$<" -o "$@"
 $(BUILD_DIR)/dispatch.o: src/dispatch.cpp $(FORMAT_HEADER) $(CONFIG) | check-metal
 	$(COMPILE) -MMD -MP -MF "$(@:.o=.d)" -MT "$@" -c "$<" -o "$@"
@@ -112,7 +112,7 @@ $(BUILD_DIR)/dispatch.o: src/dispatch.cpp $(FORMAT_HEADER) $(CONFIG) | check-met
 define BACKEND_RULE
 $(BUILD_DIR)/ozaki$(1)_$(name_$(2)).o: src/ozaki$(1).cpp $(CONFIG) | check-metal
 	$(COMPILE) -DOZ_FMT_$(or $(macro_$(2)),$(2))=1 \
-	    -DTTGEMM_BACKEND_NS=ozaki$(1)_$(name_$(2)) -DTTGEMM_PUBLIC_FORMAT=::ttgemm::Format::$(2) \
+	    -DOZTTGEMM_BACKEND_NS=ozaki$(1)_$(name_$(2)) -DOZTTGEMM_PUBLIC_FORMAT=::ozTTgemm::Format::$(2) \
 	    -MMD -MP -MF "$$(@:.o=.d)" -MT "$$@" -c "$$<" -o "$$@"
 endef
 $(foreach f,$(FORMATS),$(foreach s,1 2,$(eval $(call BACKEND_RULE,$(s),$(f)))))
@@ -130,33 +130,33 @@ $(BUILD_DIR)/example.o: examples/gemm.cpp $(CONFIG)
 	$(COMPILE) -MMD -MP -MF "$(@:.o=.d)" -MT "$@" -c "$<" -o "$@"
 $(BUILD_DIR)/evaluation.o: evaluation/evaluate.cpp $(CONFIG)
 	$(COMPILE) -march=native -MMD -MP -MF "$(@:.o=.d)" -MT "$@" -c "$<" -o "$@"
-$(BUILD_DIR)/ttgemm_evaluate: $(BUILD_DIR)/evaluation.o $(LIBRARY)
+$(BUILD_DIR)/ozTTgemm_evaluate: $(BUILD_DIR)/evaluation.o $(LIBRARY)
 	$(CXX) $(CXXFLAGS) $(REQUIRED_CXXFLAGS) "$<" $(LIBRARY) $(LDFLAGS) $(METAL_LIBS) $(LDLIBS) -o "$@"
 $(BUILD_DIR)/test.o: tests/correctness.cpp $(CONFIG)
 	$(COMPILE) -MMD -MP -MF "$(@:.o=.d)" -MT "$@" -c "$<" -o "$@"
-$(BUILD_DIR)/ttgemm_example: $(BUILD_DIR)/example.o $(LIBRARY)
+$(BUILD_DIR)/ozTTgemm_example: $(BUILD_DIR)/example.o $(LIBRARY)
 	$(CXX) $(CXXFLAGS) $(REQUIRED_CXXFLAGS) "$<" $(LIBRARY) $(LDFLAGS) $(METAL_LIBS) $(LDLIBS) -o "$@"
-$(BUILD_DIR)/ttgemm_test: $(BUILD_DIR)/test.o $(LIBRARY)
+$(BUILD_DIR)/ozTTgemm_test: $(BUILD_DIR)/test.o $(LIBRARY)
 	$(CXX) $(CXXFLAGS) $(REQUIRED_CXXFLAGS) "$<" $(LIBRARY) $(LDFLAGS) $(METAL_LIBS) $(LDLIBS) -o "$@"
 
 # The .pc prefix is relative to the metadata file, so it follows a moved install.
-$(BUILD_DIR)/ttgemm.pc: Makefile include/ttgemm/ttgemm.hpp $(CONFIG)
+$(BUILD_DIR)/ozTTgemm.pc: Makefile include/ozTTgemm/ozTTgemm.hpp $(CONFIG)
 	@printf '%s\n' 'prefix=$${pcfiledir}/../..' 'libdir=$${prefix}/lib' \
-	    'includedir=$${prefix}/include' 'kernelsdir=$${prefix}/share/ttgemm/kernels' \
-	    '' 'Name: ttgemm' 'Description: Ozaki I/II FP64 GEMM for Tenstorrent Blackhole' \
+	    'includedir=$${prefix}/include' 'kernelsdir=$${prefix}/share/ozTTgemm/kernels' \
+	    '' 'Name: ozTTgemm' 'Description: Ozaki I/II FP64 GEMM for Tenstorrent Blackhole' \
 	    'Version: $(VERSION)' 'Cflags: -std=c++20 -I$${includedir}' \
-	    'Libs: -L$${libdir} -lttgemm $(METAL_LIBS)' > "$@"
+	    'Libs: -L$${libdir} -lozTTgemm $(METAL_LIBS)' > "$@"
 
-install: $(LIBRARY) $(BUILD_DIR)/ttgemm.pc
-	install -d "$(DESTDIR)$(PREFIX)/lib/pkgconfig" "$(DESTDIR)$(PREFIX)/include/ttgemm" \
-	    "$(DESTDIR)$(PREFIX)/share/ttgemm/docs"
+install: $(LIBRARY) $(BUILD_DIR)/ozTTgemm.pc
+	install -d "$(DESTDIR)$(PREFIX)/lib/pkgconfig" "$(DESTDIR)$(PREFIX)/include/ozTTgemm" \
+	    "$(DESTDIR)$(PREFIX)/share/ozTTgemm/docs"
 	install -m 644 $(LIBRARY) "$(DESTDIR)$(PREFIX)/lib/"
-	install -m 644 $(BUILD_DIR)/ttgemm.pc "$(DESTDIR)$(PREFIX)/lib/pkgconfig/"
-	install -m 644 include/ttgemm/ttgemm.hpp "$(DESTDIR)$(PREFIX)/include/ttgemm/"
-	install -m 644 $(DOCS) "$(DESTDIR)$(PREFIX)/share/ttgemm/"
-	install -m 644 $(DOCS_SUBDIR) "$(DESTDIR)$(PREFIX)/share/ttgemm/docs/"
+	install -m 644 $(BUILD_DIR)/ozTTgemm.pc "$(DESTDIR)$(PREFIX)/lib/pkgconfig/"
+	install -m 644 include/ozTTgemm/ozTTgemm.hpp "$(DESTDIR)$(PREFIX)/include/ozTTgemm/"
+	install -m 644 $(DOCS) "$(DESTDIR)$(PREFIX)/share/ozTTgemm/"
+	install -m 644 $(DOCS_SUBDIR) "$(DESTDIR)$(PREFIX)/share/ozTTgemm/docs/"
 	@for part in common ozaki1 ozaki2; do \
-	    dir="$(DESTDIR)$(PREFIX)/share/ttgemm/kernels/$$part/kernels"; \
+	    dir="$(DESTDIR)$(PREFIX)/share/ozTTgemm/kernels/$$part/kernels"; \
 	    install -d "$$dir" && cp -R "src/backend/$$part/kernels/." "$$dir/" || exit; \
 	done
 

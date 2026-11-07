@@ -27,7 +27,7 @@
 
 #include "ozaki1/param.hpp"
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 // Scheme I parameters of the format this translation unit is compiled for.
 inline constexpr Oz1Param OZ1_PARAM = oz1_param(OZ_FMT_ID);
 
@@ -187,4 +187,4 @@ static inline bool oz_defer_fits(uint32_t K, int L) {
     return dsq != 0 && k_eff <= (uint64_t)INT32_MAX / dsq;
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS

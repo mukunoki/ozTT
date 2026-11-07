@@ -49,7 +49,7 @@ build=${BUILD_DIR:-build}
 [[ $build == /* ]] || build="$root/$build"
 for arg in "$@"; do
   if [[ $arg == --list ]]; then
-    exec "$build/ttgemm_evaluate" --suite "$mode" "${extra[@]}" "$@"
+    exec "$build/ozTTgemm_evaluate" --suite "$mode" "${extra[@]}" "$@"
   fi
 done
 mkdir -p "$root/evaluation_results"
@@ -57,18 +57,18 @@ out=$(mktemp -d "$root/evaluation_results/$(date +%Y%m%d-%H%M%S)-XXXXXX")
 printf 'Results directory: %s\n' "$out"
 {
   printf 'Date: %s\n' "$(date -Iseconds)"
-  printf 'Command:'; printf ' %q' "$build/ttgemm_evaluate" --suite "$mode" "${extra[@]}" "$@"; printf '\n'
-  sha256sum "$build/libttgemm.a"
+  printf 'Command:'; printf ' %q' "$build/ozTTgemm_evaluate" --suite "$mode" "${extra[@]}" "$@"; printf '\n'
+  sha256sum "$build/libozTTgemm.a"
   cat "$build/.build-config"
 } > "$out/run.log"
 if [[ ${#extra[@]} -gt 0 ]]; then
   # quick: all cases in one process (no cooling between cases).
-  "$build/ttgemm_evaluate" --suite "$mode" "${extra[@]}" --output "$out/results.csv" "$@" 2>&1 | tee -a "$out/run.log"
+  "$build/ozTTgemm_evaluate" --suite "$mode" "${extra[@]}" --output "$out/results.csv" "$@" 2>&1 | tee -a "$out/run.log"
 else
   # One process per case: the device returns to its idle clock, where it can cool,
   # only when the process that opened it exits. A failed case stops the run.
-  count=$("$build/ttgemm_evaluate" --suite "$mode" "$@" --list | tail -n +2 | wc -l)
+  count=$("$build/ozTTgemm_evaluate" --suite "$mode" "$@" --list | tail -n +2 | wc -l)
   for ((i = 0; i < count; i++)); do
-    "$build/ttgemm_evaluate" --suite "$mode" --output "$out/results.csv" "$@" --case "$i" 2>&1 | tee -a "$out/run.log"
+    "$build/ozTTgemm_evaluate" --suite "$mode" --output "$out/results.csv" "$@" --case "$i" 2>&1 | tee -a "$out/run.log"
   done
 fi

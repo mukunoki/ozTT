@@ -48,7 +48,7 @@ build() {  # build SIDE SCHEME FORMAT
     -isystem "$TB/libexec/tt-metalium/tt_metal/hostdevcommon/api" \
     -DENCHANTUM_ENABLE_MSVC_SPEEDUP=1 -DFMT_HEADER_ONLY=1 -DNTEST -DSPDLOG_COMPILED_LIB -DSPDLOG_FMT_EXTERNAL \
     -DTRACY_IMPORTS -DTRACY_TIMER_FALLBACK -DTT_UMD_BUILD_SIMULATION \
-    "-DOZ_FMT_$macro=1" -DTTGEMM_BACKEND_NS=plan_dump "-DTTGEMM_PUBLIC_FORMAT=::ttgemm::Format::$fmt" \
+    "-DOZ_FMT_$macro=1" -DOZTTGEMM_BACKEND_NS=plan_dump "-DOZTTGEMM_PUBLIC_FORMAT=::ozTTgemm::Format::$fmt" \
     "$here/ozaki${sch}_plan_dump.cpp" -o "$work/bin/${side}_ozaki${sch}_$fmt" \
     "$TB/lib/libspdlog.a" -lquadmath > "$work/out/build_${side}_ozaki${sch}_$fmt.log" 2>&1
 }

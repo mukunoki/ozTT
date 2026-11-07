@@ -43,7 +43,7 @@
 #include <string>
 #include <vector>
 
-namespace ttgemm::detail::TTGEMM_BACKEND_NS {
+namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS {
 
 // ===== Transfer of the operands as FP64 =====
 // Reorders a row-major R x C matrix (R and C multiples of 32) into tile order: tiles row-major, and
@@ -147,7 +147,7 @@ inline ExpDeltaCtx expdelta_build(std::shared_ptr<tt::tt_metal::distributed::Mes
     tm::TensorAccessorArgs(*dltbuf).append_to(ct);
     tm::TensorAccessorArgs(*flagbuf).append_to(ct);
     auto k = tm::CreateKernel(
-        program, ::ttgemm::detail::kernel_path("common/kernels/expdelta.cpp"), all_cores,
+        program, ::ozTTgemm::detail::kernel_path("common/kernels/expdelta.cpp"), all_cores,
         tm::DataMovementConfig{
             .processor = tm::DataMovementProcessor::RISCV_0, .noc = tm::NOC::RISCV_0_default, .compile_args = ct});
     for (size_t c = 0; c < gs.cores.size(); ++c) {
@@ -268,14 +268,16 @@ inline ScaleCtx scale_build(std::shared_ptr<tt::tt_metal::distributed::MeshDevic
         static_assert(sc::CT_COUNT == 4, "fill the new CT entry of scale_args here");
         return a;
     };
-    auto rk = tm::CreateKernel(program, ::ttgemm::detail::kernel_path("common/kernels/scale_f64_reader.cpp"), all_cores,
-                               tm::DataMovementConfig{.processor = tm::DataMovementProcessor::RISCV_1,
-                                                      .noc = tm::NOC::RISCV_1_default,
-                                                      .compile_args = ct_for(sc::CB_F64_R1, sc::CB_OUT_R1)});
-    auto wk = tm::CreateKernel(program, ::ttgemm::detail::kernel_path("common/kernels/scale_f64_reader.cpp"), all_cores,
-                               tm::DataMovementConfig{.processor = tm::DataMovementProcessor::RISCV_0,
-                                                      .noc = tm::NOC::RISCV_0_default,
-                                                      .compile_args = ct_for(sc::CB_F64_R0, sc::CB_OUT_R0)});
+    auto rk =
+        tm::CreateKernel(program, ::ozTTgemm::detail::kernel_path("common/kernels/scale_f64_reader.cpp"), all_cores,
+                         tm::DataMovementConfig{.processor = tm::DataMovementProcessor::RISCV_1,
+                                                .noc = tm::NOC::RISCV_1_default,
+                                                .compile_args = ct_for(sc::CB_F64_R1, sc::CB_OUT_R1)});
+    auto wk =
+        tm::CreateKernel(program, ::ozTTgemm::detail::kernel_path("common/kernels/scale_f64_reader.cpp"), all_cores,
+                         tm::DataMovementConfig{.processor = tm::DataMovementProcessor::RISCV_0,
+                                                .noc = tm::NOC::RISCV_0_default,
+                                                .compile_args = ct_for(sc::CB_F64_R0, sc::CB_OUT_R0)});
     const uint32_t in_addr = (uint32_t)refIn->address(), out_addr = (uint32_t)refOut->address();
     for (size_t c = 0; c < gs.cores.size(); ++c) {
         const uint32_t nt = gs.count(c), start = gs.begin(c);
@@ -307,4 +309,4 @@ inline void scale_run(std::shared_ptr<tt::tt_metal::distributed::MeshDevice>& md
     tt::tt_metal::distributed::EnqueueMeshWorkload(md->mesh_command_queue(), s.workload, false);
 }
 
-}  // namespace ttgemm::detail::TTGEMM_BACKEND_NS
+}  // namespace ozTTgemm::detail::OZTTGEMM_BACKEND_NS
