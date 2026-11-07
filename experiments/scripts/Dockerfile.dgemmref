@@ -1,0 +1,38 @@
+# Dockerfile.dgemmref -- ネイティブの FP64 DGEMM（OpenBLAS）の到達精度を測る道具 tools/dgemmcheck.cpp だけを作って走らせるイメージ
+# ---------------------------------------------------------------------------
+# scripts/dgemm_ref.sh が，このイメージが無ければ作る（podman build -t localhost/ttgemm-dgemmref:df-<このファイルの sha256 の
+# 先頭 12 桁> -f scripts/Dockerfile.dgemmref scripts）．タグにこのファイルの sha256 を入れるので，このファイルを直せば次の実行で
+# 作り直し，出どころの行の dockerfile= にもその値が残る．tt-metal もデバイスも使わない（ホストの CPU の DGEMM と Dot2 の参照解だけ）．
+# ベースとコンパイラは測定のイメージ（tt-metalium の ubuntu-22.04．g++ 12.3）に合わせる：入力の乱数（host_eval.hpp の
+# gen_operands）は libstdc++ のヘッダの実装で決まり，exp は glibc で決まるので，同じ版でないと同じ seed でも別の行列に
+# なりうる（dgemmcheck が出す ahash・bhash で確かめられる）．OpenBLAS は Ubuntu 22.04 の libopenblas-dev（pthread 版）．
+# 何を固定するか（作り直したときに黙って別の libc・libstdc++・OpenBLAS にならないように）：
+#   - ベースはダイジェスト（ubuntu:22.04 の 2026-09-01 の版．中の libc6・libstdc++6・libgcc-s1 はここで決まり，下で libc6 だけを上げる）．
+#   - apt の取得元は snapshot.ubuntu.com の 2026-10-01T12:00:00Z の時点に固定する（archive.ubuntu.com・security.ubuntu.com の
+#     索引は日々動き，古い版を消すので，版だけを固定しても作り直せなくなるか，固定しなかった依存が新しい版で入る）．
+#     ベースに ca-certificates が無いので TLS の証明書は確かめないが，パッケージの中身は apt が InRelease の署名
+#     （ベースの ubuntu-keyring）で確かめる．
+#   - 入れるパッケージは依存まで含めて全部を版で固定する（値は 2026-10-01 に作ったイメージ 499ccc7856a4（rev 042dc00 の
+#     DGEMM の参照を測ったもの）の /var/log/apt/history.log の Install と Upgrade の行と同じ．dpkg-query の版も同じ）．
+#     どれかの版が取得元に無ければ apt は止まり，イメージを作らない（dgemm_ref.sh も止まる）．
+# 測った値の照合（scripts/lib/peer_logs.py）は，ログの dockerfile= がそのログの rev のこのファイルの sha256 の先頭 12 桁であること，
+# PROVENANCE 行に記録した libc・libstdcxx・libgcc・libgomp・cxx の版を見る（dgemm_ref.sh の冒頭）．
+FROM docker.io/library/ubuntu:22.04@sha256:b8b6ee6aa931ecd9d0d952abc34dc0e5f7c6a30c6bb71b079fe399fde0329c02
+RUN sed -i -e 's#http://archive.ubuntu.com/ubuntu/#https://snapshot.ubuntu.com/ubuntu/20261001T120000Z/#' \
+           -e 's#http://security.ubuntu.com/ubuntu/#https://snapshot.ubuntu.com/ubuntu/20261001T120000Z/#' /etc/apt/sources.list \
+ && apt-get -o Acquire::https::Verify-Peer=false -o Acquire::Check-Valid-Until=false update \
+ && DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::https::Verify-Peer=false install -y --no-install-recommends \
+      g++-12=12.3.0-1ubuntu1~22.04.3 gcc-12=12.3.0-1ubuntu1~22.04.3 cpp-12=12.3.0-1ubuntu1~22.04.3 \
+      libstdc++-12-dev=12.3.0-1ubuntu1~22.04.3 libgcc-12-dev=12.3.0-1ubuntu1~22.04.3 libgomp1=12.3.0-1ubuntu1~22.04.3 \
+      libgfortran5=12.3.0-1ubuntu1~22.04.3 libquadmath0=12.3.0-1ubuntu1~22.04.3 libatomic1=12.3.0-1ubuntu1~22.04.3 \
+      libitm1=12.3.0-1ubuntu1~22.04.3 libasan8=12.3.0-1ubuntu1~22.04.3 liblsan0=12.3.0-1ubuntu1~22.04.3 \
+      libtsan2=12.3.0-1ubuntu1~22.04.3 libubsan1=12.3.0-1ubuntu1~22.04.3 libcc1-0=12.3.0-1ubuntu1~22.04.3 \
+      libc6=2.35-0ubuntu3.15 libc6-dev=2.35-0ubuntu3.15 libc-dev-bin=2.35-0ubuntu3.15 \
+      linux-libc-dev=5.15.0-194.204 libcrypt-dev=1:4.4.27-1 libnsl-dev=1.3.0-2build2 libtirpc-dev=1.3.2-2ubuntu0.1 \
+      rpcsvc-proto=1.4.2-0ubuntu6 \
+      binutils=2.38-4ubuntu2.12 binutils-common=2.38-4ubuntu2.12 binutils-x86-64-linux-gnu=2.38-4ubuntu2.12 \
+      libbinutils=2.38-4ubuntu2.12 libctf0=2.38-4ubuntu2.12 libctf-nobfd0=2.38-4ubuntu2.12 \
+      libisl23=0.24-2build1 libmpc3=1.2.1-2build1 libmpfr6=4.1.0-3build3 \
+      libopenblas-dev=0.3.20+ds-1 libopenblas-pthread-dev=0.3.20+ds-1 libopenblas0=0.3.20+ds-1 \
+      libopenblas0-pthread=0.3.20+ds-1 \
+ && rm -rf /var/lib/apt/lists/*

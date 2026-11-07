@@ -1,0 +1,65 @@
+PROVENANCE,rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,dirty=0,date=2026-11-04T11:08:05+00:00,metal=ec685d2af0a5,metal_dirty=0,metal_diff=none,image=4a3c44e68374,build_rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,build_dirty=0,build_sha=54b446bac0099395,run=20261104T081237-242274,host=tt-server,cpu=AMD_Ryzen_Threadripper_PRO_9975WX_32-Cores,kmd=2.11.0,dev=1,board=p150a,board_id=000004033191A0D7,asic_id=17320B7204AC596F,fw=19.15.0.0,cm_fw=0.37.0.0,dm_fw=0.31.0.0,eth_fw=1.12.2,gddr_fw=2.16,smi=5.3.1
+BINARY,ozaki1_bfp8,sha256=664cdeae0df91331984d9fa20293f4cdde0b285defbb25dad6fa4fc7cec90639,stamp_sha256=664cdeae0df91331984d9fa20293f4cdde0b285defbb25dad6fa4fc7cec90639
+2026-11-04 11:08:05.536 | info     |          Device | Opening user mode device driver (tt_cluster.cpp:228)
+2026-11-04 11:08:05.536 | info     |             UMD | Cluster constructor started. (cluster.cpp:335)
+2026-11-04 11:08:05.537 | info     |             UMD | Creating TopologyDiscovery for architecture: blackhole (topology_discovery.cpp:91)
+2026-11-04 11:08:05.537 | info     |             UMD | Starting topology discovery. (topology_discovery.cpp:110)
+2026-11-04 11:08:05.538 | info     |             UMD | Established firmware bundle version: 19.15.0 (topology_discovery.cpp:567)
+2026-11-04 11:08:05.538 | info     |             UMD | Firmware bundle version 19.15.0 on the system is newer than the latest fully tested version 19.5.0 for blackhole architecture. Newest features may not be supported. (topology_discovery.cpp:599)
+2026-11-04 11:08:05.538 | info     |             UMD | Completed topology discovery. (topology_discovery.cpp:114)
+2026-11-04 11:08:05.597 | info     |             UMD | Opening local chip ids/PCIe ids: {0}/[1] and remote chip ids {} (cluster.cpp:168)
+2026-11-04 11:08:05.597 | info     |             UMD | IOMMU: enabled (cluster.cpp:142)
+2026-11-04 11:08:05.597 | info     |             UMD | KMD version: 2.11.0 (cluster.cpp:145)
+2026-11-04 11:08:05.597 | info     |             UMD | Cluster constructor completed. (cluster.cpp:507)
+2026-11-04 11:08:05.598 | info     |             UMD | Starting devices in cluster (cluster.cpp:999)
+2026-11-04 11:08:05.636 | info     |             UMD | Starting devices in cluster completed. (cluster.cpp:1007)
+2026-11-04 11:08:05.679 | info     |     Distributed | Using auto discovery to generate mesh graph. (metal_env.cpp:362)
+2026-11-04 11:08:05.679 | info     |     Distributed | Constructing control plane using auto-discovery (no mesh graph descriptor). (metal_env.cpp:424)
+2026-11-04 11:08:05.679 | warning  |          Always | Unknown motherboard 'WRX90 WS EVO' for chip_id=0 (bus_id=0xe1) — falling back to bus_id as tray_id. Add this motherboard and its bus IDs to mobo_to_bus_ids in physical_system_discovery.cpp. (physical_system_discovery.cpp:89)
+2026-11-04 11:08:05.689 | info     |    BuildKernels | Using pre-compiled firmware from: /tt-metal/tt_metal/pre-compiled/219840659460635544/ (build_env_manager.cpp:320)
+2026-11-04 11:08:05.747 | info     |           Metal | ShmResourceTracker: removed orphaned shm '/tt_device_141176417295072_memory' (shm_resource_tracker.cpp:282)
+2026-11-04 11:08:06.326 | info     |           Metal | [Real-time profiler] Device 0 sync complete: 100 samples, frequency=1.349982 GHz, device_time_at_sync=12730396760605 cycles (realtime_profiler_manager.cpp:1127)
+OZ_FP64: radix=64 expected-error model: ~54.3 bit at p=11 (independent-sign truncation ~58.6 bit, sampled 64x64 rows/cols incl. FP64 rounding ~54.3 bit; target 53) -> auto p=11 (model estimate, no accuracy guarantee -- see the measured Accuracy line)
+====== bfp8-Ozaki GEMM (on-device exact, per-diagonal K-stack) ======
+Device : grid=11x10 (110 cores) 1350 MHz  bfp8 LoFi peak=608.3 TOP/s
+Problem: M=14080 N=14080 K=14080  slices p=11 radix=64 (~66b) L=10  66 pairs -> 11 diagonal GEMMs (readbacks 11 not 66)
+Exact   : b_acc=24 bit, K_c=14080 (1 block) -> 2w+ceil(log2(K_c)) <= b_acc を満たす（対を 1 本の中で回す）
+RECON-NSMALL,used=1,bound=1,ndiag=11,K=14080
+Cfg     : grid=10x11 per_core=8x8 panels=6x5 (端数 1 行は grid=10x11 per_core=4x8 bw=40) (Kmax=154880, bw=22, K blocks=1)
+WARMUP,stage=fill,group=fill,kind=full,gap_ms=na,sec=10.004,iters=60,batch=1,stable=1,capped=0,win_prev=1350.0,win_last=1350.0,curr=92.9,power=74.5,temp=69.18,input_power_mean=215.8,input_power_max=219,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+Recon   : 対角ごとに 1 本で (d+1) 対を回し，L1 で Int32 累積して最後に 1 回 Horner
+WARMUP,stage=sweep,group=sweep,kind=full,gap_ms=na,sec=10.746,iters=8,batch=1,stable=1,capped=0,win_prev=1042.5,win_last=1032.4,curr=182.7,power=126.9,temp=80.33,input_power_mean=293.7,input_power_max=383,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1039.2,arb_freq_min=1011,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+Issue   : GEMM の発行 6.3 ms/iter，デバイス待ち 1046.6 ms (30 パネル x 11 本 x 1 K ブロック)
+WARMUP,stage=whole,group=whole,kind=full,gap_ms=na,sec=10.703,iters=7,batch=1,stable=1,capped=0,win_prev=1086.2,win_last=1080.9,curr=181.7,power=126.7,temp=83.79,input_power_mean=318.9,input_power_max=411,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1093.0,arb_freq_min=1035,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+WHOLE-CHECK,identical=1,filled=1,sentinel=1,post_timing=1,counts=1,steps=337,expected=337,head=6/6,gemm=330/330,accum=0/0,compose=0/0,recon=1/1
+-------------------------------------------------------------------
+Accuracy : (skipped, OZ_NOVERIFY)
+Verify   : skipped (OZ_NOVERIFY) -- 精度は判定していない
+Compute  : 11 diagonal GEMM(s) + on-device triple-float recon (single FP64 readback)
+Breakdown: GEMM build(once) 8.3 ms | slice JIT(once) 175.5 ms | scale+slice 166.8 ms/iter (scale 11.4) | GEMM run 1052.9 ms/iter | recon dev 342.109 ms/iter
+Recon    : build+JIT(once) 258.0 ms | dispatch 342.109 ms/iter | FP64 readback 101.6 ms
+Throughput: build+stages+readback 2.652 TOP/s useful fp-equiv (0.44% bfp8 peak) | GEMM-phase 5.30 TOP/s fp-equiv | GEMM-phase raw-bfp8 349.95 TOP/s (57.53% bfp8 peak)
+DRAM->DRAM : 1561.735 ms/iter  (scale+norm+slice 166.761 | GEMM 1052.865 | recon 342.109)  3.5746 TFLOP/s fp64-equiv
+WHOLE-PIPELINE : 1542.276 ms/iter  (stage sum 1561.735 ms; whole/sum-1 = -1.25%)  3.6197 TFLOP/s fp64-equiv
+  fill split: scale 11.276 | glue(2^-e hop) 0.123 | slice 155.363  ms/iter (normalize fused into slice)
+RESULT,ozaki_full,14080,14080,14080,11,10,66,11,2105.1892,nan,nan,1052.9,342.109
+VERIFY,ozaki_full,skipped
+FWTELEM,reader=umd,dev=1,dev_src=OZ_TELEM_DEV,fw_bundle=19.15.0.0,update_ms=100,aiclk_limit_max=1350,tdc_limit_max=200,tdp_limit_max=150,board_power_limit=300,enabled_max_arb=0x1d1,open_ms=2.7,samples=2242,errors=0,read_us_mean=5.5,read_us_max=49.0
+TELEM,stage=fill,group=fill,timing=steady,sub=0,calls=1,iters=3,timed_s=0.5003,warm_s=10.004,warm_iters=60,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=0.00,drift_max_pct=0.00,seq_pct=0.00,n=26,aiclk_mean=1350.0,aiclk_min=1350,aiclk_max=1350,curr_mean=93.0,curr_max=96,power_mean=74.6,power_max=77,vcore_mean=807,temp_start=69.05,temp_max=69.05,telem_dev=1,input_power_mean=216.8,input_power_max=220,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=sweep,group=sweep,timing=steady,sub=0,calls=1,iters=3,timed_s=4.1849,warm_s=10.746,warm_iters=8,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1032.4,drift_pct=-0.01,drift_max_pct=0.01,seq_pct=-0.01,n=211,aiclk_mean=1032.3,aiclk_min=1000,aiclk_max=1062,curr_mean=184.2,curr_max=250,power_mean=127.3,power_max=173,vcore_mean=697,temp_start=73.28,temp_max=81.36,telem_dev=1,input_power_mean=312.4,input_power_max=405,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1035.5,arb_freq_min=1002,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=gemm,group=sweep,timing=steady,sub=1,calls=3,iters=0,timed_s=3.1586,warm_s=0.000,warm_iters=0,warmups=0,rewarms=0,hot=0,capped=0,ref_aiclk=na,drift_pct=na,drift_max_pct=na,seq_pct=na,n=161,aiclk_mean=1040.6,aiclk_min=1012,aiclk_max=1062,curr_mean=205.8,curr_max=250,power_mean=142.1,power_max=173,vcore_mean=693,temp_start=73.28,temp_max=81.36,telem_dev=1,input_power_mean=336.3,input_power_max=405,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1043.7,arb_freq_min=1014,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=recon,group=sweep,timing=steady,sub=1,calls=3,iters=0,timed_s=1.0263,warm_s=0.000,warm_iters=0,warmups=0,rewarms=0,hot=0,capped=0,ref_aiclk=na,drift_pct=na,drift_max_pct=na,seq_pct=na,n=55,aiclk_mean=1006.5,aiclk_min=1000,aiclk_max=1025,curr_mean=117.7,curr_max=238,power_mean=81.7,power_max=163,vcore_mean=706,temp_start=80.33,temp_max=81.36,telem_dev=1,input_power_mean=238.8,input_power_max=381,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1010.0,arb_freq_min=1002,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=whole,group=whole,timing=steady,sub=0,calls=1,iters=3,timed_s=4.6268,warm_s=10.703,warm_iters=7,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1080.9,drift_pct=-0.25,drift_max_pct=0.25,seq_pct=-0.25,n=233,aiclk_mean=1078.2,aiclk_min=1018,aiclk_max=1131,curr_mean=173.0,curr_max=270,power_mean=120.9,power_max=192,vcore_mean=705,temp_start=75.85,temp_max=83.92,telem_dev=1,input_power_mean=292.0,input_power_max=408,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1081.7,arb_freq_min=1024,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+CONFIG,ozaki_full,fmt=bfp8,scheme=I,radix=64,dmax=32,p=11,L=10,npairs=66,ndiag=11,Kc=14080,nkb=1,fidelity=LoFi,bands=1,pairloop=1,fuse=0,defer=1,verified=0,probe=none,recon_probe=0,diag=none,time_in_result=tot_incl_build_and_readback,d2d_ms=1561.7352,gemm_split=1,gemm_l1acc=1,bw=22,shape=8x8,knobs=none,gemm_probe=none,input=phi:0.5,seed=7,min_bits=53,time_whole=1,whole_ms=1542.2760,timing=steady,warmup_sec=10,warmup_max_sec=180,warmup_win_sec=1,warmup_tol_pct=1,warmup_gap_ms=50,warmup_hot_factor=20,telem_ms=20,telem_dev=1,auto_p=11,npanels=30,gemm_issues=11,l1_budget_kb=1408,gen=ozgen1,slice_ms=166.7613,gemm_ms=1052.8651,recon_ms=342.1087,chash=b8f2ed1debe3f101,dev_grid=11x10,gemm_grid=11x10,gemm_grid_tail=11x10,dram_free_gb=34.22,dram_largest_gb=34.22
+
+Test Skipped
+2026-11-04 11:09:04.259 | info     |    BuildKernels | JIT cache stats: 36/36 hits (100.0%) [36 cached, 202 build-once dedup, 0 merged artifacts, 0 merged genfiles] (build_cache_telemetry.cpp:207)
+2026-11-04 11:09:04.259 | info     |    BuildKernels | JIT telemetry: 3 registered TelemetryTokens (build_cache_telemetry.cpp:230)
+2026-11-04 11:09:04.264 | info     |          Device | Closing user mode device drivers (tt_cluster.cpp:512)
+2026-11-04 11:09:04.264 | info     |             UMD | Closing devices in cluster (cluster.cpp:1012)
+2026-11-04 11:09:04.403 | info     |             UMD | Closing devices in cluster completed. (cluster.cpp:1021)
+2026-11-04 11:09:04.403 | info     |             UMD | Cluster destructor started. (cluster.cpp:729)
+2026-11-04 11:09:04.403 | info     |             UMD | Cluster destructor completed. (cluster.cpp:732)
+AICLK,perf_oz1bfp8_phi0.5,window=process,n=26,min=800,max=1350,mean=1168,median=1100,busy_n=25,busy_min=1025,busy_max=1350,busy_mean=1183,busy_median=1100,idle=800,dt=2
+COOLCOND,perf_oz1bfp8_phi0.5,start=59.2,cooled=1,tmax=60,twait=1800
+EXIT,rc=0,post_check=1

@@ -1,0 +1,264 @@
+PROVENANCE,rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,dirty=0,date=2026-11-04T10:34:48+00:00,metal=ec685d2af0a5,metal_dirty=0,metal_diff=none,image=4a3c44e68374,build_rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,build_dirty=0,build_sha=54b446bac0099395,run=20261104T081237-242274,host=tt-server,cpu=AMD_Ryzen_Threadripper_PRO_9975WX_32-Cores,kmd=2.11.0,dev=1,board=p150a,board_id=000004033191A0D7,asic_id=17320B7204AC596F,fw=19.15.0.0,cm_fw=0.37.0.0,dm_fw=0.31.0.0,eth_fw=1.12.2,gddr_fw=2.16,smi=5.3.1
+BINARY,ozaki1_bf16,sha256=a7371cb47ec861e889f22f3a4b28f732becf7c8cc526f690912f9f536277bf31,stamp_sha256=a7371cb47ec861e889f22f3a4b28f732becf7c8cc526f690912f9f536277bf31
+2026-11-04 10:34:48.877 | info     |          Device | Opening user mode device driver (tt_cluster.cpp:228)
+2026-11-04 10:34:48.877 | info     |             UMD | Cluster constructor started. (cluster.cpp:335)
+2026-11-04 10:34:48.877 | info     |             UMD | Creating TopologyDiscovery for architecture: blackhole (topology_discovery.cpp:91)
+2026-11-04 10:34:48.877 | info     |             UMD | Starting topology discovery. (topology_discovery.cpp:110)
+2026-11-04 10:34:48.879 | info     |             UMD | Established firmware bundle version: 19.15.0 (topology_discovery.cpp:567)
+2026-11-04 10:34:48.879 | info     |             UMD | Firmware bundle version 19.15.0 on the system is newer than the latest fully tested version 19.5.0 for blackhole architecture. Newest features may not be supported. (topology_discovery.cpp:599)
+2026-11-04 10:34:48.879 | info     |             UMD | Completed topology discovery. (topology_discovery.cpp:114)
+2026-11-04 10:34:48.936 | info     |             UMD | Opening local chip ids/PCIe ids: {0}/[1] and remote chip ids {} (cluster.cpp:168)
+2026-11-04 10:34:48.936 | info     |             UMD | IOMMU: enabled (cluster.cpp:142)
+2026-11-04 10:34:48.936 | info     |             UMD | KMD version: 2.11.0 (cluster.cpp:145)
+2026-11-04 10:34:48.936 | info     |             UMD | Cluster constructor completed. (cluster.cpp:507)
+2026-11-04 10:34:48.937 | info     |             UMD | Starting devices in cluster (cluster.cpp:999)
+2026-11-04 10:34:48.987 | info     |             UMD | Starting devices in cluster completed. (cluster.cpp:1007)
+2026-11-04 10:34:49.030 | info     |     Distributed | Using auto discovery to generate mesh graph. (metal_env.cpp:362)
+2026-11-04 10:34:49.030 | info     |     Distributed | Constructing control plane using auto-discovery (no mesh graph descriptor). (metal_env.cpp:424)
+2026-11-04 10:34:49.030 | warning  |          Always | Unknown motherboard 'WRX90 WS EVO' for chip_id=0 (bus_id=0xe1) — falling back to bus_id as tray_id. Add this motherboard and its bus IDs to mobo_to_bus_ids in physical_system_discovery.cpp. (physical_system_discovery.cpp:89)
+2026-11-04 10:34:49.041 | info     |    BuildKernels | Using pre-compiled firmware from: /tt-metal/tt_metal/pre-compiled/219840659460635544/ (build_env_manager.cpp:320)
+2026-11-04 10:34:49.097 | info     |           Metal | ShmResourceTracker: removed orphaned shm '/tt_device_141176417295072_memory' (shm_resource_tracker.cpp:282)
+2026-11-04 10:34:49.677 | info     |           Metal | [Real-time profiler] Device 0 sync complete: 100 samples, frequency=1.349974 GHz, device_time_at_sync=10503355208291 cycles (realtime_profiler_manager.cpp:1127)
+====== bf16-Ozaki GEMM (on-device exact, per-diagonal K-stack) ======
+Device : grid=11x10 (110 cores) 1350 MHz  bf16 HiFi2 peak=304.1 TOP/s
+Problem: M=7040 N=7040 K=7040  slices p=10 radix=64 (~60b) L=9  55 pairs -> 10 diagonal GEMMs (readbacks 10 not 55)
+Exact   : b_acc=24 bit, K_c=7040 (1 block) -> 2w+ceil(log2(K_c)) <= b_acc を満たす（対を 1 本の中で回す）
+RECON-NSMALL,used=2,bound=2,ndiag=10,K=7040
+Cfg     : grid=10x11 per_core=4x4 panels=6x5 (端数 1 行は grid=10x11 per_core=2x4 bw=44) (Kmax=70400, bw=22, K blocks=1)
+WARMUP,stage=fill,group=fill,kind=full,gap_ms=na,sec=10.035,iters=264,batch=1,stable=1,capped=0,win_prev=1350.0,win_last=1350.0,curr=94.2,power=75.5,temp=68.03,input_power_mean=217.4,input_power_max=226,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+Recon   : 対角ごとに 1 本で (d+1) 対を回し，L1 で Int32 累積して最後に 1 回 Horner
+Building trisc2, compile step:
+cd /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/10505511817803763052/trisc2/ && /tt-metal/runtime/sfpi/compiler/bin/riscv-tt-elf-g++ -O3 -std=c++17 -ftt-nttp -ftt-constinit -ftt-consteval -ftt-no-dyninit -flto=auto -ffast-math -fno-exceptions -fno-rtti -fno-use-cxa-atexit -g -MMD -Wall -Werror -Wno-error=deprecated-declarations -Wno-error=multistatement-macros -Wno-error=parentheses -Wno-error=unused-but-set-variable -Wno-unused-variable -Wno-unused-function -mcpu=tt-bh-tensix -I. -I.. -I/tt-metal/ -I/tt-metal/ttnn -I/tt-metal/ttnn/cpp -I/tt-metal/tt_metal -I/tt-metal/tt_metal/hw/inc -I/tt-metal/tt_metal/tt-llk/common -I/tt-metal/tt_metal/hostdevcommon/api -I/tt-metal/tt_metal/api/ -I/tt-metal/runtime/sfpi/include -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/common -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_io -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/blackhole_defines -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/noc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/common/inc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/llk_lib -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu -I/tt-metal/tt_metal/hw/firmware/src/tt-1xx -I/home/user/tt/src/common/kernels -c -o /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/10505511817803763052/trisc2/trisck.16553023588968078491.o /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc -MF /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/10505511817803763052/trisc2/trisck.16553023588968078491.d -DIS_NOT_POW2_NUM_L1_BANKS=1 -DLOG_BASE_2_OF_NUM_DRAM_BANKS=3 -DNUM_DRAM_BANKS=8 -DNUM_L1_BANKS=110 -DPCIE_NOC_X=19 -DPCIE_NOC_Y=24 -DTENSIX_FIRMWARE -DLOCAL_MEM_EN=0 -DPROCESSOR_INDEX=4 -DUCK_CHLKC_PACK -DCOMPILE_FOR_TRISC=2 -DARCH_BLACKHOLE -DDISPATCH_MESSAGE_ADDR=4290184248 -DKERNEL_BUILD -DKERNEL_COMPILE_TIME_ARGS=22,2,88,44,2,88,4,100,2,2,4,1,0,0,8,1,1 
+In file included from ../chlkc_pack.cpp:3,
+                 from /tt-metal/tt_metal/hw/ckernels/blackhole/metal/common/chlkc_list.h:21,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc:13:
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void second_pass(const SubblockShape&, bool, uint32_t)':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:222:20: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  222 |         acquire_dst();
+      |         ~~~~~~~~~~~^~
+In file included from /tt-metal/tt_metal/hw/inc/api/compute/common.h:8,
+                 from /tt-metal/tt_metal/hw/inc/api/compute/matmul.h:7,
+                 from /home/user/tt/src/common/kernels/bmm_int32_spill.cpp:80:
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:237:20: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  237 |         release_dst();
+      |         ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void kernel_main()':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:306:32: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  306 |                     acquire_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:355:32: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  355 |                     release_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+Building trisc0, compile step:
+cd /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/10505511817803763052/trisc0/ && /tt-metal/runtime/sfpi/compiler/bin/riscv-tt-elf-g++ -O3 -std=c++17 -ftt-nttp -ftt-constinit -ftt-consteval -ftt-no-dyninit -flto=auto -ffast-math -fno-exceptions -fno-rtti -fno-use-cxa-atexit -g -MMD -Wall -Werror -Wno-error=deprecated-declarations -Wno-error=multistatement-macros -Wno-error=parentheses -Wno-error=unused-but-set-variable -Wno-unused-variable -Wno-unused-function -mcpu=tt-bh-tensix -I. -I.. -I/tt-metal/ -I/tt-metal/ttnn -I/tt-metal/ttnn/cpp -I/tt-metal/tt_metal -I/tt-metal/tt_metal/hw/inc -I/tt-metal/tt_metal/tt-llk/common -I/tt-metal/tt_metal/hostdevcommon/api -I/tt-metal/tt_metal/api/ -I/tt-metal/runtime/sfpi/include -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/common -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_io -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/blackhole_defines -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/noc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/common/inc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/llk_lib -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu -I/tt-metal/tt_metal/hw/firmware/src/tt-1xx -I/home/user/tt/src/common/kernels -c -o /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/10505511817803763052/trisc0/trisck.16553023588968078491.o /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc -MF /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/10505511817803763052/trisc0/trisck.16553023588968078491.d -DIS_NOT_POW2_NUM_L1_BANKS=1 -DLOG_BASE_2_OF_NUM_DRAM_BANKS=3 -DNUM_DRAM_BANKS=8 -DNUM_L1_BANKS=110 -DPCIE_NOC_X=19 -DPCIE_NOC_Y=24 -DTENSIX_FIRMWARE -DLOCAL_MEM_EN=0 -DPROCESSOR_INDEX=2 -DUCK_CHLKC_UNPACK -DCOMPILE_FOR_TRISC=0 -DARCH_BLACKHOLE -DDISPATCH_MESSAGE_ADDR=4290184248 -DKERNEL_BUILD -DKERNEL_COMPILE_TIME_ARGS=22,2,88,44,2,88,4,100,2,2,4,1,0,0,8,1,1 
+In file included from ../chlkc_unpack.cpp:3,
+                 from /tt-metal/tt_metal/hw/ckernels/blackhole/metal/common/chlkc_list.h:26,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc:13:
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void second_pass(const SubblockShape&, bool, uint32_t)':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:222:20: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  222 |         acquire_dst();
+      |         ~~~~~~~~~~~^~
+In file included from /tt-metal/tt_metal/hw/inc/api/compute/common.h:8,
+                 from /tt-metal/tt_metal/hw/inc/api/compute/matmul.h:7,
+                 from /home/user/tt/src/common/kernels/bmm_int32_spill.cpp:80:
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:237:20: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  237 |         release_dst();
+      |         ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void kernel_main()':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:306:32: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  306 |                     acquire_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:355:32: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  355 |                     release_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+Building trisc1, compile step:
+cd /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/10505511817803763052/trisc1/ && /tt-metal/runtime/sfpi/compiler/bin/riscv-tt-elf-g++ -O3 -std=c++17 -ftt-nttp -ftt-constinit -ftt-consteval -ftt-no-dyninit -flto=auto -ffast-math -fno-exceptions -fno-rtti -fno-use-cxa-atexit -g -MMD -Wall -Werror -Wno-error=deprecated-declarations -Wno-error=multistatement-macros -Wno-error=parentheses -Wno-error=unused-but-set-variable -Wno-unused-variable -Wno-unused-function -mcpu=tt-bh-tensix -I. -I.. -I/tt-metal/ -I/tt-metal/ttnn -I/tt-metal/ttnn/cpp -I/tt-metal/tt_metal -I/tt-metal/tt_metal/hw/inc -I/tt-metal/tt_metal/tt-llk/common -I/tt-metal/tt_metal/hostdevcommon/api -I/tt-metal/tt_metal/api/ -I/tt-metal/runtime/sfpi/include -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/common -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_io -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/blackhole_defines -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/noc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/common/inc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/llk_lib -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu -I/tt-metal/tt_metal/hw/firmware/src/tt-1xx -I/home/user/tt/src/common/kernels -c -o /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/10505511817803763052/trisc1/trisck.16553023588968078491.o /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc -MF /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/10505511817803763052/trisc1/trisck.16553023588968078491.d -DIS_NOT_POW2_NUM_L1_BANKS=1 -DLOG_BASE_2_OF_NUM_DRAM_BANKS=3 -DNUM_DRAM_BANKS=8 -DNUM_L1_BANKS=110 -DPCIE_NOC_X=19 -DPCIE_NOC_Y=24 -DTENSIX_FIRMWARE -DLOCAL_MEM_EN=0 -DPROCESSOR_INDEX=3 -DUCK_CHLKC_MATH -DCOMPILE_FOR_TRISC=1 -DARCH_BLACKHOLE -DDISPATCH_MESSAGE_ADDR=4290184248 -DKERNEL_BUILD -DKERNEL_COMPILE_TIME_ARGS=22,2,88,44,2,88,4,100,2,2,4,1,0,0,8,1,1 
+In file included from ../chlkc_math.cpp:3,
+                 from /tt-metal/tt_metal/hw/ckernels/blackhole/metal/common/chlkc_list.h:16,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc:13:
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void second_pass(const SubblockShape&, bool, uint32_t)':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:222:20: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  222 |         acquire_dst();
+      |         ~~~~~~~~~~~^~
+In file included from /tt-metal/tt_metal/hw/inc/api/compute/common.h:8,
+                 from /tt-metal/tt_metal/hw/inc/api/compute/matmul.h:7,
+                 from /home/user/tt/src/common/kernels/bmm_int32_spill.cpp:80:
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:237:20: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  237 |         release_dst();
+      |         ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void kernel_main()':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:306:32: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  306 |                     acquire_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:355:32: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  355 |                     release_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+Building trisc2, compile step:
+cd /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/16049463658137025586/trisc2/ && /tt-metal/runtime/sfpi/compiler/bin/riscv-tt-elf-g++ -O3 -std=c++17 -ftt-nttp -ftt-constinit -ftt-consteval -ftt-no-dyninit -flto=auto -ffast-math -fno-exceptions -fno-rtti -fno-use-cxa-atexit -g -MMD -Wall -Werror -Wno-error=deprecated-declarations -Wno-error=multistatement-macros -Wno-error=parentheses -Wno-error=unused-but-set-variable -Wno-unused-variable -Wno-unused-function -mcpu=tt-bh-tensix -I. -I.. -I/tt-metal/ -I/tt-metal/ttnn -I/tt-metal/ttnn/cpp -I/tt-metal/tt_metal -I/tt-metal/tt_metal/hw/inc -I/tt-metal/tt_metal/tt-llk/common -I/tt-metal/tt_metal/hostdevcommon/api -I/tt-metal/tt_metal/api/ -I/tt-metal/runtime/sfpi/include -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/common -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_io -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/blackhole_defines -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/noc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/common/inc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/llk_lib -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu -I/tt-metal/tt_metal/hw/firmware/src/tt-1xx -I/home/user/tt/src/common/kernels -c -o /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/16049463658137025586/trisc2/trisck.16553023588968078491.o /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc -MF /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/16049463658137025586/trisc2/trisck.16553023588968078491.d -DIS_NOT_POW2_NUM_L1_BANKS=1 -DLOG_BASE_2_OF_NUM_DRAM_BANKS=3 -DNUM_DRAM_BANKS=8 -DNUM_L1_BANKS=110 -DPCIE_NOC_X=19 -DPCIE_NOC_Y=24 -DTENSIX_FIRMWARE -DLOCAL_MEM_EN=0 -DPROCESSOR_INDEX=4 -DUCK_CHLKC_PACK -DCOMPILE_FOR_TRISC=2 -DARCH_BLACKHOLE -DDISPATCH_MESSAGE_ADDR=4290184248 -DKERNEL_BUILD -DKERNEL_COMPILE_TIME_ARGS=44,1,88,88,2,176,4,50,2,2,4,1,0,0,8,1,1 
+In file included from ../chlkc_pack.cpp:3,
+                 from /tt-metal/tt_metal/hw/ckernels/blackhole/metal/common/chlkc_list.h:21,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc:13:
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void second_pass(const SubblockShape&, bool, uint32_t)':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:222:20: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  222 |         acquire_dst();
+      |         ~~~~~~~~~~~^~
+In file included from /tt-metal/tt_metal/hw/inc/api/compute/common.h:8,
+                 from /tt-metal/tt_metal/hw/inc/api/compute/matmul.h:7,
+                 from /home/user/tt/src/common/kernels/bmm_int32_spill.cpp:80:
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:237:20: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  237 |         release_dst();
+      |         ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void kernel_main()':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:306:32: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  306 |                     acquire_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:355:32: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  355 |                     release_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+Building trisc0, compile step:
+cd /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/16049463658137025586/trisc0/ && /tt-metal/runtime/sfpi/compiler/bin/riscv-tt-elf-g++ -O3 -std=c++17 -ftt-nttp -ftt-constinit -ftt-consteval -ftt-no-dyninit -flto=auto -ffast-math -fno-exceptions -fno-rtti -fno-use-cxa-atexit -g -MMD -Wall -Werror -Wno-error=deprecated-declarations -Wno-error=multistatement-macros -Wno-error=parentheses -Wno-error=unused-but-set-variable -Wno-unused-variable -Wno-unused-function -mcpu=tt-bh-tensix -I. -I.. -I/tt-metal/ -I/tt-metal/ttnn -I/tt-metal/ttnn/cpp -I/tt-metal/tt_metal -I/tt-metal/tt_metal/hw/inc -I/tt-metal/tt_metal/tt-llk/common -I/tt-metal/tt_metal/hostdevcommon/api -I/tt-metal/tt_metal/api/ -I/tt-metal/runtime/sfpi/include -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/common -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_io -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/blackhole_defines -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/noc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/common/inc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/llk_lib -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu -I/tt-metal/tt_metal/hw/firmware/src/tt-1xx -I/home/user/tt/src/common/kernels -c -o /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/16049463658137025586/trisc0/trisck.16553023588968078491.o /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc -MF /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/16049463658137025586/trisc0/trisck.16553023588968078491.d -DIS_NOT_POW2_NUM_L1_BANKS=1 -DLOG_BASE_2_OF_NUM_DRAM_BANKS=3 -DNUM_DRAM_BANKS=8 -DNUM_L1_BANKS=110 -DPCIE_NOC_X=19 -DPCIE_NOC_Y=24 -DTENSIX_FIRMWARE -DLOCAL_MEM_EN=0 -DPROCESSOR_INDEX=2 -DUCK_CHLKC_UNPACK -DCOMPILE_FOR_TRISC=0 -DARCH_BLACKHOLE -DDISPATCH_MESSAGE_ADDR=4290184248 -DKERNEL_BUILD -DKERNEL_COMPILE_TIME_ARGS=44,1,88,88,2,176,4,50,2,2,4,1,0,0,8,1,1 
+In file included from ../chlkc_unpack.cpp:3,
+                 from /tt-metal/tt_metal/hw/ckernels/blackhole/metal/common/chlkc_list.h:26,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc:13:
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void second_pass(const SubblockShape&, bool, uint32_t)':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:222:20: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  222 |         acquire_dst();
+      |         ~~~~~~~~~~~^~
+In file included from /tt-metal/tt_metal/hw/inc/api/compute/common.h:8,
+                 from /tt-metal/tt_metal/hw/inc/api/compute/matmul.h:7,
+                 from /home/user/tt/src/common/kernels/bmm_int32_spill.cpp:80:
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:237:20: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  237 |         release_dst();
+      |         ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void kernel_main()':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:306:32: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  306 |                     acquire_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:355:32: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  355 |                     release_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+Building trisc1, compile step:
+cd /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/16049463658137025586/trisc1/ && /tt-metal/runtime/sfpi/compiler/bin/riscv-tt-elf-g++ -O3 -std=c++17 -ftt-nttp -ftt-constinit -ftt-consteval -ftt-no-dyninit -flto=auto -ffast-math -fno-exceptions -fno-rtti -fno-use-cxa-atexit -g -MMD -Wall -Werror -Wno-error=deprecated-declarations -Wno-error=multistatement-macros -Wno-error=parentheses -Wno-error=unused-but-set-variable -Wno-unused-variable -Wno-unused-function -mcpu=tt-bh-tensix -I. -I.. -I/tt-metal/ -I/tt-metal/ttnn -I/tt-metal/ttnn/cpp -I/tt-metal/tt_metal -I/tt-metal/tt_metal/hw/inc -I/tt-metal/tt_metal/tt-llk/common -I/tt-metal/tt_metal/hostdevcommon/api -I/tt-metal/tt_metal/api/ -I/tt-metal/runtime/sfpi/include -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/common -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_io -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/blackhole_defines -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/noc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/common/inc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/llk_lib -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu -I/tt-metal/tt_metal/hw/firmware/src/tt-1xx -I/home/user/tt/src/common/kernels -c -o /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/16049463658137025586/trisc1/trisck.16553023588968078491.o /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc -MF /home/user/.cache/tt-metal-cache/219840659460635544/kernels/bmm_int32_spill/16049463658137025586/trisc1/trisck.16553023588968078491.d -DIS_NOT_POW2_NUM_L1_BANKS=1 -DLOG_BASE_2_OF_NUM_DRAM_BANKS=3 -DNUM_DRAM_BANKS=8 -DNUM_L1_BANKS=110 -DPCIE_NOC_X=19 -DPCIE_NOC_Y=24 -DTENSIX_FIRMWARE -DLOCAL_MEM_EN=0 -DPROCESSOR_INDEX=3 -DUCK_CHLKC_MATH -DCOMPILE_FOR_TRISC=1 -DARCH_BLACKHOLE -DDISPATCH_MESSAGE_ADDR=4290184248 -DKERNEL_BUILD -DKERNEL_COMPILE_TIME_ARGS=44,1,88,88,2,176,4,50,2,2,4,1,0,0,8,1,1 
+In file included from ../chlkc_math.cpp:3,
+                 from /tt-metal/tt_metal/hw/ckernels/blackhole/metal/common/chlkc_list.h:16,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc:13:
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void second_pass(const SubblockShape&, bool, uint32_t)':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:222:20: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  222 |         acquire_dst();
+      |         ~~~~~~~~~~~^~
+In file included from /tt-metal/tt_metal/hw/inc/api/compute/common.h:8,
+                 from /tt-metal/tt_metal/hw/inc/api/compute/matmul.h:7,
+                 from /home/user/tt/src/common/kernels/bmm_int32_spill.cpp:80:
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:237:20: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  237 |         release_dst();
+      |         ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp: In function 'void kernel_main()':
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:306:32: warning: 'void ckernel::acquire_dst()' is deprecated: Use tile_regs_acquire() instead [-Wdeprecated-declarations]
+  306 |                     acquire_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:32:11: note: declared here
+   32 | ALWI void acquire_dst() {
+      |           ^~~~~~~~~~~
+/home/user/tt/src/common/kernels/bmm_int32_spill.cpp:355:32: warning: 'void ckernel::release_dst()' is deprecated: Use tile_regs_release() instead [-Wdeprecated-declarations]
+  355 |                     release_dst();
+      |                     ~~~~~~~~~~~^~
+/tt-metal/tt_metal/hw/inc/api/compute/reg_api.h:72:11: note: declared here
+   72 | ALWI void release_dst() {
+      |           ^~~~~~~~~~~
+WARMUP,stage=sweep,group=sweep,kind=full,gap_ms=na,sec=10.120,iters=34,batch=1,stable=1,capped=0,win_prev=1098.3,win_last=1100.3,curr=179.9,power=126.5,temp=78.16,input_power_mean=307.4,input_power_max=406,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1103.3,arb_freq_min=1098,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+Issue   : GEMM の発行 4.9 ms/iter，デバイス待ち 207.3 ms (30 パネル x 10 本 x 1 K ブロック)
+-------------------------------------------------------------------
+Accuracy : (skipped, OZ_NOVERIFY)
+Verify   : skipped (OZ_NOVERIFY) -- 精度は判定していない
+Compute  : 10 diagonal GEMM(s) + on-device triple-float recon (single FP64 readback)
+Breakdown: GEMM build(once) 9.2 ms | slice JIT(once) 46.7 ms | scale+slice 38.0 ms/iter (scale 2.5) | GEMM run 212.3 ms/iter | recon dev 78.702 ms/iter
+Recon    : build+JIT(once) 67.6 ms | dispatch 78.702 ms/iter | FP64 readback 25.5 ms
+Throughput: build+stages+readback 1.460 TOP/s useful fp-equiv (0.48% bf16 peak) | GEMM-phase 3.29 TOP/s fp-equiv | GEMM-phase raw-bf16 180.83 TOP/s (59.46% bf16 peak)
+DRAM->DRAM : 328.967 ms/iter  (scale+norm+slice 38.014 | GEMM 212.250 | recon 78.702)  2.1213 TFLOP/s fp64-equiv
+  fill split: scale 2.424 | glue(2^-e hop) 0.074 | slice 35.516  ms/iter (normalize fused into slice)
+RESULT,ozaki_full,7040,7040,7040,10,9,55,10,477.9426,nan,nan,212.3,78.702
+VERIFY,ozaki_full,skipped
+FWTELEM,reader=umd,dev=1,dev_src=OZ_TELEM_DEV,fw_bundle=19.15.0.0,update_ms=100,aiclk_limit_max=1350,tdc_limit_max=200,tdp_limit_max=150,board_power_limit=300,enabled_max_arb=0x1d1,open_ms=3.4,samples=1070,errors=0,read_us_mean=5.3,read_us_max=27.0
+TELEM,stage=fill,group=fill,timing=steady,sub=0,calls=1,iters=3,timed_s=0.1140,warm_s=10.035,warm_iters=264,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=0.00,drift_max_pct=0.00,seq_pct=0.00,n=7,aiclk_mean=1350.0,aiclk_min=1350,aiclk_max=1350,curr_mean=95.4,curr_max=96,power_mean=76.4,power_max=77,vcore_mean=807,temp_start=67.90,temp_max=67.90,telem_dev=1,input_power_mean=217.3,input_power_max=219,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=sweep,group=sweep,timing=steady,sub=0,calls=1,iters=3,timed_s=0.8729,warm_s=10.120,warm_iters=34,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1100.3,drift_pct=0.02,drift_max_pct=0.02,seq_pct=0.02,n=44,aiclk_mean=1100.6,aiclk_min=1093,aiclk_max=1106,curr_mean=168.4,curr_max=228,power_mean=118.6,power_max=159,vcore_mean=712,temp_start=75.33,temp_max=78.80,telem_dev=1,input_power_mean=321.9,input_power_max=386,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1104.1,arb_freq_min=1099,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=gemm,group=sweep,timing=steady,sub=1,calls=3,iters=0,timed_s=0.6368,warm_s=0.000,warm_iters=0,warmups=0,rewarms=0,hot=0,capped=0,ref_aiclk=na,drift_pct=na,drift_max_pct=na,seq_pct=na,n=35,aiclk_mean=1101.4,aiclk_min=1093,aiclk_max=1106,curr_mean=172.5,curr_max=228,power_mean=121.6,power_max=159,vcore_mean=711,temp_start=75.33,temp_max=78.80,telem_dev=1,input_power_mean=325.1,input_power_max=386,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1105.1,arb_freq_min=1099,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=recon,group=sweep,timing=steady,sub=1,calls=3,iters=0,timed_s=0.2361,warm_s=0.000,warm_iters=0,warmups=0,rewarms=0,hot=0,capped=0,ref_aiclk=na,drift_pct=na,drift_max_pct=na,seq_pct=na,n=14,aiclk_mean=1098.2,aiclk_min=1093,aiclk_max=1100,curr_mean=157.4,curr_max=228,power_mean=110.8,power_max=159,vcore_mean=712,temp_start=78.28,temp_max=78.80,telem_dev=1,input_power_mean=313.3,input_power_max=386,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1101.5,arb_freq_min=1099,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+CONFIG,ozaki_full,fmt=bf16,scheme=I,radix=64,dmax=32,p=10,L=9,npairs=55,ndiag=10,Kc=7040,nkb=1,fidelity=HiFi2,bands=1,pairloop=1,fuse=0,defer=1,verified=0,probe=set,recon_probe=0,diag=OZ_FIDELITY,time_in_result=tot_incl_build_and_readback,d2d_ms=328.9669,gemm_split=1,gemm_l1acc=1,bw=22,shape=4x4,knobs=none,gemm_probe=none,input=uniform,seed=7,min_bits=53,time_whole=0,whole_ms=0.0000,timing=steady,warmup_sec=10,warmup_max_sec=180,warmup_win_sec=1,warmup_tol_pct=1,warmup_gap_ms=50,warmup_hot_factor=20,telem_ms=20,telem_dev=1,auto_p=0,npanels=30,gemm_issues=10,l1_budget_kb=1408,gen=ozgen1,slice_ms=38.0140,gemm_ms=212.2503,recon_ms=78.7025,chash=096204765d925a85,dev_grid=11x10,gemm_grid=11x10,gemm_grid_tail=11x10,dram_free_gb=34.22,dram_largest_gb=34.22
+
+Test Skipped
+2026-11-04 10:35:12.140 | info     |    BuildKernels | JIT cache stats: 30/36 hits (83.3%) [30 cached, 202 build-once dedup, 0 merged artifacts, 0 merged genfiles] (build_cache_telemetry.cpp:207)
+2026-11-04 10:35:12.140 | info     |    BuildKernels | JIT telemetry: 3 registered TelemetryTokens (build_cache_telemetry.cpp:230)
+2026-11-04 10:35:12.148 | info     |          Device | Closing user mode device drivers (tt_cluster.cpp:512)
+2026-11-04 10:35:12.148 | info     |             UMD | Closing devices in cluster (cluster.cpp:1012)
+2026-11-04 10:35:12.249 | info     |             UMD | Closing devices in cluster completed. (cluster.cpp:1021)
+2026-11-04 10:35:12.249 | info     |             UMD | Cluster destructor started. (cluster.cpp:729)
+2026-11-04 10:35:12.249 | info     |             UMD | Cluster destructor completed. (cluster.cpp:732)
+AICLK,pass_HiFi2_7040,window=process,n=11,min=800,max=1350,mean=1198,median=1200,busy_n=10,busy_min=1100,busy_max=1350,busy_mean=1237,busy_median=1275,idle=800,dt=2
+COOLCOND,pass_HiFi2_7040,start=60.0,cooled=1,tmax=60,twait=1800
+EXIT,rc=0,post_check=1

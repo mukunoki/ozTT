@@ -206,6 +206,14 @@ reference (Dot2) to CSV. Paper-sized runs are long; start with `quick` or `--lis
 runs. Parameters, timing definitions and output fields are described in
 [evaluation/README.md](evaluation/README.md).
 
+The paper's other numbers (the bare BF16 GEMM baseline, the fidelity comparison,
+the 1-core tile products, the ablation runs, the choice of the slice counts, the
+integer-exactness checks, the hardware probes) were measured with the research
+programs, not with this library. [experiments/](experiments/README.md) contains
+that research code as it was run, the scripts, and the 215 logs the paper's numbers
+were checked against, with a table from each paper statement to the command that
+produced it.
+
 ## Correctness checks
 
 ```sh
@@ -245,6 +253,9 @@ tests/, examples/             correctness checks, usage example
 docs/sfpu_lemmas.md           proofs for the error-free steps of the triple-float kernels
 tools/                        maintainer checks (not built); tools/validated/ holds the
                               evaluator results of the last validated revision
+experiments/                  the research code, scripts and logs behind the paper's
+                              numbers that the evaluator does not produce (separate
+                              implementation; not part of the library build)
 ```
 
 In `src/backend/`, the directory names the scope, so file names carry no scheme

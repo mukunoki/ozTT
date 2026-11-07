@@ -1,0 +1,62 @@
+# routes.tsv -- 尾崎の 16 経路（8 形式 × scheme I/II）の正本
+# ---------------------------------------------------------------------------
+# タブ区切り（空欄は作らず - と書く）．# で始まる行と空行は読まない．最初の非コメント行が
+# 見出し．行の並びが論文の表（tab:flops・tab:eff）の並びで，これを読むスクリプトはこの順に回す．
+# 読み方は bash が routes.sh（routes_each・routes_each_in・routes_args・routes_row_cmd），Python が routes.py（load_routes）．
+# 次の行（# rows=<経路の行の数>）は読み手が行の数を確かめるための印で，行を足す・消すときは一緒に直す．
+# rows=16
+# 16 経路を全部回すスクリプト（measure/performance.sh・measure/accuracy.sh・study/measure_paper.sh・selftest.sh）は経路をこの表から引く
+# （測定の 3 本は routes.sh の OZ_MEAS_ORDER の順（論文の値を測ってきた順）に，selftest.sh は表の順に回す）．表を読まずに
+# 既定の構成を書いた行（調査・検査の個別の項目）は verify/check_routes.py がこの表と突き合わせる（selftest.sh が呼ぶ）．
+#
+#   key       経路の短い識別子（scheme-fmt）
+#   scheme    I（スライス分割）/ II（CRT）
+#   fmt       ビルド対象・ログ名に使う形式名．fp32 は格納が FP32 で，行列エンジンが掛けるのは TF32
+#   label     表示名．論文・スライド・docs/results.md の表の行見出しもこれ（fp32 は TF32 と呼ぶ）
+#   short     label から Ozaki- を除いた短い名（measure/exponent_sweep.sh の PHI 行・summarize_cool.py）
+#   param_row tab:param の行見出し（形式ごとなので I と II で同じ．ブロック浮動小数は末尾 b）
+#   binary    src/build/ のバイナリ名
+#   log       ログ名の幹．study/measure_paper.sh・measure/accuracy.sh は <log>_<N>.log，measure/performance.sh は cool_<log>_<N>.log
+#   gp        fig_ozscale.gp・fig_phi.gp のデータブロック名
+#   p L       scheme I のスライス数と，残す対角の番号の最大（対角 d=0..L の L+1 本．L=p-1 で p 本）．次の 2 つをともに満たす
+#             最小の p（M=N=512 で K=512 と 16384 の両方で見る．diagnose/select_slice_count.sh）：(i) 一様乱数 [-1,1) の入力で到達精度が基準
+#             RULE_I_BITS を上回る，(ii) 構造のある入力（OZ_CONST の定数の並び STRUCT_CONSTS を符号の付け方 STRUCT_SIGNS で）で
+#             基準 STRUCT_BITS 以上（53 ちょうどでは余裕が無いので）．基準と入力の値の正本は lib/constants.tsv（その注記に
+#             値の読み下しがある．routes.sh が OZ_RULE_I_BITS・OZ_STRUCT_BITS・OZ_STRUCT_CONSTS・OZ_STRUCT_SIGNS として読む）．
+#             (i) だけで選んだ値から，(ii) で I-BFP4 は 15 から 16 へ，I-BFP2 は 56 から 59 へ上がった（ほかの 14 経路は
+#             既定の構成のまま (ii) を満たす．tests/check_adversarial.sh の 3 つめの表）．BFP2 は 1 スライス 1 bit なので p が最も大きい
+#   s         scheme II の法の本数の要求値（窓が余れば実装が削る．実際の本数はログの CONFIG 行）．
+#             II-BFP4・II-BFP2・II-BF16・II-FP16・II-BFP8 は段の時間のモデルで法の集合を選ぶので（src/ozaki2/ozaki2_awe.h），本数の上限 24 を渡す
+#   acc_as    到達精度がどの経路と同じになるか．- は自身．I-FP16・I-TF32・II-FP16 は桁 32・基数 64・p・法が
+#             BF16 と同じで，行列エンジンに渡るスライスも同じ整数値なので BF16 の行と同じになる．
+#             精度だけを見る diagnose/select_slice_count.sh と tests/check_adversarial.sh の最初の 2 つの表は - の経路だけを回す（check_adversarial.sh の
+#             構造のある入力の表は規則 (ii) を全経路の既定の構成で確かめるので 16 経路．fig:phi とそれを測る measure/exponent_sweep.sh は
+#             acc_as ではなく figs 列の phi で選ぶ）．
+#             scheme II の BF16・FP16・BFP8 は法の集合を段の時間のモデルで選び（1 桁の法を混ぜる），TF32 は表の法の
+#             集合を使うので，II-TF32 は II-BF16 と法が違い - とする（II-FP16 は既定の b=54 では BF16 と同じ法になる）
+#   figs      その経路が入る図（ozscale=fig:ozscale，breakdown=fig:breakdown_oz{1,2}，phi=fig:phi）．
+#             update_fig_*.py と measure/exponent_sweep.sh はこの列で系列（測る経路）を選ぶ
+#
+# どの経路も 3 サイズ（3520・7040・14080）で測れる．II-TF32 の 14080 はスライスを FP32 で格納するので A・B の桁面が一括では
+# DRAM に収まらないが，法の組分け（ozaki2_main.cpp の plan_mod_groups．14080 で 2 組）で測れる（組分けが外れて DRAM 不足で
+# 落ちれば，ほかの点と同じく失敗に数える）．測れない点を挙げる列は置かない（測れない点ができたら，その点を測るスクリプトと
+# 検査の両方に扱いを足す）
+#
+# 実行回数（ウォームアップ・計時）は経路によらずスクリプトごとに決まる：性能は 1 3，精度は 1 1．
+key	scheme	fmt	label	short	param_row	binary	log	gp	p	L	s	acc_as	figs
+I-bf16	I	bf16	Ozaki-I-BF16	I-BF16	BF16	ozaki1_bf16	oz1bf16	oz1_bf16	10	9	-	-	ozscale,breakdown,phi
+I-fp16	I	fp16	Ozaki-I-FP16	I-FP16	FP16	ozaki1_fp16	oz1fp16	oz1_fp16	10	9	-	I-bf16	ozscale
+I-fp32	I	fp32	Ozaki-I-TF32	I-TF32	TF32	ozaki1_fp32	oz1fp32	oz1_fp32	10	9	-	I-bf16	ozscale
+I-bfp8	I	bfp8	Ozaki-I-BFP8	I-BFP8	BFP8b	ozaki1_bfp8	oz1bfp8	oz1_bfp8	10	9	-	-	ozscale,breakdown,phi
+I-fp8	I	fp8	Ozaki-I-FP8	I-FP8	FP8	ozaki1_fp8	oz1fp8	oz1_fp8	12	11	-	-	ozscale,breakdown,phi
+I-int8	I	int8	Ozaki-I-INT8	I-INT8	INT8	ozaki1_int8	oz1int8	oz1_int8	8	7	-	-	ozscale,breakdown,phi
+I-bfp4	I	bfp4	Ozaki-I-BFP4	I-BFP4	BFP4b	ozaki1_bfp4	oz1bfp4	oz1_bfp4	16	15	-	-	ozscale,breakdown,phi
+I-bfp2	I	bfp2	Ozaki-I-BFP2	I-BFP2	BFP2b	ozaki1_bfp2	oz1bfp2	oz1_bfp2	59	58	-	-	ozscale,breakdown,phi
+II-bf16	II	bf16	Ozaki-II-BF16	II-BF16	BF16	ozaki2_bf16	oz2bf16	oz2_bf16	-	-	24	-	ozscale,breakdown,phi
+II-fp16	II	fp16	Ozaki-II-FP16	II-FP16	FP16	ozaki2_fp16	oz2fp16	oz2_fp16	-	-	24	II-bf16	ozscale
+II-fp32	II	fp32	Ozaki-II-TF32	II-TF32	TF32	ozaki2_fp32	oz2fp32	oz2_fp32	-	-	11	-	ozscale
+II-bfp8	II	bfp8	Ozaki-II-BFP8	II-BFP8	BFP8b	ozaki2_bfp8	oz2bfp8	oz2_bfp8	-	-	24	-	ozscale,breakdown,phi
+II-fp8	II	fp8	Ozaki-II-FP8	II-FP8	FP8	ozaki2_fp8	oz2fp8	oz2_fp8	-	-	14	-	ozscale,breakdown,phi
+II-int8	II	int8	Ozaki-II-INT8	II-INT8	INT8	ozaki2_int8	oz2int8	oz2_int8	-	-	16	-	ozscale,breakdown,phi
+II-bfp4	II	bfp4	Ozaki-II-BFP4	II-BFP4	BFP4b	ozaki2_bfp4	oz2bfp4	oz2_bfp4	-	-	24	-	ozscale,breakdown,phi
+II-bfp2	II	bfp2	Ozaki-II-BFP2	II-BFP2	BFP2b	ozaki2_bfp2	oz2bfp2	oz2_bfp2	-	-	24	-	ozscale,breakdown,phi

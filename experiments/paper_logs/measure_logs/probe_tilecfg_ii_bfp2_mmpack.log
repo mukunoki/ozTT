@@ -1,0 +1,37 @@
+PROVENANCE,rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,dirty=0,date=2026-11-04T11:50:06+00:00,metal=ec685d2af0a5,metal_dirty=0,metal_diff=none,image=4a3c44e68374,build_rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,build_dirty=0,build_sha=54b446bac0099395,run=20261104T081237-242274,host=tt-server,cpu=AMD_Ryzen_Threadripper_PRO_9975WX_32-Cores,kmd=2.11.0,dev=1,board=p150a,board_id=000004033191A0D7,asic_id=17320B7204AC596F,fw=19.15.0.0,cm_fw=0.37.0.0,dm_fw=0.31.0.0,eth_fw=1.12.2,gddr_fw=2.16,smi=5.3.1
+BINARY,tile_rate_probe,sha256=451b9b678b06f34e34594fb2cd78bd07c9291dfb9571ce977f733d2f7103bf0c,stamp_sha256=451b9b678b06f34e34594fb2cd78bd07c9291dfb9571ce977f733d2f7103bf0c
+2026-11-04 11:50:06.739 | info     |          Device | Opening user mode device driver (tt_cluster.cpp:228)
+2026-11-04 11:50:06.739 | info     |             UMD | Cluster constructor started. (cluster.cpp:335)
+2026-11-04 11:50:06.739 | info     |             UMD | Creating TopologyDiscovery for architecture: blackhole (topology_discovery.cpp:91)
+2026-11-04 11:50:06.739 | info     |             UMD | Starting topology discovery. (topology_discovery.cpp:110)
+2026-11-04 11:50:06.742 | info     |             UMD | Established firmware bundle version: 19.15.0 (topology_discovery.cpp:567)
+2026-11-04 11:50:06.742 | info     |             UMD | Firmware bundle version 19.15.0 on the system is newer than the latest fully tested version 19.5.0 for blackhole architecture. Newest features may not be supported. (topology_discovery.cpp:599)
+2026-11-04 11:50:06.742 | info     |             UMD | Completed topology discovery. (topology_discovery.cpp:114)
+2026-11-04 11:50:06.798 | info     |             UMD | Opening local chip ids/PCIe ids: {0}/[1] and remote chip ids {} (cluster.cpp:168)
+2026-11-04 11:50:06.798 | info     |             UMD | IOMMU: enabled (cluster.cpp:142)
+2026-11-04 11:50:06.798 | info     |             UMD | KMD version: 2.11.0 (cluster.cpp:145)
+2026-11-04 11:50:06.798 | info     |             UMD | Cluster constructor completed. (cluster.cpp:507)
+2026-11-04 11:50:06.799 | info     |             UMD | Starting devices in cluster (cluster.cpp:999)
+2026-11-04 11:50:06.836 | info     |             UMD | Starting devices in cluster completed. (cluster.cpp:1007)
+2026-11-04 11:50:06.879 | info     |     Distributed | Using auto discovery to generate mesh graph. (metal_env.cpp:362)
+2026-11-04 11:50:06.879 | info     |     Distributed | Constructing control plane using auto-discovery (no mesh graph descriptor). (metal_env.cpp:424)
+2026-11-04 11:50:06.879 | warning  |          Always | Unknown motherboard 'WRX90 WS EVO' for chip_id=0 (bus_id=0xe1) — falling back to bus_id as tray_id. Add this motherboard and its bus IDs to mobo_to_bus_ids in physical_system_discovery.cpp. (physical_system_discovery.cpp:89)
+2026-11-04 11:50:06.887 | info     |    BuildKernels | Using pre-compiled firmware from: /tt-metal/tt_metal/pre-compiled/219840659460635544/ (build_env_manager.cpp:320)
+2026-11-04 11:50:06.943 | info     |           Metal | ShmResourceTracker: removed orphaned shm '/tt_device_141176417295072_memory' (shm_resource_tracker.cpp:282)
+2026-11-04 11:50:07.522 | info     |           Metal | [Real-time profiler] Device 0 sync complete: 100 samples, frequency=1.349994 GHz, device_time_at_sync=14590796011450 cycles (realtime_profiler_manager.cpp:1127)
+TILERATE,launch=1,dev_cycles=181776671,host_ms=135.2417,cyc_per_prod=17.747,host_cyc_per_prod=17.825,eff_mhz=1344.1
+TILERATE,launch=2,dev_cycles=181776671,host_ms=135.2319,cyc_per_prod=17.747,host_cyc_per_prod=17.824,eff_mhz=1344.2
+TILERATE,launch=3,dev_cycles=181776669,host_ms=135.2316,cyc_per_prod=17.747,host_cyc_per_prod=17.824,eff_mhz=1344.2
+TILE-RATE : bfp2 LoFi mmpack  17.75 cyc/prod (min 17.75 max 17.75, 3 launches)  host@1350MHz 17.82  eff 1344 MHz
+RESULT,tile_rate_probe,fmt=bfp2,fidelity=LoFi,mode=mmpack,cyc_per_prod=17.747,cyc_min=17.747,cyc_max=17.747,host_cyc_per_prod=17.824,host_min=17.824,host_max=17.825,eff_mhz=1344.2,launches=3,prods_per_launch=10242650
+CONFIG,tile_rate_probe,fmt=bfp2,fidelity=LoFi,mode=mmpack,fp32_dest_acc=1,grid=1x1,core=0x0,pm=11,pn=10,bw=55,sub=1x2,reps=1693,launches=3,warmup=1,noc=0,pack=1,l1acc=1,timing=device_cycles,clk_nominal_mhz=1350
+2026-11-04 11:50:08.456 | info     |    BuildKernels | JIT cache stats: 8/12 hits (66.7%) [8 cached, 0 build-once dedup, 0 merged artifacts, 0 merged genfiles] (build_cache_telemetry.cpp:207)
+2026-11-04 11:50:08.456 | info     |    BuildKernels | JIT telemetry: 3 registered TelemetryTokens (build_cache_telemetry.cpp:230)
+2026-11-04 11:50:08.462 | info     |          Device | Closing user mode device drivers (tt_cluster.cpp:512)
+2026-11-04 11:50:08.462 | info     |             UMD | Closing devices in cluster (cluster.cpp:1012)
+2026-11-04 11:50:08.591 | info     |             UMD | Closing devices in cluster completed. (cluster.cpp:1021)
+2026-11-04 11:50:08.591 | info     |             UMD | Cluster destructor started. (cluster.cpp:729)
+2026-11-04 11:50:08.591 | info     |             UMD | Cluster destructor completed. (cluster.cpp:732)
+AICLK,probe_tilecfg_ii_bfp2_mmpack,window=process,n=1,min=1350,max=1350,mean=1350,median=1350,busy_n=1,busy_min=1350,busy_max=1350,busy_mean=1350,busy_median=1350,idle=800,dt=2
+COOLCOND,probe_tilecfg_ii_bfp2_mmpack,start=55.3,cooled=1,tmax=60,twait=1800
+EXIT,rc=0,post_check=1

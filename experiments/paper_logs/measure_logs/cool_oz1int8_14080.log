@@ -1,0 +1,63 @@
+PROVENANCE,rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,dirty=0,date=2026-11-04T09:38:45+00:00,metal=ec685d2af0a5,metal_dirty=0,metal_diff=none,image=4a3c44e68374,build_rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,build_dirty=0,build_sha=54b446bac0099395,run=20261104T081237-242274,host=tt-server,cpu=AMD_Ryzen_Threadripper_PRO_9975WX_32-Cores,kmd=2.11.0,dev=1,board=p150a,board_id=000004033191A0D7,asic_id=17320B7204AC596F,fw=19.15.0.0,cm_fw=0.37.0.0,dm_fw=0.31.0.0,eth_fw=1.12.2,gddr_fw=2.16,smi=5.3.1
+BINARY,ozaki1_int8,sha256=f00c8735ab2c2552f7dd1b21998ca3a18949906b0860205e534879c7d0349f01,stamp_sha256=f00c8735ab2c2552f7dd1b21998ca3a18949906b0860205e534879c7d0349f01
+2026-11-04 09:38:46.405 | info     |          Device | Opening user mode device driver (tt_cluster.cpp:228)
+2026-11-04 09:38:46.405 | info     |             UMD | Cluster constructor started. (cluster.cpp:335)
+2026-11-04 09:38:46.405 | info     |             UMD | Creating TopologyDiscovery for architecture: blackhole (topology_discovery.cpp:91)
+2026-11-04 09:38:46.405 | info     |             UMD | Starting topology discovery. (topology_discovery.cpp:110)
+2026-11-04 09:38:46.407 | info     |             UMD | Established firmware bundle version: 19.15.0 (topology_discovery.cpp:567)
+2026-11-04 09:38:46.407 | info     |             UMD | Firmware bundle version 19.15.0 on the system is newer than the latest fully tested version 19.5.0 for blackhole architecture. Newest features may not be supported. (topology_discovery.cpp:599)
+2026-11-04 09:38:46.407 | info     |             UMD | Completed topology discovery. (topology_discovery.cpp:114)
+2026-11-04 09:38:46.466 | info     |             UMD | Opening local chip ids/PCIe ids: {0}/[1] and remote chip ids {} (cluster.cpp:168)
+2026-11-04 09:38:46.466 | info     |             UMD | IOMMU: enabled (cluster.cpp:142)
+2026-11-04 09:38:46.466 | info     |             UMD | KMD version: 2.11.0 (cluster.cpp:145)
+2026-11-04 09:38:46.466 | info     |             UMD | Cluster constructor completed. (cluster.cpp:507)
+2026-11-04 09:38:46.466 | info     |             UMD | Starting devices in cluster (cluster.cpp:999)
+2026-11-04 09:38:46.478 | info     |             UMD | Starting devices in cluster completed. (cluster.cpp:1007)
+2026-11-04 09:38:46.520 | info     |     Distributed | Using auto discovery to generate mesh graph. (metal_env.cpp:362)
+2026-11-04 09:38:46.520 | info     |     Distributed | Constructing control plane using auto-discovery (no mesh graph descriptor). (metal_env.cpp:424)
+2026-11-04 09:38:46.520 | warning  |          Always | Unknown motherboard 'WRX90 WS EVO' for chip_id=0 (bus_id=0xe1) — falling back to bus_id as tray_id. Add this motherboard and its bus IDs to mobo_to_bus_ids in physical_system_discovery.cpp. (physical_system_discovery.cpp:89)
+2026-11-04 09:38:46.530 | info     |    BuildKernels | Using pre-compiled firmware from: /tt-metal/tt_metal/pre-compiled/219840659460635544/ (build_env_manager.cpp:320)
+2026-11-04 09:38:46.586 | info     |           Metal | ShmResourceTracker: removed orphaned shm '/tt_device_141176417295072_memory' (shm_resource_tracker.cpp:282)
+2026-11-04 09:38:47.165 | info     |           Metal | [Real-time profiler] Device 0 sync complete: 100 samples, frequency=1.349989 GHz, device_time_at_sync=7608812948670 cycles (realtime_profiler_manager.cpp:1127)
+====== int8-Ozaki GEMM (on-device exact, per-diagonal K-stack) ======
+Device : grid=11x10 (110 cores) 1350 MHz  int8 HiFi4 peak=152.1 TOP/s
+Problem: M=14080 N=14080 K=14080  slices p=8 radix=254 (~63b) L=7  36 pairs -> 8 diagonal GEMMs (readbacks 8 not 36)
+Exact   : b_acc=31 bit, K_c=14080 (1 block) -> 2w+ceil(log2((L+1)K_c)) <= b_acc を満たす（対角を連結）
+RECON-NSMALL,used=0,bound=0,ndiag=8,K=14080
+Cfg     : grid=10x11 per_core=8x8 panels=6x5 (端数 1 行は grid=10x11 per_core=4x8 bw=44) (Kmax=112640, bw=22, K blocks=1)
+WARMUP,stage=fill,group=fill,kind=full,gap_ms=na,sec=10.164,iters=40,batch=1,stable=1,capped=0,win_prev=1350.0,win_last=1350.0,curr=97.1,power=77.6,temp=68.54,input_power_mean=216.9,input_power_max=221,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+WARMUP,stage=gemm,group=gemm,kind=full,gap_ms=na,sec=10.027,iters=159,batch=3,stable=1,capped=0,win_prev=1065.9,win_last=1066.1,curr=199.5,power=138.7,temp=78.92,input_power_mean=298.1,input_power_max=320,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1068.7,arb_freq_min=1067,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+WARMUP,stage=recon,group=recon,kind=full,gap_ms=na,sec=10.070,iters=39,batch=3,stable=1,capped=0,win_prev=1350.0,win_last=1350.0,curr=92.3,power=74.1,temp=74.31,input_power_mean=210.2,input_power_max=221,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+Whole   : 全工程の GEMM の発行順は段ごとの計時と同じ（パネルごとに全対角）
+WARMUP,stage=whole,group=whole,kind=full,gap_ms=na,sec=11.253,iters=5,batch=1,stable=1,capped=0,win_prev=1142.8,win_last=1144.1,curr=178.0,power=126.1,temp=84.69,input_power_mean=288.6,input_power_max=392,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1103.3,arb_freq_min=1057,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+WHOLE-CHECK,identical=1,filled=1,sentinel=1,post_timing=1,counts=1,steps=247,expected=247,head=6/6,gemm=240/240,accum=0/0,compose=0/0,recon=1/1
+-------------------------------------------------------------------
+Accuracy : (skipped, OZ_NOVERIFY)
+Verify   : skipped (OZ_NOVERIFY) -- 精度は判定していない
+Compute  : 8 diagonal GEMM(s) + on-device triple-float recon (single FP64 readback)
+Breakdown: GEMM build(once) 16.7 ms | slice JIT(once) 294.3 ms | scale+slice 254.1 ms/iter (scale 11.3) | GEMM run 1804.4 ms/iter | recon dev 256.127 ms/iter
+Recon    : build+JIT(once) 329.7 ms | dispatch 256.127 ms/iter | FP64 readback 98.8 ms
+Throughput: build+stages+readback 1.828 TOP/s useful fp-equiv (1.20% int8 peak) | GEMM-phase 3.09 TOP/s fp-equiv | GEMM-phase raw-int8 111.38 TOP/s (73.25% int8 peak)
+DRAM->DRAM : 2314.589 ms/iter  (scale+norm+slice 254.079 | GEMM 1804.383 | recon 256.127)  2.4119 TFLOP/s fp64-equiv
+WHOLE-PIPELINE : 2270.189 ms/iter  (stage sum 2314.589 ms; whole/sum-1 = -1.92%)  2.4591 TFLOP/s fp64-equiv
+  fill split: scale 11.209 | glue(2^-e hop) 0.118 | slice 242.752  ms/iter (normalize fused into slice)
+RESULT,ozaki_full,14080,14080,14080,8,7,36,8,3054.1161,nan,nan,1804.4,256.127
+VERIFY,ozaki_full,skipped
+FWTELEM,reader=umd,dev=1,dev_src=OZ_TELEM_DEV,fw_bundle=19.15.0.0,update_ms=100,aiclk_limit_max=1350,tdc_limit_max=200,tdp_limit_max=150,board_power_limit=300,enabled_max_arb=0x1d1,open_ms=2.8,samples=3090,errors=0,read_us_mean=5.4,read_us_max=57.7
+TELEM,stage=fill,group=fill,timing=steady,sub=0,calls=1,iters=3,timed_s=0.7622,warm_s=10.164,warm_iters=40,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=0.00,drift_max_pct=0.00,seq_pct=0.00,n=39,aiclk_mean=1350.0,aiclk_min=1350,aiclk_max=1350,curr_mean=99.3,curr_max=100,power_mean=79.3,power_max=80,vcore_mean=806,temp_start=68.54,temp_max=68.93,telem_dev=1,input_power_mean=213.8,input_power_max=218,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=gemm,group=gemm,timing=steady,sub=0,calls=30,iters=90,timed_s=5.4131,warm_s=11.779,warm_iters=188,warmups=1,rewarms=0,hot=29,capped=0,ref_aiclk=1066.1,drift_pct=-0.11,drift_max_pct=0.55,seq_pct=-0.83,n=303,aiclk_mean=1057.2,aiclk_min=1050,aiclk_max=1062,curr_mean=198.4,curr_max=203,power_mean=138.0,power_max=143,vcore_mean=698,temp_start=78.54,temp_max=80.46,telem_dev=1,input_power_mean=299.5,input_power_max=322,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1060.3,arb_freq_min=1050,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=recon,group=recon,timing=steady,sub=0,calls=1,iters=3,timed_s=0.7684,warm_s=10.070,warm_iters=39,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=-0.00,drift_max_pct=0.00,seq_pct=-0.00,n=39,aiclk_mean=1350.0,aiclk_min=1350,aiclk_max=1350,curr_mean=93.5,curr_max=95,power_mean=74.9,power_max=76,vcore_mean=808,temp_start=74.05,temp_max=74.44,telem_dev=1,input_power_mean=214.0,input_power_max=217,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=whole,group=whole,timing=steady,sub=0,calls=1,iters=3,timed_s=6.8106,warm_s=11.253,warm_iters=5,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1144.1,drift_pct=-0.02,drift_max_pct=0.02,seq_pct=-0.02,n=342,aiclk_mean=1143.8,aiclk_min=1050,aiclk_max=1243,curr_mean=183.2,curr_max=253,power_mean=132.3,power_max=188,vcore_mean=724,temp_start=76.23,temp_max=85.08,telem_dev=1,input_power_mean=303.3,input_power_max=406,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1147.3,arb_freq_min=1053,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+CONFIG,ozaki_full,fmt=int8,scheme=I,radix=254,dmax=127,p=8,L=7,npairs=36,ndiag=8,Kc=14080,nkb=1,fidelity=HiFi4,bands=1,pairloop=0,fuse=0,defer=0,verified=0,probe=none,recon_probe=0,diag=none,time_in_result=tot_incl_build_and_readback,d2d_ms=2314.5890,gemm_split=1,gemm_l1acc=1,bw=22,shape=8x8,knobs=none,gemm_probe=none,input=uniform,seed=7,min_bits=53,time_whole=1,whole_ms=2270.1886,timing=steady,warmup_sec=10,warmup_max_sec=180,warmup_win_sec=1,warmup_tol_pct=1,warmup_gap_ms=50,warmup_hot_factor=20,telem_ms=20,telem_dev=1,auto_p=0,npanels=30,gemm_issues=8,l1_budget_kb=1408,gen=ozgen1,slice_ms=254.0795,gemm_ms=1804.3829,recon_ms=256.1266,chash=fe36d83baa55e82a,dev_grid=11x10,gemm_grid=11x10,gemm_grid_tail=11x10,dram_free_gb=34.22,dram_largest_gb=34.22
+
+Test Skipped
+2026-11-04 09:39:52.841 | info     |    BuildKernels | JIT cache stats: 36/36 hits (100.0%) [36 cached, 412 build-once dedup, 0 merged artifacts, 0 merged genfiles] (build_cache_telemetry.cpp:207)
+2026-11-04 09:39:52.841 | info     |    BuildKernels | JIT telemetry: 3 registered TelemetryTokens (build_cache_telemetry.cpp:230)
+2026-11-04 09:39:52.845 | info     |          Device | Closing user mode device drivers (tt_cluster.cpp:512)
+2026-11-04 09:39:52.845 | info     |             UMD | Closing devices in cluster (cluster.cpp:1012)
+2026-11-04 09:39:52.940 | info     |             UMD | Closing devices in cluster completed. (cluster.cpp:1021)
+2026-11-04 09:39:52.940 | info     |             UMD | Cluster destructor started. (cluster.cpp:729)
+2026-11-04 09:39:52.940 | info     |             UMD | Cluster destructor completed. (cluster.cpp:732)
+AICLK,cool_oz1int8_14080,window=process,n=30,min=1050,max=1350,mean=1193,median=1072,busy_n=30,busy_min=1050,busy_max=1350,busy_mean=1193,busy_median=1072,idle=800,dt=2
+COOLCOND,cool_oz1int8_14080,start=60.0,cooled=1,tmax=60,twait=1800,clk0=800,end=71.5,clk1=800,aiclk_min=1050,aiclk_max=1350,aiclk_mean=1193,aiclk_n=30
+EXIT,rc=0,post_check=1

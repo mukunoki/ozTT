@@ -1,0 +1,50 @@
+PROVENANCE,rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,dirty=0,date=2026-11-04T10:40:27+00:00,metal=ec685d2af0a5,metal_dirty=0,metal_diff=none,image=4a3c44e68374,build_rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,build_dirty=0,build_sha=54b446bac0099395,run=20261104T081237-242274,host=tt-server,cpu=AMD_Ryzen_Threadripper_PRO_9975WX_32-Cores,kmd=2.11.0,dev=1,board=p150a,board_id=000004033191A0D7,asic_id=17320B7204AC596F,fw=19.15.0.0,cm_fw=0.37.0.0,dm_fw=0.31.0.0,eth_fw=1.12.2,gddr_fw=2.16,smi=5.3.1
+BINARY,gemm_bf16ext,sha256=eaa812e8f51d65258586360a475cfb2488ed42647a58ebf21fc84f382206e2f1,stamp_sha256=eaa812e8f51d65258586360a475cfb2488ed42647a58ebf21fc84f382206e2f1
+=== fmt=bf16 terms=3
+2026-11-04 10:40:29.369 | info     |          Device | Opening user mode device driver (tt_cluster.cpp:228)
+2026-11-04 10:40:29.369 | info     |             UMD | Cluster constructor started. (cluster.cpp:335)
+2026-11-04 10:40:29.369 | info     |             UMD | Creating TopologyDiscovery for architecture: blackhole (topology_discovery.cpp:91)
+2026-11-04 10:40:29.369 | info     |             UMD | Starting topology discovery. (topology_discovery.cpp:110)
+2026-11-04 10:40:29.370 | info     |             UMD | Established firmware bundle version: 19.15.0 (topology_discovery.cpp:567)
+2026-11-04 10:40:29.370 | info     |             UMD | Firmware bundle version 19.15.0 on the system is newer than the latest fully tested version 19.5.0 for blackhole architecture. Newest features may not be supported. (topology_discovery.cpp:599)
+2026-11-04 10:40:29.370 | info     |             UMD | Completed topology discovery. (topology_discovery.cpp:114)
+2026-11-04 10:40:29.425 | info     |             UMD | Opening local chip ids/PCIe ids: {0}/[1] and remote chip ids {} (cluster.cpp:168)
+2026-11-04 10:40:29.425 | info     |             UMD | IOMMU: enabled (cluster.cpp:142)
+2026-11-04 10:40:29.425 | info     |             UMD | KMD version: 2.11.0 (cluster.cpp:145)
+2026-11-04 10:40:29.425 | info     |             UMD | Cluster constructor completed. (cluster.cpp:507)
+2026-11-04 10:40:29.425 | info     |             UMD | Starting devices in cluster (cluster.cpp:999)
+2026-11-04 10:40:29.429 | info     |             UMD | Starting devices in cluster completed. (cluster.cpp:1007)
+2026-11-04 10:40:29.471 | info     |     Distributed | Using auto discovery to generate mesh graph. (metal_env.cpp:362)
+2026-11-04 10:40:29.471 | info     |     Distributed | Constructing control plane using auto-discovery (no mesh graph descriptor). (metal_env.cpp:424)
+2026-11-04 10:40:29.471 | warning  |          Always | Unknown motherboard 'WRX90 WS EVO' for chip_id=0 (bus_id=0xe1) — falling back to bus_id as tray_id. Add this motherboard and its bus IDs to mobo_to_bus_ids in physical_system_discovery.cpp. (physical_system_discovery.cpp:89)
+2026-11-04 10:40:29.481 | info     |    BuildKernels | Using pre-compiled firmware from: /tt-metal/tt_metal/pre-compiled/219840659460635544/ (build_env_manager.cpp:320)
+2026-11-04 10:40:29.537 | info     |           Metal | ShmResourceTracker: removed orphaned shm '/tt_device_141176417295072_memory' (shm_resource_tracker.cpp:282)
+2026-11-04 10:40:30.116 | info     |           Metal | [Real-time profiler] Device 0 sync complete: 100 samples, frequency=1.349931 GHz, device_time_at_sync=10717441087209 cycles (realtime_profiler_manager.cpp:1127)
+============== BF16-extended matmul (bf16x2/x3 split) ==============
+Device      : grid=11x10 (110 cores) 1350 MHz  chip_peak(bf16/HiFi4)=152.1 TFLOP/s
+Problem     : M=14080 N=14080 K=14080  terms=3 (1=single,3=lvl0-1,6=lvl0-2)  fmt=BF16
+Cfg         : 5x11=55 cores per_core=11x5 subblock=1x1 in0_block_w=10 num_blocks=44 (fp32_dest_acc, out=FP32)
+Panels      : 8x8 output panels of 55x55 tiles (per-core L1 bounded to 55 out-tiles)
+Kernel      : common/kernels/bmm_l1acc.cpp (packer L1 accumulate, num_blocks=44, accumulating)
+Reference: Dot2 (compensated, 64 thread)  28.6 s
+  + Am*Bh (level 1)
+  + Ah*Bh (level 0)
+-----------------------------------------------------------------
+Partials    : 3 GEMM(s), total compute 255.6466 ms/iter
+Throughput  : 21.84 TFLOP/s (useful fp32-equiv)  = 14.4% of bf16 chip peak
+Accuracy : ||C-ref||_F/||ref||=1.697e-04  (effective ~12.5 bit)  maxrel=1.234e-01  [ref=Dot2]
+CHECKSUM,rel_fro=0.00016972853583316092,maxrel=0.12344697643000432,chash=dd7bc99724be964e
+RESULT,14080,14080,14080,3,55,5.582619e+12,255.6466,21.8372,1.697e-04,1.234e-01,12.5
+FWTELEM,reader=umd,dev=1,dev_src=OZ_TELEM_DEV,fw_bundle=19.15.0.0,update_ms=100,aiclk_limit_max=1350,tdc_limit_max=200,tdp_limit_max=150,board_power_limit=300,enabled_max_arb=0x1d1,open_ms=3.0,samples=560,errors=0,read_us_mean=5.4,read_us_max=15.1
+TELEM,stage=gemm,group=gemm,timing=cold,sub=0,calls=192,iters=576,timed_s=0.7669,warm_s=0.259,warm_iters=192,warmups=0,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=0.00,drift_max_pct=0.00,seq_pct=-0.02,n=233,aiclk_mean=1349.8,aiclk_min=1343,aiclk_max=1350,curr_mean=83.0,curr_max=208,power_mean=66.6,power_max=168,vcore_mean=809,temp_start=68.80,temp_max=71.62,telem_dev=1,input_power_mean=204.8,input_power_max=345,board_power_limit=300,arb=0:0.969|8:0.031,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1349,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+CONFIG,gemm_bf16ext,fp32_dest_acc=1,fidelity=HiFi4,bw=10,nb=44,panels=8x8,verified=1,ext_fmt=bf16,ext_sig=8,terms=3,grid=5x11,shape=11x5,sub=1x1,gemm_split=1,timing_scope=gemm_only,input=uniform,seed=7,timing=cold,telem_ms=20,telem_dev=1,knobs=none,l1_budget_kb=1408,gen=ozgen1
+
+Completed (no accuracy threshold; outputs finite)
+2026-11-04 10:41:13.342 | info     |    BuildKernels | JIT cache stats: 14/17 hits (82.4%) [14 cached, 1337 build-once dedup, 0 merged artifacts, 0 merged genfiles] (build_cache_telemetry.cpp:207)
+2026-11-04 10:41:13.342 | info     |    BuildKernels | JIT telemetry: 3 registered TelemetryTokens (build_cache_telemetry.cpp:230)
+2026-11-04 10:41:13.347 | info     |          Device | Closing user mode device drivers (tt_cluster.cpp:512)
+2026-11-04 10:41:13.347 | info     |             UMD | Closing devices in cluster (cluster.cpp:1012)
+2026-11-04 10:41:13.489 | info     |             UMD | Closing devices in cluster completed. (cluster.cpp:1021)
+2026-11-04 10:41:13.489 | info     |             UMD | Cluster destructor started. (cluster.cpp:729)
+2026-11-04 10:41:13.489 | info     |             UMD | Cluster destructor completed. (cluster.cpp:732)
+EXIT,rc=0,post_check=1

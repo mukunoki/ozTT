@@ -3,8 +3,11 @@ ozTTgemm: Ozaki I/II GEMM for Tenstorrent Blackhole
 This distribution contains an independent, adapted copy of the calculation code of
 the authors' research repository (not public; paper-data snapshot, revision
 63e84a6c179bcf3e2865fb04e82b756aab55d3d6). The host interface, library build, and
-execution entry points were written for standalone use. All source files carry
-Apache-2.0 SPDX identifiers. See ORIGIN.md for what was taken and changed, and
+execution entry points were written for standalone use. All library source files carry
+Apache-2.0 SPDX identifiers. The directory experiments/ is a verbatim copy of the
+research programs, scripts and measurement logs at the same snapshot (the authors' own
+code, Apache-2.0; most of its source files carry the SPDX identifier, the rest are
+covered by this notice). See ORIGIN.md for what was taken and changed, and
 SOURCE_MAP.tsv for the original files and their SHA-256 values.
 
 TT-Metalium and its dependencies are external components, distributed separately

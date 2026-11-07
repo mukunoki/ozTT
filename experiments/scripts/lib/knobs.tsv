@@ -1,0 +1,148 @@
+# knobs.tsv -- scripts/ のシェルと照合の Python が読む環境変数の正本（つまみ・スクリプトのあいだの受け渡し・既定値つきで読む局所の変数）
+# ---------------------------------------------------------------------------
+# 読み手は lib/knobs.sh（knobs_names で条件に当たる名前を表の順に引く）．remeasure_all.sh は remeasure=drop の名前を呼び出し元から
+# 引き継がずに外し（INHERIT_UNSET），measure_lib.sh は kind=timing の名前をコンテナへ渡す計時のつまみにする（timing_env）．
+# `bash scripts/lib/knobs.sh --check` が表の形と，表とスクリプトの食い違い（scripts/ のシェルが既定値つきの展開 ${名前:-…} などで読む
+# 大文字の名前・Python が os.environ で読む名前がすべて表にあり，読むファイルが read_by に挙がっていること，read_by の各ファイルに
+# その名前が出ること）を確かめる（selftest.sh・remeasure_all.sh の始め）．つまみを足す・名前を変えるときはこの表も直す
+# （直さないと検査が止まり，remeasure_all.sh が新しいつまみを呼び出し元から黙って引き継ぐことが無い）．
+# 尾崎のドライバと道具が読むつまみ（OZ_* の大半）は src/common/oz_knobs.hpp の表と docs/env_vars.md が正本で，ここには載せない
+# （ここに載る OZ_* は，スクリプトが自分で読むか，値を確かめてからコンテナへ渡すものだけ）．
+#
+# 列
+#   name       変数の名前
+#   kind       knob（人がホストで立てるつまみ）・timing（計時のつまみ．measure_lib.sh の timing_env が値を確かめてコンテナへ
+#              渡し，ドライバが読む．src/common/oz_timing.hpp）・container（コンテナの中で動く検査が読むつまみ．run.sh はホストの
+#              値を渡さないので，コマンドの文字列に書いて与える）・pass（スクリプトのあいだの受け渡し．人は立てない）・
+#              local（スクリプトの中で置いて既定値つきで読む変数．呼び出し元に同じ名前が残ると効くものは remeasure=drop）・
+#              sys（システムの変数）
+#   remeasure  remeasure_all.sh が呼び出し元の値をどう扱うか：drop（外す．立っていれば開始の行に出す）・keep（引き継ぐ．冷却の
+#              つまみは開始の行に値を出して範囲を確かめる）・self（remeasure_all.sh 自身の入口のつまみ）・-（通しの測定の段が
+#              ホストで読まない．コンテナの中だけ・通しの段が呼ばないスクリプト・受け渡し）
+#   read_by    読むファイル（scripts/ からの相対．, 区切り）
+#   meaning    意味（詳しくは read_by の先頭のファイルの冒頭の注記）
+# rows=123
+name	kind	remeasure	read_by	meaning
+ONLY	knob	drop	measure_lib.sh,measure/performance.sh,measure/accuracy.sh,measure/bf16_accuracy.sh,measure/floating_decomposition.sh,diagnose/reconstruction_components.sh,measure/exponent_adaptive.sh,diagnose/probes.sh,tests/run_checks.sh,legacy/measure.sh,study/measure_paper.sh	ログ名（項目の名前）の正規表現．当たる項目だけを測る．通しの測定は REMEASURE_ONLY から段ごとに作る
+COOL_ENV	knob	drop	measure/performance.sh	measure/performance.sh の各項目に足す環境変数（COOL_TAG と組で．ログに COOLENV 行が残り表の出どころにならない）
+COOL_TAG	knob	drop	measure/performance.sh,summarize_cool.py	measure/performance.sh のログ名の末尾の印（cool_*_<N><印>.log）．summarize_cool.py はその印のログを読む
+EXT_TERMS	knob	drop	measure/floating_decomposition.sh	無誤差分割の部分積の本数（既定 "1 3 6"）
+HIFI4_SIZES	knob	drop	measure/fidelity_comparison.sh	fid_hifi4_<N> を測る大きさ（既定 "7040 14080"）
+GEMMFID_SIZES	knob	drop	measure/fidelity_comparison.sh	gemmfid_<fid>_<N> を測る大きさ（既定 "14080"）
+RUN_PAT	local	drop	measure_lib.sh,diagnose/probes.sh,measure/fidelity_comparison.sh	run_dram が指標の行を拾う正規表現（各スクリプトが置く．呼び出し元に残ると FAILED の判定が変わる）
+LABEL_W	local	drop	measure_lib.sh	run_dram の表示のラベルの幅（各スクリプトが置く）
+OZ_PROVENANCE	pass	drop	provenance.sh,measure_lib.sh,build_all.sh,measure/exponent_sweep.sh,study/measure_paper.sh	ホストで作った PROVENANCE 行をコンテナの中のスクリプトへ渡す（ホストの測定は measure_lib.sh が外す）
+OZ_ALLOW_LEGACY_LOGS	knob	drop	lib/oz_logs.py	照合の移行用の緩い判定（1 で PROVENANCE の無い古いログなどを受け付ける）
+OZ_RUN_ID	pass	drop	provenance.sh,measure_lib.sh,remeasure_all.sh,lib/remeasure_lib.sh	remeasure_all.sh の 1 回の実行の識別子（PROVENANCE の run=．remeasure_all.sh が作る）
+OZ_IMAGE_ID	pass	drop	provenance.sh,lib/common.sh	run.sh が走らせたイメージの ID（コンテナの中の provenance_check が出どころの行の image と比べる．ホストに残っていると測る前の確認が外れる）
+PROBES_SKIP	knob	drop	diagnose/probes.sh	diagnose/probes.sh で飛ばす項目のログ名の正規表現
+PROBES_EXTENDED	knob	drop	diagnose/probes.sh	diagnose/probes.sh の拡張の項目（0・1・only）
+PROBES_DESIGN	knob	drop	diagnose/probes.sh	diagnose/probes.sh の設計の比較の群（0・1・only．既定 1）
+PROBES_DOCS	knob	drop	diagnose/probes.sh	diagnose/probes.sh の docs だけが引く項目（0・1・only．既定 1．群をまたぐ）
+OZ_TIMING	knob	drop	measure_lib.sh	計時の方式（steady・cold．既定 steady．コンテナへはコマンドの文字列で渡す）
+OZ_WARMUP_SEC	timing	drop	measure_lib.sh	steady の温めの最短［s］（ドライバの既定．oz_timing.hpp）
+OZ_WARMUP_MAX_SEC	timing	drop	measure_lib.sh	steady の温めの打ち切り［s］
+OZ_WARMUP_WIN_SEC	timing	drop	measure_lib.sh	steady の定常の判定の窓［s］
+OZ_WARMUP_TOL_PCT	timing	drop	measure_lib.sh	steady の定常の判定の許容差［%］
+OZ_WARMUP_GAP_MS	timing	drop	measure_lib.sh	steady で続けて流れているとみなす間隔［ms］
+OZ_WARMUP_HOT_FACTOR	timing	drop	measure_lib.sh	steady で続けて流れているときに流す時間の倍率
+OZ_TELEM_MS	timing	drop	measure_lib.sh	計時区間のテレメトリの採取の間隔［ms］
+OZ_TELEM_TRACE	timing	drop	measure_lib.sh	1 で温めと計時区間の診断の行を出す
+OZ_TELEM_FW	timing	drop	measure_lib.sh	0 でファームウェアのテレメトリ表を読まない
+SPLIT_ENV	knob	drop	diagnose/reconstruction_components.sh	再構成段の 2x2 のセルに足す環境変数（SPLIT_TAG と組で）
+SPLIT_TAG	knob	drop	diagnose/reconstruction_components.sh	再構成段の 2x2 のログ名の末尾の印
+SPLIT_FMTS	knob	drop	diagnose/reconstruction_components.sh	再構成段の 2x2 を測る形式（既定 "bfp8 int8"）
+PHIS	knob	drop	measure/exponent_adaptive.sh	measure/exponent_adaptive.sh の φ の点（既定 lib/constants.tsv の PHIN_PHIS）
+DGEMMREF_SET	knob	drop	measure/cpu_dgemm_reference.sh	DGEMM 参照の測る点の組（paper・phi14080）
+DGEMMREF_OUT	knob	drop	measure/cpu_dgemm_reference.sh	DGEMM 参照の出力のログ（既定は組で決める．- は画面だけ）
+DGEMMREF_CORETYPE	knob	drop	measure/cpu_dgemm_reference.sh	OpenBLAS のカーネル（OPENBLAS_CORETYPE．通しの測定は ZEN を与える）
+DGEMMREF_THREADS	knob	drop	measure/cpu_dgemm_reference.sh	OpenBLAS と Dot2 のスレッド数
+DGEMMREF_IMAGE	knob	drop	measure/cpu_dgemm_reference.sh	DGEMM 参照のイメージ（既定は Dockerfile.dgemmref の sha256 のタグ．通しの測定では与えない）
+DGEMMREF_NO_LOCK	knob	drop	measure/cpu_dgemm_reference.sh	1 でデバイスの排他を取らない（通しの測定では与えない）
+LEGACY_OUT	knob	drop	legacy/measure.sh,lib/legacy_logs.py	旧 rev の実験のログの置き場（既定 主の木の measure_logs/legacy）．照合（check の段）も読む
+LEGACY_REPS	knob	drop	legacy/measure.sh,legacy/summarize.py	旧 rev の実験の 1 項目の回数（測る側と表示．照合は 3 回に固定）
+TMAX	knob	keep	measure_lib.sh,remeasure_all.sh	実行を始めてよい温度［degC］（既定 lib/constants.tsv の APPROVED_TMAX）．それを超えると論文用の検査に拒まれる
+TWAIT	knob	keep	measure_lib.sh,remeasure_all.sh,study/clock_study.sh	冷却待ちの上限［s．整数］（既定 1800．clock_study.sh は 900）
+COOL_POLL	knob	keep	measure_lib.sh,remeasure_all.sh	冷却待ちで温度を読む間隔［s］（既定 5）
+CLK_DT	knob	keep	measure_lib.sh,remeasure_all.sh	実行中のクロックの標本の間隔［s］（既定 2）
+TT_DEVICE	knob	keep	provenance.sh,device_lock.sh,study/clock_study.sh	使う Blackhole のデバイスファイル（既定 /dev/tenstorrent/0）
+TT_HUGEPAGES	knob	keep	run.sh,remeasure_all.sh	1 GiB の巨大ページの hugetlbfs（既定 /dev/hugepages-1G）
+TT_HOME_MOUNT	knob	keep	run.sh	コンテナの /home/user にするホストのディレクトリ（既定 $HOME）
+TT_METAL_SRC	knob	keep	provenance.sh	ビルド済みの tt-metal の木（既定 ~/tt-metal-src）
+TT_IMAGE	knob	keep	provenance.sh	コンテナのイメージ（既定 tt-metalium の ubuntu-22.04 の latest-rc）
+TT_SMI	knob	keep	provenance.sh	温度・クロック・ファームウェアの版を読む tt-smi
+TT_DEVICE_LOCK	knob	keep	device_lock.sh	デバイスの排他のロックファイル
+TT_DEVICE_LOCK_WAIT	knob	keep	device_lock.sh	排他を待つ上限［s］（既定 86400）
+PROV_TRIES	knob	keep	provenance.sh	git・podman の問い合わせのやり直しの回数（既定 3）
+PROV_RETRY_DT	knob	keep	provenance.sh	やり直しの間隔［s］（既定 1）
+PROV_SMI_TIMEOUT	knob	keep	provenance.sh	tt-smi -s の時間の上限［s］（既定 60）
+STEPS	knob	self	remeasure_all.sh	remeasure_all.sh の段（既定 STAGES の optional でない全段）
+DRY_RUN	knob	self	remeasure_all.sh	1 で流すコマンドを表示するだけ
+KEEP_GOING	knob	self	remeasure_all.sh	0 で測定の段が失敗したら止める（既定 1）
+SNAPSHOT	knob	self	remeasure_all.sh	0 で元の作業木でそのまま測る（既定 1：rev のスナップショットで測る）
+ALLOW_DIRTY	knob	self	provenance.sh,measure_lib.sh,remeasure_all.sh,lib/remeasure_lib.sh,measure/bf16_accuracy.sh	試し用．測る前の確認の外れを許す（ログに allow_dirty=1 が付き既定の検査を通らない）
+REMEASURE_AT	knob	self	remeasure_all.sh	前に測った rev の続きを流す
+REMEASURE_SCOPE	knob	self	remeasure_all.sh	full（既定）または pdp（PDP 本文と図だけ）
+REMEASURE_ONLY	knob	self	remeasure_all.sh	ログ名の正規表現．当たる項目だけを測り直す
+REMEASURE_SNAPSHOT_ROOT	knob	self	remeasure_all.sh	スナップショットの親（既定 <リポジトリ>_snapshots）
+REMEASURE_MAIN	pass	-	remeasure_all.sh	スナップショットで起動し直したときの元の作業木
+REMEASURE_REV	pass	-	remeasure_all.sh	スナップショットで起動し直したときの測る rev
+REMEASURE_SNAP	pass	-	remeasure_all.sh	スナップショットで起動し直した印
+REMEASURE_MACHINE	pass	-	remeasure_all.sh	元の作業木で記録した測るマシン
+TT_DEVICE_LOCK_HELD	pass	-	device_lock.sh	排他を取ったシェルの子が取り直さない印（受け継いだ fd 9 がそのロックを持つときだけ効く）
+OZ_TELEM_DEV	pass	-	run.sh,lib/common.sh	run.sh がコンテナへ渡すテレメトリのカード（コンテナの中で RUNSH_TELEM_DEV から置く）
+RUNSH_TELEM_DEV	pass	-	run.sh	run.sh がコンテナへ渡す OZ_TELEM_DEV の値（.profile が触らない名前）
+RUNSH_IMAGE_ID	pass	-	run.sh	run.sh がコンテナへ渡す OZ_IMAGE_ID の値（同）
+DGC_FLAGS	pass	-	measure/cpu_dgemm_reference.sh	measure/cpu_dgemm_reference.sh がコンテナへ渡すコンパイルのフラグ
+LEGACY_GROUPS	knob	-	legacy/measure.sh	legacy/measure.sh の群の選択
+LEGACY_OVERLAY_REV	knob	-	legacy/measure.sh	旧 rev の木へ写すファイルの写しの元の rev
+LEGACY_REBUILD	knob	-	legacy/measure.sh	1 で旧 rev の木をビルドし直す
+LEGACY_REOVERLAY	knob	-	legacy/measure.sh	1 で写しの元と違う写しを置き直す
+LEGACY_ALLOW_RETIRE	knob	-	legacy/measure.sh	1 で出どころかコマンドが今と違うログを退避して測り直す
+LEGACY_RETIRE_DIR	knob	-	legacy/measure.sh	退避先
+LEGACY_SNAP_DIR	knob	-	legacy/measure.sh	旧 rev の worktree の親
+WORKLOADS	knob	-	study/clock_study.sh	clock_study.sh の負荷
+N	knob	-	study/clock_study.sh	clock_study.sh の行列の辺
+ITERS	knob	-	study/clock_study.sh	clock_study.sh の BF16 GEMM の反復回数
+OZ_ITERS	knob	-	study/clock_study.sh	clock_study.sh の Ozaki-II-BFP8 の反復回数
+DT	knob	-	study/clock_study.sh	clock_study.sh の hwmon の標本の間隔［s］
+SMI_DT	knob	-	study/clock_study.sh	clock_study.sh の tt-smi の標本の間隔［s］
+TAIL	knob	-	study/clock_study.sh	clock_study.sh の負荷の後の記録の時間［s］
+OUT	knob	-	study/clock_study.sh	clock_study.sh の出力先
+TT_SMI_NEW	knob	-	study/clock_study.sh	clock_study.sh がテレメトリ表を読む新しい tt-smi
+SELFTEST_ALLOW_SKIP	container	-	selftest.sh	1 で SKIP・省略があっても 0 で終わる
+CHECK_PROBES_ALLOW_SKIP	container	-	tests/check_probes.sh	同上（check_probes.sh）
+SPLIT_ALLOW_SKIP	container	-	tests/check_slice_split.sh	同上（check_slice_split.sh）
+EXACT_SIDES	container	-	diagnose/gemm_exact.sh	diagnose/gemm_exact.sh の側の選択
+EXACT_TIMEOUT	container	-	diagnose/gemm_exact.sh	diagnose/gemm_exact.sh の 1 件の時間の上限［s］
+EXACT_LOG_DIR	container	-	diagnose/gemm_exact.sh	diagnose/gemm_exact.sh の出力の置き場
+SCALE_LOG_DIR	container	-	tests/check_scale.sh	check_scale.sh の出力の置き場
+SCALE_TIMEOUT	container	-	tests/check_scale.sh	check_scale.sh の 1 件の時間の上限［s］
+SPLIT_LOG_DIR	container	-	tests/check_slice_split.sh	check_slice_split.sh の出力の置き場
+SPLIT_SKIP_WRAP	container	-	tests/check_slice_split.sh	1 で check_slice_split.sh の周回の件を省く
+SPLIT_TIMEOUT	container	-	tests/check_slice_split.sh	check_slice_split.sh の 1 件の時間の上限［s］
+NSMALL_DIR	container	-	tests/check_nsmall.sh	check_nsmall.sh の出力の置き場
+CONCAT_LOG_DIR	container	-	tests/check_concat.sh	check_concat.sh の出力の置き場
+STRUCT_FLOOR	container	-	tests/check_adversarial.sh	check_adversarial.sh の構造のある入力の基準［bit］（既定 lib/constants.tsv の STRUCT_BITS）
+DROP	container	-	tests/check_adversarial.sh	check_adversarial.sh の既定入力からの許容低下［bit］
+FLOOR	container	-	tests/check_adversarial.sh	check_adversarial.sh の絶対の下限［bit］
+POW2_FLOOR	container	-	tests/check_adversarial.sh	check_adversarial.sh の 2 のべきの最大値の入力の下限［bit］
+STRUCT_BITS	container	-	diagnose/select_slice_count.sh	diagnose/select_slice_count.sh の規則 (ii) の基準［bit］（既定 lib/constants.tsv の STRUCT_BITS）
+BITS	local	-	tests/check_probes.sh	check_probes.sh の表示の値
+TMPDIR	sys	-	tests/check_probes.sh	一時ディレクトリの親（mktemp）
+IMG_ID	local	-	run.sh	run.sh が読んだイメージの ID
+EXTRA_ENV	local	-	diagnose/reconstruction_components.sh	SPLIT_ENV の写し
+I_PA	local	-	measure/exponent_adaptive.sh	I-BFP8 の既定の引数
+BF16_PA	local	-	diagnose/ablations.sh,diagnose/implementation_ratios.sh	I-BF16 の既定の引数（routes_args）
+INT8_PA	local	-	diagnose/ablations.sh	I-INT8 の既定の引数（routes_args）
+BFP2_PA	local	-	diagnose/ablations.sh	I-BFP2 の既定の引数（routes_args）
+SNAP	local	-	lib/remeasure_lib.sh	remeasure_all.sh のスナップショットの場所
+RI_TMP	local	-	measure_lib.sh	run_item --replace の一時ファイル
+II_PA	local	-	measure/exponent_adaptive.sh	II-BFP8 の既定の引数
+PICKP_BINS	local	-	diagnose/probes.sh	probe_pickp の実行ファイル
+PROV_BINS	local	-	measure_lib.sh	項目の実行ファイルと sha256（prov_bin が足す）
+PROV_START	local	-	measure_lib.sh	測り始めの出どころの識別子
+PROV_MACHINE_CORE	local	-	legacy/measure.sh	provenance.sh が lib/constants.tsv から読むマシンの欄
+PROV_SMI	local	-	study/clock_study.sh	provenance.sh が決めた tt-smi
+SUB_OK	local	-	diagnose/probes.sh	掃引の各回に許す終了コード（コンテナの中の断片）
+SUB_BAD	local	-	diagnose/probes.sh	掃引の予期しない終了コード（同）

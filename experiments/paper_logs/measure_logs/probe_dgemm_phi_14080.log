@@ -1,0 +1,32 @@
+PROVENANCE,rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,dirty=0,date=2026-11-04T11:45:59+00:00,image=d6ef6b25206b,dockerfile=unknown,coretype=ZEN,cflags=7ba96553afc5,openblas=0.3.20+ds-1,blas_config=OpenBLAS_0.3.20_NO_LAPACKE_DYNAMIC_ARCH_NO_AFFINITY_Zen_MAX_THREADS_64,blas_core=Zen,blas_threads=64,blas_parallel=pthread,omp_threads=64,cxx=12.3.0-1ubuntu1_22.04.3,libc=2.35-0ubuntu3.15,libstdcxx=12.3.0-1ubuntu1_22.04.3,libgcc=12.3.0-1ubuntu1_22.04.3,libgomp=12.3.0-1ubuntu1_22.04.3,host_eval=b1e50ea58f24,telemetry=e6b7646f63a6,oz_input=2fd1ffc98aff,oz_reference=35cfe347ba33,oz_accuracy=5faa1f47b88d,host=tt-server,cpu=AMD_Ryzen_Threadripper_PRO_9975WX_32-Cores,kmd=2.11.0,dev=1,board=p150a,board_id=000004033191A0D7,asic_id=17320B7204AC596F,fw=19.15.0.0,cm_fw=0.37.0.0,dm_fw=0.31.0.0,eth_fw=1.12.2,gddr_fw=2.16,smi=5.3.1
+=== dgemmref: M=14080 N=14080 K=14080 input=phi:0.5
+Reference: Dot2 (compensated, 64 thread)  28.4 s
+Accuracy : ||C-ref||_F/||ref||=5.921e-16  (effective ~50.6 bit)  maxrel=3.977e-13  [ref=Dot2]
+CHECKSUM,rel_fro=5.9209924875516757e-16,maxrel=3.97660091223453e-13,chash=a8f19c1f462ffec3
+DGEMMREF,M=14080,N=14080,K=14080,input=phi:0.5,seed=7,bits=50.59,rel_fro=5.920992487551676e-16,maxrel=3.97660091223453e-13,ahash=4c3a283c0f94f54b,bhash=49ec1cf304def889,chash=a8f19c1f462ffec3,blas_threads=64,dgemm_s=3.768
+RC,0
+=== dgemmref: M=14080 N=14080 K=14080 input=phi:1
+Reference: Dot2 (compensated, 64 thread)  28.1 s
+Accuracy : ||C-ref||_F/||ref||=5.917e-16  (effective ~50.6 bit)  maxrel=8.923e-14  [ref=Dot2]
+CHECKSUM,rel_fro=5.9173704198176943e-16,maxrel=8.9233038962030526e-14,chash=9640e13f21f0535d
+DGEMMREF,M=14080,N=14080,K=14080,input=phi:1,seed=7,bits=50.59,rel_fro=5.917370419817694e-16,maxrel=8.923303896203053e-14,ahash=e7444a95a1507739,bhash=58418f08e0dabe95,chash=9640e13f21f0535d,blas_threads=64,dgemm_s=3.976
+RC,0
+=== dgemmref: M=14080 N=14080 K=14080 input=phi:2
+Reference: Dot2 (compensated, 64 thread)  27.9 s
+Accuracy : ||C-ref||_F/||ref||=5.842e-16  (effective ~50.6 bit)  maxrel=4.852e-15  [ref=Dot2]
+CHECKSUM,rel_fro=5.8416313273460441e-16,maxrel=4.8523818966212328e-15,chash=b5eb64d6cddf9305
+DGEMMREF,M=14080,N=14080,K=14080,input=phi:2,seed=7,bits=50.60,rel_fro=5.841631327346044e-16,maxrel=4.852381896621233e-15,ahash=0a4076623aa8a3ea,bhash=5114fcde5d6d5b06,chash=b5eb64d6cddf9305,blas_threads=64,dgemm_s=4.246
+RC,0
+=== dgemmref: M=14080 N=14080 K=14080 input=phi:4
+Reference: Dot2 (compensated, 64 thread)  28.3 s
+Accuracy : ||C-ref||_F/||ref||=3.576e-16  (effective ~51.3 bit)  maxrel=2.386e-15  [ref=Dot2]
+CHECKSUM,rel_fro=3.575937447333499e-16,maxrel=2.3861330522431341e-15,chash=51089b5447489321
+DGEMMREF,M=14080,N=14080,K=14080,input=phi:4,seed=7,bits=51.31,rel_fro=3.575937447333499e-16,maxrel=2.386133052243134e-15,ahash=8b9ed5b0b7c5514b,bhash=e3c3cb223e879531,chash=51089b5447489321,blas_threads=64,dgemm_s=3.912
+RC,0
+=== dgemmref: M=14080 N=14080 K=14080 input=phi:8
+Reference: Dot2 (compensated, 64 thread)  28.6 s
+Accuracy : ||C-ref||_F/||ref||=6.611e-17  (effective ~53.7 bit)  maxrel=3.686e-16  [ref=Dot2]
+CHECKSUM,rel_fro=6.6106358033968625e-17,maxrel=3.6858288028117349e-16,chash=1677adf77415baae
+DGEMMREF,M=14080,N=14080,K=14080,input=phi:8,seed=7,bits=53.75,rel_fro=6.610635803396863e-17,maxrel=3.685828802811735e-16,ahash=06a054c9ebbe99f2,bhash=4db5bcc9a3ab3784,chash=1677adf77415baae,blas_threads=64,dgemm_s=3.931
+RC,0
+EXIT,rc=0,post_check=0

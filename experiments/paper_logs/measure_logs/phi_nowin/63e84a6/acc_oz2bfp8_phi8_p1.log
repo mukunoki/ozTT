@@ -1,0 +1,111 @@
+PROVENANCE,rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,dirty=0,date=2026-11-04T11:05:25+00:00,metal=ec685d2af0a5,metal_dirty=0,metal_diff=none,image=4a3c44e68374,build_rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,build_dirty=0,build_sha=54b446bac0099395,run=20261104T081237-242274,host=tt-server,cpu=AMD_Ryzen_Threadripper_PRO_9975WX_32-Cores,kmd=2.11.0,dev=1,board=p150a,board_id=000004033191A0D7,asic_id=17320B7204AC596F,fw=19.15.0.0,cm_fw=0.37.0.0,dm_fw=0.31.0.0,eth_fw=1.12.2,gddr_fw=2.16,smi=5.3.1
+BINARY,ozaki2_bfp8,sha256=b79aac39e9e4c52b926d04758f30f6e5447bd870c163835201606ed36f48a6d7,stamp_sha256=b79aac39e9e4c52b926d04758f30f6e5447bd870c163835201606ed36f48a6d7
+OZ2_FP64: kappa2=6.1e+06 (||E||_F*2^b/||C||_F) -> b<=76（上限 100），法は最大 24 本から選ぶ
+OZ2_PASSES: forced，1 パスの復元誤差の見込み 2^-31.08（1 パスにする条件 2^-55.0 以下）-> 1 パス
+2026-11-04 11:05:41.512 | info     |          Device | Opening user mode device driver (tt_cluster.cpp:228)
+2026-11-04 11:05:41.512 | info     |             UMD | Cluster constructor started. (cluster.cpp:335)
+2026-11-04 11:05:41.512 | info     |             UMD | Creating TopologyDiscovery for architecture: blackhole (topology_discovery.cpp:91)
+2026-11-04 11:05:41.512 | info     |             UMD | Starting topology discovery. (topology_discovery.cpp:110)
+2026-11-04 11:05:41.514 | info     |             UMD | Established firmware bundle version: 19.15.0 (topology_discovery.cpp:567)
+2026-11-04 11:05:41.514 | info     |             UMD | Firmware bundle version 19.15.0 on the system is newer than the latest fully tested version 19.5.0 for blackhole architecture. Newest features may not be supported. (topology_discovery.cpp:599)
+2026-11-04 11:05:41.514 | info     |             UMD | Completed topology discovery. (topology_discovery.cpp:114)
+2026-11-04 11:05:41.568 | info     |             UMD | Opening local chip ids/PCIe ids: {0}/[1] and remote chip ids {} (cluster.cpp:168)
+2026-11-04 11:05:41.569 | info     |             UMD | IOMMU: enabled (cluster.cpp:142)
+2026-11-04 11:05:41.569 | info     |             UMD | KMD version: 2.11.0 (cluster.cpp:145)
+2026-11-04 11:05:41.569 | info     |             UMD | Cluster constructor completed. (cluster.cpp:507)
+2026-11-04 11:05:41.569 | info     |             UMD | Starting devices in cluster (cluster.cpp:999)
+2026-11-04 11:05:41.618 | info     |             UMD | Starting devices in cluster completed. (cluster.cpp:1007)
+2026-11-04 11:05:41.664 | info     |     Distributed | Using auto discovery to generate mesh graph. (metal_env.cpp:362)
+2026-11-04 11:05:41.664 | info     |     Distributed | Constructing control plane using auto-discovery (no mesh graph descriptor). (metal_env.cpp:424)
+2026-11-04 11:05:41.664 | warning  |          Always | Unknown motherboard 'WRX90 WS EVO' for chip_id=0 (bus_id=0xe1) — falling back to bus_id as tray_id. Add this motherboard and its bus IDs to mobo_to_bus_ids in physical_system_discovery.cpp. (physical_system_discovery.cpp:89)
+2026-11-04 11:05:41.674 | info     |    BuildKernels | Using pre-compiled firmware from: /tt-metal/tt_metal/pre-compiled/219840659460635544/ (build_env_manager.cpp:320)
+2026-11-04 11:05:41.732 | info     |           Metal | ShmResourceTracker: removed orphaned shm '/tt_device_141176417295072_memory' (shm_resource_tracker.cpp:282)
+2026-11-04 11:05:42.311 | info     |           Metal | [Real-time profiler] Device 0 sync complete: 100 samples, frequency=1.349969 GHz, device_time_at_sync=12604427751231 cycles (realtime_profiler_manager.cpp:1127)
+Building trisc1, compile step:
+cd /home/user/.cache/tt-metal-cache/219840659460635544/kernels/modslice_digit/7760359998550639102/trisc1/ && /tt-metal/runtime/sfpi/compiler/bin/riscv-tt-elf-g++ -O3 -std=c++17 -ftt-nttp -ftt-constinit -ftt-consteval -ftt-no-dyninit -flto=auto -ffast-math -fno-exceptions -fno-rtti -fno-use-cxa-atexit -g -MMD -Wall -Werror -Wno-error=deprecated-declarations -Wno-error=multistatement-macros -Wno-error=parentheses -Wno-error=unused-but-set-variable -Wno-unused-variable -Wno-unused-function -mcpu=tt-bh-tensix -I. -I.. -I/tt-metal/ -I/tt-metal/ttnn -I/tt-metal/ttnn/cpp -I/tt-metal/tt_metal -I/tt-metal/tt_metal/hw/inc -I/tt-metal/tt_metal/tt-llk/common -I/tt-metal/tt_metal/hostdevcommon/api -I/tt-metal/tt_metal/api/ -I/tt-metal/runtime/sfpi/include -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/common -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_io -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/blackhole_defines -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/noc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/common/inc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/llk_lib -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu -I/tt-metal/tt_metal/hw/firmware/src/tt-1xx -I/home/user/tt/src/ozaki2/kernels -c -o /home/user/.cache/tt-metal-cache/219840659460635544/kernels/modslice_digit/7760359998550639102/trisc1/trisck.14682635289961293527.o /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc -MF /home/user/.cache/tt-metal-cache/219840659460635544/kernels/modslice_digit/7760359998550639102/trisc1/trisck.14682635289961293527.d -DIS_NOT_POW2_NUM_L1_BANKS=1 -DLOG_BASE_2_OF_NUM_DRAM_BANKS=3 -DNUM_DRAM_BANKS=8 -DNUM_L1_BANKS=110 -DPCIE_NOC_X=19 -DPCIE_NOC_Y=24 -DTENSIX_FIRMWARE -DLOCAL_MEM_EN=0 -DPROCESSOR_INDEX=3 -DUCK_CHLKC_MATH -DCOMPILE_FOR_TRISC=1 -DARCH_BLACKHOLE -DDISPATCH_MESSAGE_ADDR=4290184248 -DKERNEL_BUILD -DKERNEL_COMPILE_TIME_ARGS=16,1233125376,4,2,0 
+In file included from /home/user/tt/src/ozaki2/kernels/../../common/kernels/sfpu_tf.h:42,
+                 from /home/user/tt/src/ozaki2/kernels/../../common/kernels/slice_tf_core.h:26,
+                 from /home/user/tt/src/ozaki2/kernels/oz2_digits.h:51,
+                 from /home/user/tt/src/ozaki2/kernels/modslice_digit.cpp:82,
+                 from ../chlkc_math.cpp:3,
+                 from /tt-metal/tt_metal/hw/ckernels/blackhole/metal/common/chlkc_list.h:16,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc:13:
+/tt-metal/tt_metal/hw/inc/api/compute/copy_dest_values.h: In function 'void ckernel::copy_dest_values(uint32_t, uint32_t)':
+/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu/llk_math_eltwise_binary_sfpu_macros.h:92:65: warning: 'void ckernel::sfpu::copy_dest_value(uint, uint, uint) [with bool APPROXIMATION_MODE = false; int ITERATIONS = 8; uint = long unsigned int]' is deprecated: Use copy_dest_value<DataFormat, APPROXIMATION_MODE, ITERATIONS> instead [-Wdeprecated-declarations]
+   92 |     ::ckernel::_sfpu_binary_check_and_call_<DST_SYNC, DST_ACCUM>(                                         \
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   93 |         ::ckernel::sfpu::FN<_SFPU_BIN_EXPAND TEMPLATES>, DST_IN0, DST_IN1, DST_OUT, VECTOR_MODE, ##__VA_ARGS__)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/compute/compute_kernel_api.h:53:19: note: in definition of macro 'MATH'
+   53 | #define MATH(...) __VA_ARGS__
+      |                   ^~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/compute/copy_dest_values.h:65:11: note: in expansion of macro 'SFPU_BINARY_CALL'
+   65 |     MATH((SFPU_BINARY_CALL(
+      |           ^~~~~~~~~~~~~~~~
+In file included from /tt-metal/tt_metal/hw/inc/api/compute/copy_dest_values.h:9,
+                 from /home/user/tt/src/ozaki2/kernels/../../common/kernels/sfpu_tf.h:43:
+/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu/ckernel_sfpu_copy_dest_values.h:39:6: note: declared here
+   39 | void copy_dest_value(const uint dst_index_in, const uint dst_index_out, const uint /* unused */) {
+      |      ^~~~~~~~~~~~~~~
+moduli: K=14080 num_moduli=24 -> s=16 b=76  m={4096*,3929w,3721*,3481*,3263w,3249*,3025*,2809*,2209*,1849*,1681*,1369*,961*,841*,49S,23S}  KM=28160.302817  gemms=46  outputs=40  maxg=6  maxg_m={1,1,1,1,1,1,1,1,2,2,2,3,5,6,1,1}
+gemm panels: 4x4 (per-core 11x10 tiles)
+gemm cfg: grid=10x11 per-core=11x10 subblock=1x2 bw=20 nb=22 panels=4x4
+Reference: Dot2 (compensated, 64 thread)  28.7 s
+Band    : 出力を 2 本の行の帯に分ける（帯 1 本 2 パネル行．1 本では DRAM に収まらないため．1 本の見積り 31.2 GB，2 本の見積り 20.1 GB，DRAM の空き 31.0 GB）
+Memory  : 同時確保の見積り 20.1 GB（A の桁行列 3.2 + B の桁行列 6.3 + 積の器 7.9 + o64 1.6 + limb 0.00 + 余裕 1.07．DRAM の空き 31.0 GB）．最大の器 6.3 GB（最大の連続した空き 31.0 GB）
+Building trisc1, compile step:
+cd /home/user/.cache/tt-metal-cache/219840659460635544/kernels/recon_crt/15297712096341438728/trisc1/ && /tt-metal/runtime/sfpi/compiler/bin/riscv-tt-elf-g++ -O3 -std=c++17 -ftt-nttp -ftt-constinit -ftt-consteval -ftt-no-dyninit -flto=auto -ffast-math -fno-exceptions -fno-rtti -fno-use-cxa-atexit -g -MMD -Wall -Werror -Wno-error=deprecated-declarations -Wno-error=multistatement-macros -Wno-error=parentheses -Wno-error=unused-but-set-variable -Wno-unused-variable -Wno-unused-function -mcpu=tt-bh-tensix -I. -I.. -I/tt-metal/ -I/tt-metal/ttnn -I/tt-metal/ttnn/cpp -I/tt-metal/tt_metal -I/tt-metal/tt_metal/hw/inc -I/tt-metal/tt_metal/tt-llk/common -I/tt-metal/tt_metal/hostdevcommon/api -I/tt-metal/tt_metal/api/ -I/tt-metal/runtime/sfpi/include -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/common -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_io -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/blackhole_defines -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/noc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/common/inc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/llk_lib -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu -I/tt-metal/tt_metal/hw/firmware/src/tt-1xx -I/home/user/tt/src/ozaki2/kernels -c -o /home/user/.cache/tt-metal-cache/219840659460635544/kernels/recon_crt/15297712096341438728/trisc1/trisck.14682635289961293527.o /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc -MF /home/user/.cache/tt-metal-cache/219840659460635544/kernels/recon_crt/15297712096341438728/trisc1/trisck.14682635289961293527.d -DIS_NOT_POW2_NUM_L1_BANKS=1 -DLOG_BASE_2_OF_NUM_DRAM_BANKS=3 -DNUM_DRAM_BANKS=8 -DNUM_L1_BANKS=110 -DPCIE_NOC_X=19 -DPCIE_NOC_Y=24 -DTENSIX_FIRMWARE -DLOCAL_MEM_EN=0 -DPROCESSOR_INDEX=3 -DUCK_CHLKC_MATH -DCOMPILE_FOR_TRISC=1 -DARCH_BLACKHOLE -DDISPATCH_MESSAGE_ADDR=4290184248 -DKERNEL_BUILD -DKERNEL_COMPILE_TIME_ARGS=16,3,1,5,2,0,49152 
+In file included from /home/user/tt/src/ozaki2/kernels/../../common/kernels/sfpu_tf.h:42,
+                 from /home/user/tt/src/ozaki2/kernels/recon_crt.cpp:46,
+                 from ../chlkc_math.cpp:3,
+                 from /tt-metal/tt_metal/hw/ckernels/blackhole/metal/common/chlkc_list.h:16,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/trisck.cc:13:
+/tt-metal/tt_metal/hw/inc/api/compute/copy_dest_values.h: In function 'void ckernel::copy_dest_values(uint32_t, uint32_t)':
+/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu/llk_math_eltwise_binary_sfpu_macros.h:92:65: warning: 'void ckernel::sfpu::copy_dest_value(uint, uint, uint) [with bool APPROXIMATION_MODE = false; int ITERATIONS = 8; uint = long unsigned int]' is deprecated: Use copy_dest_value<DataFormat, APPROXIMATION_MODE, ITERATIONS> instead [-Wdeprecated-declarations]
+   92 |     ::ckernel::_sfpu_binary_check_and_call_<DST_SYNC, DST_ACCUM>(                                         \
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   93 |         ::ckernel::sfpu::FN<_SFPU_BIN_EXPAND TEMPLATES>, DST_IN0, DST_IN1, DST_OUT, VECTOR_MODE, ##__VA_ARGS__)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/compute/compute_kernel_api.h:53:19: note: in definition of macro 'MATH'
+   53 | #define MATH(...) __VA_ARGS__
+      |                   ^~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/compute/copy_dest_values.h:65:11: note: in expansion of macro 'SFPU_BINARY_CALL'
+   65 |     MATH((SFPU_BINARY_CALL(
+      |           ^~~~~~~~~~~~~~~~
+In file included from /tt-metal/tt_metal/hw/inc/api/compute/copy_dest_values.h:9,
+                 from /home/user/tt/src/ozaki2/kernels/../../common/kernels/sfpu_tf.h:43:
+/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_api/llk_sfpu/ckernel_sfpu_copy_dest_values.h:39:6: note: declared here
+   39 | void copy_dest_value(const uint dst_index_in, const uint dst_index_out, const uint /* unused */) {
+      |      ^~~~~~~~~~~~~~~
+Accuracy : ||C-ref||_F/||ref||=4.045e-11  (effective ~34.5 bit)  maxrel=9.985e-13  [ref=Dot2]
+CHECKSUM,rel_fro=4.0452228853541321e-11,maxrel=9.9852329981475754e-13,chash=5033c215b01f2060
+========= Ozaki-II END-TO-END pipeline  M=14080 N=14080 K=14080 S=16 grid=11x10 =========
+breakdown (DRAM->DRAM device time, ms):
+  scale        : 11.2788  (行／列ごとの最大値と 2 のべきへの丸め)
+  slice A+B    : 385.5137  (正規化・整数化・桁分解・剰余)
+  46 GEMMs      : 691.0912  (15.0237/gemm, 出力 40 本を 640 パネル発行で 1.0798/call)
+  compose      : 142.6774  (桁積の合成と法剰余)
+  recon (DS)   : 316.9133  (CRT 再構成 1 パス．累積は FP32 の limb 3 本．DS は表示名の名残)
+  ---------------------------
+  TOTAL        : 1547.4744 ms  (recon 20.5%, gemm 53.9%, scale+slice 25.6%)
+Verify   : ok (実効 34.52 bit >= 基準 1.00 bit)
+DRAM->DRAM : 1547.474 ms/iter  (slice 396.793 | GEMM 833.769 | recon 316.913)  3.6076 TFLOP/s fp64-equiv
+RESULT,ozaki2_full,14080,14080,14080,76,16,46,1547.4744,4.045e-11,34.52,396.7925,833.7686,316.9133
+VERIFY,ozaki2_full,pass
+FWTELEM,reader=umd,dev=1,dev_src=OZ_TELEM_DEV,fw_bundle=19.15.0.0,update_ms=100,aiclk_limit_max=1350,tdc_limit_max=200,tdp_limit_max=150,board_power_limit=300,enabled_max_arb=0x1d1,open_ms=2.8,samples=457,errors=0,read_us_mean=5.8,read_us_max=23.9
+TELEM,stage=scale,group=scale,timing=cold,sub=0,calls=1,iters=1,timed_s=0.0113,warm_s=0.011,warm_iters=1,warmups=0,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=0.00,drift_max_pct=0.00,seq_pct=0.00,n=2,aiclk_mean=1350.0,aiclk_min=1350,aiclk_max=1350,curr_mean=95.0,curr_max=95,power_mean=76.0,power_max=76,vcore_mean=807,temp_start=69.95,temp_max=69.95,telem_dev=1,input_power_mean=216.0,input_power_max=216,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=slice,group=slice,timing=cold,sub=0,calls=3,iters=3,timed_s=0.3855,warm_s=0.386,warm_iters=3,warmups=0,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=-0.09,drift_max_pct=0.18,seq_pct=-0.09,n=22,aiclk_mean=1348.8,aiclk_min=1343,aiclk_max=1350,curr_mean=97.1,curr_max=99,power_mean=78.0,power_max=79,vcore_mean=807,temp_start=70.21,temp_max=71.75,telem_dev=1,input_power_mean=217.7,input_power_max=222,board_power_limit=300,arb=0:0.824|8:0.176,arb_top=fmax,arb_freq_mean=1349.8,arb_freq_min=1349,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=gemm,group=gemm,timing=cold,sub=0,calls=640,iters=640,timed_s=0.6911,warm_s=0.691,warm_iters=640,warmups=0,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=-0.01,drift_max_pct=1.03,seq_pct=-2.85,n=673,aiclk_mean=1311.5,aiclk_min=1212,aiclk_max=1350,curr_mean=206.5,curr_max=329,power_mean=159.7,power_max=264,vcore_mean=778,temp_start=70.59,temp_max=79.31,telem_dev=1,input_power_mean=344.4,input_power_max=515,board_power_limit=300,arb=8:0.654|0:0.346,arb_top=Doppler,arb_freq_mean=1313.8,arb_freq_min=1213,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=compose,group=gemm,timing=cold,sub=0,calls=28,iters=28,timed_s=0.1427,warm_s=0.142,warm_iters=28,warmups=0,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=-0.11,drift_max_pct=1.58,seq_pct=-2.41,n=32,aiclk_mean=1317.4,aiclk_min=1212,aiclk_max=1350,curr_mean=216.4,curr_max=329,power_mean=168.0,power_max=264,vcore_mean=780,temp_start=73.80,temp_max=79.31,telem_dev=1,input_power_mean=344.3,input_power_max=515,board_power_limit=300,arb=8:0.653|0:0.347,arb_top=Doppler,arb_freq_mean=1320.0,arb_freq_min=1213,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=recon,group=recon,timing=cold,sub=0,calls=2,iters=2,timed_s=0.3169,warm_s=0.319,warm_iters=2,warmups=0,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=0.15,drift_max_pct=0.29,seq_pct=-6.26,n=19,aiclk_mean=1265.5,aiclk_min=1187,aiclk_max=1350,curr_mean=96.4,curr_max=103,power_mean=74.9,power_max=83,vcore_mean=777,temp_start=71.87,temp_max=72.90,telem_dev=1,input_power_mean=209.6,input_power_max=222,board_power_limit=300,arb=8:0.530|0:0.470,arb_top=Doppler,arb_freq_mean=1268.0,arb_freq_min=1188,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+CONFIG,ozaki2_full,fmt=bfp8,scheme=II,b=76,s=16,ngemm=46,digit_max=32,nrdig=2,chunk=4,fidelity=LoFi,shape=11x10,bw=20,panels=4x4,verified=1,probe=none,crt_probe=0,recon_probe=0,nsmall_req=-1,nof64=0,time_in_result=dram2dram_device_stages,d2d_ms=1547.4744,jsplit=512,noblockmm=0,two_pass=0,jsplit_on=1,groups=1,bands=2,gemm_split=1,gemm_l1acc=1,nout=40,maxg=6,gemm_probe=none,knobs=none,sparse_max=0,nsqs=0,nsingle=2,forced_moduli=0,check_concat=0,maxci=0,awe=model,awe_caps=node,input=phi:8,seed=7,min_bits=1,time_whole=0,whole_ms=0.0000,timing=cold,telem_ms=20,telem_dev=1,pass_mode=forced,recon1_pred=-31.08,recon1_thr=-55.00,recon1_eps=-70.00,auto_b=76,win_meas=0,diag=none,l1_budget_kb=1408,gen=ozgen1,chash=5033c215b01f2060,dev_grid=11x10,gemm_grid=11x10,dram_free_gb=31.04,dram_largest_gb=31.04
+
+Test Passed
+2026-11-04 11:06:23.794 | info     |    BuildKernels | JIT cache stats: 36/42 hits (85.7%) [36 cached, 4480 build-once dedup, 0 merged artifacts, 0 merged genfiles] (build_cache_telemetry.cpp:207)
+2026-11-04 11:06:23.794 | info     |    BuildKernels | JIT telemetry: 3 registered TelemetryTokens (build_cache_telemetry.cpp:230)
+2026-11-04 11:06:23.801 | info     |          Device | Closing user mode device drivers (tt_cluster.cpp:512)
+2026-11-04 11:06:23.801 | info     |             UMD | Closing devices in cluster (cluster.cpp:1012)
+2026-11-04 11:06:23.879 | info     |             UMD | Closing devices in cluster completed. (cluster.cpp:1021)
+2026-11-04 11:06:23.879 | info     |             UMD | Cluster destructor started. (cluster.cpp:729)
+2026-11-04 11:06:23.879 | info     |             UMD | Cluster destructor completed. (cluster.cpp:732)
+EXIT,rc=0,post_check=1

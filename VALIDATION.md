@@ -171,7 +171,8 @@ These are correctness checks and one reproduction run, not a performance study. 
 do not establish an error guarantee for arbitrary input, compatibility with other
 Metalium releases, or production performance. The values in
 `evaluation/paper_reference.csv` come from the research implementation, not from this
-evaluator.
+evaluator (the logs they were taken from are in `experiments/paper_logs/`, with the
+research code that produced them in `experiments/`).
 
 Operational note: do not kill an evaluation while device programs are running. In an
 earlier validation a killed run was followed, without a board reset, by a run that

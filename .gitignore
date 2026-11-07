@@ -3,3 +3,6 @@
 /generated/
 /.tt-generated/
 /evaluation_results/
+/experiments/src/build/
+/experiments/measure_logs/
+/experiments/accuracy_logs/

@@ -8,6 +8,12 @@ repository, and updating the research sources does not update this library. It i
 maintained independently from here on (it was split out of that repository's
 `release/` directory at commit c029f626).
 
+`experiments/` is different: it is a verbatim copy of the research code (its `src/`,
+`tools/`, the measurement scripts and the paper's logs) at the paper-data snapshot, kept
+to reproduce the paper's numbers that the library's evaluator does not produce. It is
+a second, independent implementation with its own Makefile; nothing in the library is
+built from it or includes it (`experiments/README.md`).
+
 `SOURCE_MAP.tsv` lists, for every library file that has a research origin, the
 research file and its SHA-256 at the snapshot. The hashes identify the originals;
 the library files are adapted as described below.

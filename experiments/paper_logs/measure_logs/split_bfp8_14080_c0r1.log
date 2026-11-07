@@ -1,0 +1,133 @@
+PROVENANCE,rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,dirty=0,date=2026-11-04T10:28:21+00:00,metal=ec685d2af0a5,metal_dirty=0,metal_diff=none,image=4a3c44e68374,build_rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6,build_dirty=0,build_sha=54b446bac0099395,run=20261104T081237-242274,host=tt-server,cpu=AMD_Ryzen_Threadripper_PRO_9975WX_32-Cores,kmd=2.11.0,dev=1,board=p150a,board_id=000004033191A0D7,asic_id=17320B7204AC596F,fw=19.15.0.0,cm_fw=0.37.0.0,dm_fw=0.31.0.0,eth_fw=1.12.2,gddr_fw=2.16,smi=5.3.1
+BINARY,ozaki2_bfp8,sha256=b79aac39e9e4c52b926d04758f30f6e5447bd870c163835201606ed36f48a6d7,stamp_sha256=b79aac39e9e4c52b926d04758f30f6e5447bd870c163835201606ed36f48a6d7
+2026-11-04 10:28:23.318 | info     |          Device | Opening user mode device driver (tt_cluster.cpp:228)
+2026-11-04 10:28:23.318 | info     |             UMD | Cluster constructor started. (cluster.cpp:335)
+2026-11-04 10:28:23.318 | info     |             UMD | Creating TopologyDiscovery for architecture: blackhole (topology_discovery.cpp:91)
+2026-11-04 10:28:23.318 | info     |             UMD | Starting topology discovery. (topology_discovery.cpp:110)
+2026-11-04 10:28:23.320 | info     |             UMD | Established firmware bundle version: 19.15.0 (topology_discovery.cpp:567)
+2026-11-04 10:28:23.320 | info     |             UMD | Firmware bundle version 19.15.0 on the system is newer than the latest fully tested version 19.5.0 for blackhole architecture. Newest features may not be supported. (topology_discovery.cpp:599)
+2026-11-04 10:28:23.320 | info     |             UMD | Completed topology discovery. (topology_discovery.cpp:114)
+2026-11-04 10:28:23.374 | info     |             UMD | Opening local chip ids/PCIe ids: {0}/[1] and remote chip ids {} (cluster.cpp:168)
+2026-11-04 10:28:23.374 | info     |             UMD | IOMMU: enabled (cluster.cpp:142)
+2026-11-04 10:28:23.374 | info     |             UMD | KMD version: 2.11.0 (cluster.cpp:145)
+2026-11-04 10:28:23.374 | info     |             UMD | Cluster constructor completed. (cluster.cpp:507)
+2026-11-04 10:28:23.375 | info     |             UMD | Starting devices in cluster (cluster.cpp:999)
+2026-11-04 10:28:23.441 | info     |             UMD | Starting devices in cluster completed. (cluster.cpp:1007)
+2026-11-04 10:28:23.484 | info     |     Distributed | Using auto discovery to generate mesh graph. (metal_env.cpp:362)
+2026-11-04 10:28:23.484 | info     |     Distributed | Constructing control plane using auto-discovery (no mesh graph descriptor). (metal_env.cpp:424)
+2026-11-04 10:28:23.484 | warning  |          Always | Unknown motherboard 'WRX90 WS EVO' for chip_id=0 (bus_id=0xe1) — falling back to bus_id as tray_id. Add this motherboard and its bus IDs to mobo_to_bus_ids in physical_system_discovery.cpp. (physical_system_discovery.cpp:89)
+2026-11-04 10:28:23.494 | info     |    BuildKernels | Using pre-compiled firmware from: /tt-metal/tt_metal/pre-compiled/219840659460635544/ (build_env_manager.cpp:320)
+2026-11-04 10:28:23.554 | info     |           Metal | ShmResourceTracker: removed orphaned shm '/tt_device_141176417295072_memory' (shm_resource_tracker.cpp:282)
+2026-11-04 10:28:24.133 | info     |           Metal | [Real-time profiler] Device 0 sync complete: 100 samples, frequency=1.349978 GHz, device_time_at_sync=10239728964854 cycles (realtime_profiler_manager.cpp:1127)
+Building ncrisc, compile step:
+cd /home/user/.cache/tt-metal-cache/219840659460635544/kernels/recon_reader/10031486692100322653/ncrisc/ && /tt-metal/runtime/sfpi/compiler/bin/riscv-tt-elf-g++ -O2 -std=c++17 -ftt-nttp -ftt-constinit -ftt-consteval -ftt-no-dyninit -flto=auto -ffast-math -fno-exceptions -fno-rtti -fno-use-cxa-atexit -g -MMD -Wall -Werror -Wno-error=deprecated-declarations -Wno-error=multistatement-macros -Wno-error=parentheses -Wno-error=unused-but-set-variable -Wno-unused-variable -Wno-unused-function -mcpu=tt-bh -fno-tree-loop-distribute-patterns -I. -I.. -I/tt-metal/ -I/tt-metal/ttnn -I/tt-metal/ttnn/cpp -I/tt-metal/tt_metal -I/tt-metal/tt_metal/hw/inc -I/tt-metal/tt_metal/tt-llk/common -I/tt-metal/tt_metal/hostdevcommon/api -I/tt-metal/tt_metal/api/ -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/common -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_io -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/blackhole_defines -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/noc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/common/inc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/llk_lib -I/tt-metal/tt_metal/hw/firmware/src/tt-1xx -I/home/user/tt/src/ozaki2/kernels -c -o /home/user/.cache/tt-metal-cache/219840659460635544/kernels/recon_reader/10031486692100322653/ncrisc/ncrisck.5428209016581491093.o /tt-metal/tt_metal/hw/firmware/src/tt-1xx/ncrisck.cc -MF /home/user/.cache/tt-metal-cache/219840659460635544/kernels/recon_reader/10031486692100322653/ncrisc/ncrisck.5428209016581491093.d -DIS_NOT_POW2_NUM_L1_BANKS=1 -DLOG_BASE_2_OF_NUM_DRAM_BANKS=3 -DNUM_DRAM_BANKS=8 -DNUM_L1_BANKS=110 -DPCIE_NOC_X=19 -DPCIE_NOC_Y=24 -DTENSIX_FIRMWARE -DLOCAL_MEM_EN=0 -DPROCESSOR_INDEX=1 -DCOMPILE_FOR_NCRISC -DARCH_BLACKHOLE -DDISPATCH_MESSAGE_ADDR=4290184248 -DKERNEL_BUILD -DNOC_INDEX='1' -DNOC_MODE='0' -DKERNEL_COMPILE_TIME_ARGS=2,4096,1,0,1 
+In file included from /home/user/tt/src/ozaki2/kernels/recon_reader.cpp:46,
+                 from ../kernel_includes.hpp:1,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/ncrisck.cc:22:
+/home/user/tt/src/ozaki2/kernels/oz2_plane_fetch.h: In instantiation of 'void oz2_fetch_planes(uint32_t, const TA&, uint32_t, uint32_t, uint32_t, uint32_t) [with TA = TensorAccessor<tensor_accessor::DistributionSpec<0, 0, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<short unsigned int>, true, true> >; uint32_t = long unsigned int]':
+/home/user/tt/src/ozaki2/kernels/recon_reader.cpp:93:52:   required from here
+   93 |     auto fetch = [&](uint32_t g) { oz2_fetch_planes(cb_in, in, g, S, ntot, tb); };
+      |                                    ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/user/tt/src/ozaki2/kernels/oz2_plane_fetch.h:18:59: warning: 'void noc_async_read_tile(uint32_t, const TensorAccessor<DSpec>&, uint32_t, uint32_t, uint8_t) [with DSpec = tensor_accessor::DistributionSpec<0, 0, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<short unsigned int>, true, true>; uint32_t = long unsigned int; uint8_t = unsigned char]' is deprecated: Use <typename AddrGen> noc_async_read_page instead. [-Wdeprecated-declarations]
+   18 |     for (uint32_t s = 0; s < n; ++s) { noc_async_read_tile(s * ntot + g, in, l1); l1 += tile_bytes; }
+      |                                        ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+In file included from /tt-metal/tt_metal/hw/inc/internal/firmware_common.h:24,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/ncrisck.cc:17:
+/tt-metal/tt_metal/hw/inc/api/dataflow/dataflow_api.h:1111:19: note: declared here
+ 1111 | FORCE_INLINE void noc_async_read_tile(
+      |                   ^~~~~~~~~~~~~~~~~~~
+moduli: K=14080 num_moduli=24 -> s=14 b=54  m={4096*,3721*,3481*,3249*,3025*,2809*,2209*,1849*,49S,41S,37S,31S,29S,23S}  KM=28334.317410  gemms=30  outputs=28  maxg=2  maxg_m={1,1,1,1,1,1,2,2,1,1,1,1,1,1}
+gemm panels: 4x4 (per-core 11x10 tiles)
+gemm cfg: grid=10x11 per-core=11x10 subblock=1x2 bw=20 nb=22 panels=4x4
+Memory  : 同時確保の見積り 25.4 GB（A の桁行列 4.6 + B の桁行列 4.6 + 積の器 13.5 + o64 1.6 + limb 0.00 + 余裕 1.07．DRAM の空き 31.0 GB）．最大の器 11.1 GB（最大の連続した空き 31.0 GB）
+WARMUP,stage=scale,group=scale,kind=full,gap_ms=na,sec=10.016,iters=888,batch=3,stable=1,capped=0,win_prev=1350.0,win_last=1350.0,curr=79.2,power=63.6,temp=65.98,input_power_mean=219.5,input_power_max=229,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+WARMUP,stage=slice,group=slice,kind=full,gap_ms=na,sec=10.639,iters=48,batch=3,stable=1,capped=0,win_prev=1350.0,win_last=1350.0,curr=97.9,power=78.4,temp=68.67,input_power_mean=218.0,input_power_max=223,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+WARMUP,stage=gemm,group=gemm,kind=full,gap_ms=na,sec=10.001,iters=8862,batch=3,stable=1,capped=0,win_prev=1087.0,win_last=1077.7,curr=194.9,power=136.8,temp=76.87,input_power_mean=277.6,input_power_max=386,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1081.6,arb_freq_min=1078,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+Building brisc, compile step:
+cd /home/user/.cache/tt-metal-cache/219840659460635544/kernels/recon_writer/16210670927239880815/brisc/ && /tt-metal/runtime/sfpi/compiler/bin/riscv-tt-elf-g++ -O2 -std=c++17 -ftt-nttp -ftt-constinit -ftt-consteval -ftt-no-dyninit -flto=auto -ffast-math -fno-exceptions -fno-rtti -fno-use-cxa-atexit -g -MMD -Wall -Werror -Wno-error=deprecated-declarations -Wno-error=multistatement-macros -Wno-error=parentheses -Wno-error=unused-but-set-variable -Wno-unused-variable -Wno-unused-function -mcpu=tt-bh -fno-tree-loop-distribute-patterns -I. -I.. -I/tt-metal/ -I/tt-metal/ttnn -I/tt-metal/ttnn/cpp -I/tt-metal/tt_metal -I/tt-metal/tt_metal/hw/inc -I/tt-metal/tt_metal/tt-llk/common -I/tt-metal/tt_metal/hostdevcommon/api -I/tt-metal/tt_metal/api/ -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/common -I/tt-metal/tt_metal/hw/ckernels/blackhole/metal/llk_io -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/blackhole_defines -I/tt-metal/tt_metal/hw/inc/internal/tt-1xx/blackhole/noc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/common/inc -I/tt-metal/tt_metal/tt-llk/tt_llk_blackhole/llk_lib -I/tt-metal/tt_metal/hw/firmware/src/tt-1xx -I/home/user/tt/src/ozaki2/kernels -c -o /home/user/.cache/tt-metal-cache/219840659460635544/kernels/recon_writer/16210670927239880815/brisc/brisck.5428209016581491093.o /tt-metal/tt_metal/hw/firmware/src/tt-1xx/brisck.cc -MF /home/user/.cache/tt-metal-cache/219840659460635544/kernels/recon_writer/16210670927239880815/brisc/brisck.5428209016581491093.d -DIS_NOT_POW2_NUM_L1_BANKS=1 -DLOG_BASE_2_OF_NUM_DRAM_BANKS=3 -DNUM_DRAM_BANKS=8 -DNUM_L1_BANKS=110 -DPCIE_NOC_X=19 -DPCIE_NOC_Y=24 -DTENSIX_FIRMWARE -DLOCAL_MEM_EN=0 -DPROCESSOR_INDEX=0 -DCOMPILE_FOR_BRISC -DARCH_BLACKHOLE -DDISPATCH_MESSAGE_ADDR=4290184248 -DKERNEL_BUILD -DNOC_INDEX='0' -DNOC_MODE='0' -DKERNEL_COMPILE_TIME_ARGS=2,4096,2,4096,2,4096,1,0,1,2,8192,2,4096,2,4096,2,16384 
+In file included from ../kernel_includes.hpp:1,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/brisck.cc:21:
+/home/user/tt/src/ozaki2/kernels/recon_writer.cpp: In function 'void kernel_main()':
+/home/user/tt/src/ozaki2/kernels/recon_writer.cpp:129:33: warning: 'void noc_async_write_tile(uint32_t, const TensorAccessor<DSpec>&, uint32_t, uint8_t) [with DSpec = tensor_accessor::DistributionSpec<0, 0, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<short unsigned int>, true, true>; uint32_t = long unsigned int; uint8_t = unsigned char]' is deprecated: Use <typename AddrGen> noc_async_write_page instead. [-Wdeprecated-declarations]
+  129 |             noc_async_write_tile(g, o0, p);
+      |             ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+In file included from /tt-metal/tt_metal/hw/inc/internal/firmware_common.h:24,
+                 from /tt-metal/tt_metal/hw/firmware/src/tt-1xx/brisck.cc:17:
+/tt-metal/tt_metal/hw/inc/api/dataflow/dataflow_api.h:1354:19: note: declared here
+ 1354 | FORCE_INLINE void noc_async_write_tile(
+      |                   ^~~~~~~~~~~~~~~~~~~~
+/home/user/tt/src/ozaki2/kernels/recon_writer.cpp:130:33: warning: 'void noc_async_write_tile(uint32_t, const TensorAccessor<DSpec>&, uint32_t, uint8_t) [with DSpec = tensor_accessor::DistributionSpec<0, 0, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<short unsigned int>, true, true>; uint32_t = long unsigned int; uint8_t = unsigned char]' is deprecated: Use <typename AddrGen> noc_async_write_page instead. [-Wdeprecated-declarations]
+  130 |             noc_async_write_tile(g, o1, p + ts);
+      |             ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/dataflow/dataflow_api.h:1354:19: note: declared here
+ 1354 | FORCE_INLINE void noc_async_write_tile(
+      |                   ^~~~~~~~~~~~~~~~~~~~
+/home/user/tt/src/ozaki2/kernels/recon_writer.cpp:131:49: warning: 'void noc_async_write_tile(uint32_t, const TensorAccessor<DSpec>&, uint32_t, uint8_t) [with DSpec = tensor_accessor::DistributionSpec<0, 0, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<short unsigned int>, true, true>; uint32_t = long unsigned int; uint8_t = unsigned char]' is deprecated: Use <typename AddrGen> noc_async_write_page instead. [-Wdeprecated-declarations]
+  131 |             if (nlimb >= 3) noc_async_write_tile(g, o2, p + 2 * ts);
+      |                             ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/dataflow/dataflow_api.h:1354:19: note: declared here
+ 1354 | FORCE_INLINE void noc_async_write_tile(
+      |                   ^~~~~~~~~~~~~~~~~~~~
+/home/user/tt/src/ozaki2/kernels/recon_writer.cpp:142:33: warning: 'void noc_async_write_tile(uint32_t, const TensorAccessor<DSpec>&, uint32_t, uint8_t) [with DSpec = tensor_accessor::DistributionSpec<0, 0, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<short unsigned int>, true, true>; uint32_t = long unsigned int; uint8_t = unsigned char]' is deprecated: Use <typename AddrGen> noc_async_write_page instead. [-Wdeprecated-declarations]
+  142 |             noc_async_write_tile(g, o0, qp);
+      |             ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/dataflow/dataflow_api.h:1354:19: note: declared here
+ 1354 | FORCE_INLINE void noc_async_write_tile(
+      |                   ^~~~~~~~~~~~~~~~~~~~
+/home/user/tt/src/ozaki2/kernels/recon_writer.cpp:145:32: warning: 'void noc_async_read_tile(uint32_t, const TensorAccessor<DSpec>&, uint32_t, uint32_t, uint8_t) [with DSpec = tensor_accessor::DistributionSpec<0, 0, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<short unsigned int>, true, true>; uint32_t = long unsigned int; uint8_t = unsigned char]' is deprecated: Use <typename AddrGen> noc_async_read_page instead. [-Wdeprecated-declarations]
+  145 |             noc_async_read_tile((g + off) / Nt, ada, ap);
+      |             ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/dataflow/dataflow_api.h:1111:19: note: declared here
+ 1111 | FORCE_INLINE void noc_async_read_tile(
+      |                   ^~~~~~~~~~~~~~~~~~~
+/home/user/tt/src/ozaki2/kernels/recon_writer.cpp:146:32: warning: 'void noc_async_read_tile(uint32_t, const TensorAccessor<DSpec>&, uint32_t, uint32_t, uint8_t) [with DSpec = tensor_accessor::DistributionSpec<0, 0, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<short unsigned int>, true, true>; uint32_t = long unsigned int; uint8_t = unsigned char]' is deprecated: Use <typename AddrGen> noc_async_read_page instead. [-Wdeprecated-declarations]
+  146 |             noc_async_read_tile((g + off) % Nt, adb, bp);
+      |             ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/dataflow/dataflow_api.h:1111:19: note: declared here
+ 1111 | FORCE_INLINE void noc_async_read_tile(
+      |                   ^~~~~~~~~~~~~~~~~~~
+/home/user/tt/src/ozaki2/kernels/recon_writer.cpp:148:36: warning: 'void noc_async_read_tile(uint32_t, const TensorAccessor<DSpec>&, uint32_t, uint32_t, uint8_t) [with DSpec = tensor_accessor::DistributionSpec<0, 0, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<short unsigned int>, true, true>; uint32_t = long unsigned int; uint8_t = unsigned char]' is deprecated: Use <typename AddrGen> noc_async_read_page instead. [-Wdeprecated-declarations]
+  148 |                 noc_async_read_tile(g, aq0, qp);
+      |                 ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/dataflow/dataflow_api.h:1111:19: note: declared here
+ 1111 | FORCE_INLINE void noc_async_read_tile(
+      |                   ^~~~~~~~~~~~~~~~~~~
+/home/user/tt/src/ozaki2/kernels/recon_writer.cpp:168:33: warning: 'void noc_async_write_tile(uint32_t, const TensorAccessor<DSpec>&, uint32_t, uint8_t) [with DSpec = tensor_accessor::DistributionSpec<0, 0, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<long unsigned int>, tensor_accessor::ArrayStaticWrapper<short unsigned int>, true, true>; uint32_t = long unsigned int; uint8_t = unsigned char]' is deprecated: Use <typename AddrGen> noc_async_write_page instead. [-Wdeprecated-declarations]
+  168 |             noc_async_write_tile(g + off, of, fp);
+      |             ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/tt-metal/tt_metal/hw/inc/api/dataflow/dataflow_api.h:1354:19: note: declared here
+ 1354 | FORCE_INLINE void noc_async_write_tile(
+      |                   ^~~~~~~~~~~~~~~~~~~~
+WARMUP,stage=recon,group=recon,kind=full,gap_ms=na,sec=10.442,iters=39,batch=3,stable=1,capped=0,win_prev=1350.0,win_last=1350.0,curr=105.9,power=84.9,temp=75.98,input_power_mean=224.5,input_power_max=229,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+========= Ozaki-II END-TO-END pipeline  M=14080 N=14080 K=14080 S=14 grid=11x10 =========
+breakdown (DRAM->DRAM device time, ms):
+  scale        : 11.2798  (行／列ごとの最大値と 2 のべきへの丸め)
+  slice A+B    : 221.6454  (正規化・整数化・桁分解・剰余)
+  30 GEMMs      : 579.0279  (19.3009/gemm, 出力 28 本を 448 パネル発行で 1.2925/call)
+  compose      : 105.7570  (桁積の合成と法剰余)
+  recon (DS)   : 266.3110  (CRT 再構成 1 パス．累積は FP32 の limb 3 本．DS は表示名の名残)
+  ---------------------------
+  TOTAL        : 1184.0211 ms  (recon 22.5%, gemm 57.8%, scale+slice 19.7%)
+Verify   : skipped (OZ_NOVERIFY) -- 精度は判定していない
+DRAM->DRAM : 1184.021 ms/iter  (slice 232.925 | GEMM 684.785 | recon 266.311)  4.7150 TFLOP/s fp64-equiv
+RESULT,ozaki2_full,14080,14080,14080,54,14,30,1184.0211,nan,nan,232.9253,684.7848,266.3110
+VERIFY,ozaki2_full,skipped
+FWTELEM,reader=umd,dev=1,dev_src=OZ_TELEM_DEV,fw_bundle=19.15.0.0,update_ms=100,aiclk_limit_max=1350,tdc_limit_max=200,tdp_limit_max=150,board_power_limit=300,enabled_max_arb=0x1d1,open_ms=2.7,samples=3551,errors=0,read_us_mean=5.4,read_us_max=27.1
+TELEM,stage=scale,group=scale,timing=steady,sub=0,calls=1,iters=3,timed_s=0.0338,warm_s=10.016,warm_iters=888,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=0.00,drift_max_pct=0.00,seq_pct=0.00,n=3,aiclk_mean=1350.0,aiclk_min=1350,aiclk_max=1350,curr_mean=78.0,curr_max=78,power_mean=63.0,power_max=63,vcore_mean=811,temp_start=65.85,temp_max=65.85,telem_dev=1,input_power_mean=208.0,input_power_max=208,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=slice,group=slice,timing=steady,sub=0,calls=1,iters=3,timed_s=0.6649,warm_s=10.639,warm_iters=48,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=-0.00,drift_max_pct=0.00,seq_pct=-0.00,n=34,aiclk_mean=1350.0,aiclk_min=1350,aiclk_max=1350,curr_mean=98.4,curr_max=99,power_mean=78.7,power_max=79,vcore_mean=806,temp_start=68.54,temp_max=68.80,telem_dev=1,input_power_mean=216.9,input_power_max=220,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=gemm,group=gemm,timing=steady,sub=0,calls=448,iters=1344,timed_s=1.7371,warm_s=32.313,warm_iters=26322,warmups=1,rewarms=0,hot=447,capped=0,ref_aiclk=1077.7,drift_pct=-0.10,drift_max_pct=5.73,seq_pct=-5.16,n=528,aiclk_mean=1022.1,aiclk_min=950,aiclk_max=1175,curr_mean=175.9,curr_max=264,power_mean=121.7,power_max=191,vcore_mean=695,temp_start=76.75,temp_max=81.36,telem_dev=1,input_power_mean=301.1,input_power_max=428,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1025.2,arb_freq_min=951,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=compose,group=gemm,timing=steady,sub=0,calls=8,iters=24,timed_s=0.3173,warm_s=0.438,warm_iters=32,warmups=0,rewarms=0,hot=8,capped=0,ref_aiclk=1070.3,drift_pct=-0.18,drift_max_pct=2.72,seq_pct=-4.95,n=25,aiclk_mean=1017.3,aiclk_min=950,aiclk_max=1100,curr_mean=128.3,curr_max=232,power_mean=88.5,power_max=160,vcore_mean=696,temp_start=72.64,temp_max=80.85,telem_dev=1,input_power_mean=296.5,input_power_max=358,board_power_limit=300,arb=8:1.000,arb_top=Doppler,arb_freq_mean=1020.4,arb_freq_min=951,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+TELEM,stage=recon,group=recon,timing=steady,sub=0,calls=1,iters=3,timed_s=0.7989,warm_s=10.442,warm_iters=39,warmups=1,rewarms=0,hot=0,capped=0,ref_aiclk=1350.0,drift_pct=0.00,drift_max_pct=0.00,seq_pct=0.00,n=41,aiclk_mean=1350.0,aiclk_min=1350,aiclk_max=1350,curr_mean=105.7,curr_max=107,power_mean=84.7,power_max=86,vcore_mean=805,temp_start=75.72,temp_max=75.98,telem_dev=1,input_power_mean=224.7,input_power_max=230,board_power_limit=300,arb=0:1.000,arb_top=fmax,arb_freq_mean=1350.0,arb_freq_min=1350,enabled_max_arb=0x1d1,miss=0,stale_ms=0
+CONFIG,ozaki2_full,fmt=bfp8,scheme=II,b=54,s=14,ngemm=30,digit_max=32,nrdig=2,chunk=3,fidelity=LoFi,shape=11x10,bw=20,panels=4x4,verified=0,probe=set,crt_probe=0,recon_probe=1,nsmall_req=-1,nof64=0,time_in_result=dram2dram_device_stages,d2d_ms=1184.0211,jsplit=512,noblockmm=0,two_pass=0,jsplit_on=1,groups=1,bands=1,gemm_split=1,gemm_l1acc=1,nout=28,maxg=2,gemm_probe=none,knobs=none,sparse_max=0,nsqs=0,nsingle=6,forced_moduli=0,check_concat=0,maxci=0,awe=model,awe_caps=none,input=uniform,seed=7,min_bits=53,time_whole=0,whole_ms=0.0000,timing=steady,warmup_sec=10,warmup_max_sec=180,warmup_win_sec=1,warmup_tol_pct=1,warmup_gap_ms=50,warmup_hot_factor=20,telem_ms=20,telem_dev=1,pass_mode=fixed,recon1_pred=na,recon1_thr=-55.00,recon1_eps=-70.00,auto_b=0,win_meas=0,diag=OZ_RECON_PROBE,l1_budget_kb=1408,gen=ozgen1,chash=ab2fa30869fd0383,dev_grid=11x10,gemm_grid=11x10,dram_free_gb=31.04,dram_largest_gb=31.04
+
+Test Skipped
+2026-11-04 10:29:36.494 | info     |    BuildKernels | JIT cache stats: 40/42 hits (95.2%) [40 cached, 3130 build-once dedup, 0 merged artifacts, 0 merged genfiles] (build_cache_telemetry.cpp:207)
+2026-11-04 10:29:36.494 | info     |    BuildKernels | JIT telemetry: 3 registered TelemetryTokens (build_cache_telemetry.cpp:230)
+2026-11-04 10:29:36.499 | info     |          Device | Closing user mode device drivers (tt_cluster.cpp:512)
+2026-11-04 10:29:36.499 | info     |             UMD | Closing devices in cluster (cluster.cpp:1012)
+2026-11-04 10:29:36.611 | info     |             UMD | Closing devices in cluster completed. (cluster.cpp:1021)
+2026-11-04 10:29:36.611 | info     |             UMD | Cluster destructor started. (cluster.cpp:729)
+2026-11-04 10:29:36.611 | info     |             UMD | Cluster destructor completed. (cluster.cpp:732)
+AICLK,split_bfp8_14080_c0r1,window=process,n=34,min=800,max=1350,mean=1191,median=1259,busy_n=33,busy_min=956,busy_max=1350,busy_mean=1203,busy_median=1350,idle=800,dt=2
+COOLCOND,split_bfp8_14080_c0r1,start=60.0,cooled=1,tmax=60,twait=1800
+EXIT,rc=0,post_check=1

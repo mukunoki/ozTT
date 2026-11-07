@@ -1,0 +1,89 @@
+# constants.tsv -- 測る側（シェル）と検査する側（Python）が同じ値を使う定数と，検査する側が C++ と同じ値を使う定数の正本
+# ---------------------------------------------------------------------------
+# タブ区切りの 2 列（名前・値）．# で始まる行と空行は読まない．最初の非コメント行が見出し（name<TAB>value）．
+# 値は 1 語か，空白で区切った語の並び（読み手が語に分ける）で，空にしない．同じ名前を 2 行に書かない．
+# 読み手は bash が lib/consts.sh（const_get），Python が lib/consts.py（get・words・num）．どちらも表全体を同じ規則で
+# 確かめてから値を返す（見出し・列の数・空の値・名前の重複・下の行の数）．
+# 次の行（# rows=<名前の行の数>）は読み手が行の数を確かめるための印で，行を足す・消すときは一緒に直す．
+# rows=24
+# 測る側と検査する側が別々に値を持つと，片方だけを直したとき，測り直しの判断と使えるかの判断が黙ってずれる．
+# 値を変えるときは，値を使う側の注記（各行の上の説明に挙げた所）と論文・スライド・docs の文も確かめる．
+# C++ のドライバは表を読めないので，C++ と同じであるべき行（ARB_NAMES・RESULT_*・OZ2_B_DEFAULT）は verify/check_routes.py が
+# 突き合わせる（ARB_NAMES は src/common/telemetry.hpp の arb_name，OZ2_B_DEFAULT は src/ozaki2/ozaki2_moduli.h の同じ名前）．
+#
+#   APPROVED_TMAX    論文の冷却条件（「1 項目ずつ 60 degC 以下へ冷却してから測る」）［degC］．measure_lib.sh の TMAX の既定，
+#                    remeasure_all.sh が許す TMAX の上限，oz_logs.py・legacy_logs.py が COOLCOND の tmax・start に課す上限
+#   IDLE_MHZ         Blackhole のアイドルの AICLK［MHz］．measure_lib.sh の AICLK 行の busy_*（これより上の標本）と idle=，
+#                    oz_logs.aiclk の要約
+#   MACHINE_KEYS     PROVENANCE 行のマシンの欄のうち検査が比べるもの（provenance.sh の prov_machine が書く並び．dev・smi は
+#                    記録だけで比べない）．oz_logs.py の MACHINE_KEYS
+#   MACHINE_CORE     その中で sysfs・/proc から読む欄（読み損ないが無いので，ログの組・測定の途中で 1 つでも違えば別のマシン）．
+#                    provenance.sh の PROV_MACHINE_CORE（prov_machine_diff・legacy/measure.sh の PROV_KEYS）と
+#                    legacy_logs.py の MACHINE_CORE_KEYS
+#   MACHINE_DETAIL   tt-smi でしか読めない欄（一時的に読めないことがあるので，両方が分かっているときだけ比べる）．
+#                    MACHINE_CORE と合わせて MACHINE_KEYS の全部（verify/check_routes.py が確かめる）
+#   MACHINE_REQUIRED 既定の検査が分かっていることを要る欄．provenance.sh の prov_machine_missing（remeasure_all.sh が測る前に
+#                    確かめる）と oz_logs.py の MACHINE_REQUIRED
+#   OOM_RE           DRAM の確保失敗または確保前の容量不足を示す行の正規表現（grep -E と Python の re の両方で読める形）．
+#                    DRAM に収まらないことの確認（remeasure_all.sh の abl_band_one_14080，diagnose/probes.sh の dram_item）と
+#                    その照合（probe_checks.py の OOM）
+#   PHI_N            φ の掃引（fig:phi）の大きさ M=N=K．measure/exponent_sweep.sh の実行，measure/cpu_dgemm_reference.sh の paper の組の φ の点，lib/phi_logs.py の
+#                    PHI_N（と lib/peer_logs.py の DGEMM_REF_POINTS）
+#   PHI_SWEEP        φ の掃引の点のうち accuracy_logs/phi_sweep.log に置くもの．measure/exponent_sweep.sh の既定，
+#                    lib/phi_logs.py の PHI_LOGS，measure/cpu_dgemm_reference.sh の paper の組（PHI_SWEEP_05 と合わせて小さい順に．lib/peer_logs.py の
+#                    DGEMM_REF_POINTS も同じ）
+#   PHI_SWEEP_05     同じ掃引の点のうち accuracy_logs/phi_sweep_05.log に分けて置くもの（remeasure_all.sh の phi_05 の段）
+#   PHIN_PHIS        φ を広げた入力で p・b を選び直した構成（14080^3）の点．measure/exponent_adaptive.sh の PHIS の既定，
+#                    measure/cpu_dgemm_reference.sh の phi14080 の組，verify/check_paper_numbers.py の PHIN_PHIS
+#   ARB_NAMES        AICLK の上限を決める仕組みの名前（ファームウェアの AICLK_ARB_MAX の上位 16 bit の番号の順．TELEM 行の
+#                    arb 欄の番号の意味）．measure_lib.sh の telem_lim，oz_logs.py の ARB_NAMES，study/clock_study_summary.py
+#   ARB_FW_CHECKED   ARB_NAMES の並び（tt-zephyr-platforms の lib/tenstorrent/bh_arc/aiclk_ppm.h の enum aiclk_arb_max）を確かめた
+#                    ファームウェアの一式の版（FWTELEM 行の fw_bundle）．oz_logs.py の fwtelem_reasons が，この表に無い版で測った
+#                    性能のログを拒む（別の版で並びが変わると，arb_top=Doppler が別の仕組みの名前のまま通るので．2026-11-04）．
+#                    新しい版で測るときは，その版の aiclk_ppm.h で並びを確かめてから足す
+#   RULE_I_BITS      スライス数 p の規則 (i)：一様乱数 [-1,1) の入力で到達精度がこれを上回る［bit］（routes.tsv の p 列の注記）．
+#                    routes.sh の OZ_RULE_I_BITS（diagnose/select_slice_count.sh）と probe_checks.py の照合
+#   STRUCT_BITS      規則 (ii)：構造のある入力でこれ以上［bit］（53 ちょうどでは余裕が無いので）．routes.sh の OZ_STRUCT_BITS
+#                    （diagnose/select_slice_count.sh・tests/check_adversarial.sh の既定）
+#   STRUCT_CONSTS    規則 (ii) の入力：OZ_CONST の定数 1/3・2/3・1/7・0.7・0.9・1-2^-53・0.99999999・0.75・1．routes.sh の
+#                    OZ_STRUCT_CONSTS と probe_checks.py の PICK_STRUCT
+#   STRUCT_SIGNS     規則 (ii) の符号の付け方（none は OZ_CONST_SIGN を立てない，col は OZ_CONST_SIGN=col）．routes.sh の
+#                    OZ_STRUCT_SIGNS と probe_checks.py の PICK_STRUCT
+#                    （規則 (i)・(ii) の基準と入力の値を読み下すのはこの注記だけで，routes.tsv の p 列・tests/check_adversarial.sh の
+#                    注記は名前で引く．check_adversarial.sh の表の見出しも STRUCT_CONSTS から作る）
+#   LEGACY_REQUIRED_REPS  旧 rev の項目を測る回数（スライドの「冷却後 3 回の平均」と元の実験 D の回数）．legacy/measure.sh の
+#                    LEGACY_REPS の既定と，照合（legacy_logs.py の REQUIRED_REPS．環境では変えない）が 1 項目に要る回数
+#   RESULT_<種類>    ドライバの RESULT 行の列（CONFIG の種類ごと）．値の最初の語は RESULT 行の 2 列目に出す種類の印（無ければ -），
+#                    続く語が 3 列目（印が無ければ 2 列目）からの <列の名前>:<型> の並び．並びはドライバの出力と同じ
+#                    （ozaki1_main.cpp の report・ozaki2_main.cpp・gemm_bf16.cpp・gemm_bf16ext.cpp・gemm_int8.cpp の RESULT）．
+#                    型は i（10 進の非負整数）・t（正の有限の数）・z（0 以上の有限の数）・a（精度の欄．検証して pass なら有限，
+#                    検証を省いた実行は nan も許す）・e（一致の印．検証したなら 1 か 0，省いたなら nan，古いログは NA）．
+#                    oz_logs.py の RESULT_SCHEMA・RESULT_TAG と，シェルの lib/common.sh の result_field（列の番号を名前で引く）
+#   OZ2_B_DEFAULT    尾崎 II の既定の幅 b（OZ2_B を立てない実行の b．C++ の ozaki2_moduli.h の OZ2_B_DEFAULT と同じ値）．
+#                    oz_logs.py の B2（表の経路のログの b がこれであることを要る）と lib/phi_logs.py（φ の掃引の固定側の b の上限）．
+#                    verify/check_derivation.py の B2 は論文の式から独立に検算するための値なので，ここから取らない
+name	value
+APPROVED_TMAX	60
+IDLE_MHZ	800
+MACHINE_KEYS	host cpu kmd board board_id asic_id fw cm_fw dm_fw eth_fw gddr_fw
+MACHINE_CORE	host cpu kmd board board_id asic_id fw dm_fw
+MACHINE_DETAIL	cm_fw eth_fw gddr_fw
+MACHINE_REQUIRED	host board_id fw
+OOM_RE	Out of Memory: Not enough space to allocate [0-9]+ B DRAM buffer|ERROR: 対角の部分和 Pbigのバンド [0-9]+ 本（[0-9]+ パネル行）が DRAM に入らない（要 [0-9]+[.][0-9]+ GB，ほかの器と余裕 [0-9]+[.][0-9]+ GB を除いた空き [0-9]+[.][0-9]+ GB）
+PHI_N	4096
+PHI_SWEEP	0 1 2 4 8 16
+PHI_SWEEP_05	0.5
+PHIN_PHIS	0.5 1 2 4 8
+ARB_NAMES	fmax TDP fast_TDC TDC thermal board_power voltage GDDR_thermal Doppler Doppler_critical host_fmax
+ARB_FW_CHECKED	19.15.0.0
+RULE_I_BITS	53.9
+STRUCT_BITS	53.05
+STRUCT_CONSTS	0.3333333333333333 0.6666666666666666 0.142857142857142857 0.7 0.9 0.9999999999999999 0.99999999 0.75 1
+STRUCT_SIGNS	none col
+LEGACY_REQUIRED_REPS	3
+RESULT_ozaki_full	ozaki_full M:i N:i K:i p:i L:i npairs:i ndiag:i tot_ms:t rel_fro:a bits:a gemm_ms:z recon_ms:z
+RESULT_ozaki2_full	ozaki2_full M:i N:i K:i b:i s:i ngemm:i d2d_ms:t rel_fro:a bits:a slice_ms:z gemm_ms:z recon_ms:z
+RESULT_gemm_bf16	- M:i N:i K:i B:i active:i bw:i nb:i acc:i flops:t timed_ms:t e2e_ms:t tflops:t eff:t
+RESULT_gemm_bf16ext	- M:i N:i K:i terms:i cores:i flops:t tot_ms:t tflops:t rel_fro:a mre:a bits:a
+RESULT_gemm_int8	int8 M:i N:i K:i cores:i programs:i tot_ms:t tops:t exact:e
+OZ2_B_DEFAULT	54
