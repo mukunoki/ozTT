@@ -84,7 +84,11 @@ dump sources of its time.
 `results.csv` files case by case: the selected parameters (`slices`,
 `integer_bits`, `moduli`, `passes`, `partial_products`, `bw`), `output_hash`
 and `effective_bits` must be equal; timings are ignored. Identical hashes show
-that a change left the computed results bit-identical.
+that a change left the computed results bit-identical. The results of the last
+validated revision are in `validated/`: `all.csv` (the complete paper plan, 63
+cases), `quick.csv` (`evaluate.sh quick`, 25 cases) and `subset.csv` (seven
+paper-plan cases); see `../VALIDATION.md`. Cases missing from the new file are
+listed, not counted as failures, so a partial run can be compared with `all.csv`.
 
 `compare_reference.py [--reference REF.csv] RESULTS.csv...` compares results
 with `evaluation/paper_reference.csv` (the default) and prints the whole-call
@@ -100,9 +104,12 @@ Host code changed (`src/*.cpp`, `src/backend/*/*.hpp`):
 2. `tools/plan_dump/compare.sh` against the last validated revision must report
    identical, or every difference must be explained by the change.
 3. `make test` on a device, then `./evaluate.sh quick` and
-   `tools/compare_results.py` against a results file of the last validated
-   revision: the hashes must be unchanged unless the numerical behavior was
-   changed on purpose. Record the result in `../VALIDATION.md`.
+   `tools/compare_results.py tools/validated/quick.csv <new results.csv>`: the
+   hashes must be unchanged unless the numerical behavior was changed on
+   purpose. For a change that can affect the paper-sized plans, run those cases
+   (`./evaluate.sh table ...`, `./evaluate.sh phi ...`) and compare with
+   `tools/validated/all.csv`. Record the result in `../VALIDATION.md` and
+   replace the files in `validated/` when the validated revision moves.
 
 Kernel comment or formatting changed (`src/backend/*/kernels/`):
 

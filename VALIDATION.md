@@ -113,6 +113,13 @@ parameters of the complete run, with times within 1.1 percent (whole pass) and 2
 percent (phase sum) of `paper_reference.csv`. The sequence of device programs of scheme
 I is shorter by the removed construction-time executions; the results are unchanged.
 
+The evaluator output files behind these statements are kept in `tools/validated/`:
+`all.csv` (the complete paper plan, 63 cases, run on 2026-11-06 after the clean-up;
+its hashes equal those of the first complete run), `quick.csv` (the 25 cases of
+`evaluate.sh quick`) and `subset.csv` (the seven paper-plan cases), both from the
+re-validation of 2026-11-07. `tools/compare_results.py` compares a new results file
+with them.
+
 ## Not repeated in this validation
 
 These were checked on 2026-10-27 with an earlier state of this directory; the build
