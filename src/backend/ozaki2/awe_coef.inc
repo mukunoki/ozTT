@@ -4,8 +4,8 @@
 // (split.hpp), each at K = 3520, 7040, 14080.
 // Columns: K, gp, go, co, cs, sop, spl, R0, ra, rb (Oz2AweCoef); all times in milliseconds
 // per unit of the formulas in awe.hpp, measured on the validation machine (VALIDATION.md).
-// Frozen calibration data, emitted by the research repository's fitting tool
-// (mukunoki/ttgemm, tools/awe_plan.cpp `emit-coef`, at the paper's measurement revision;
+// Frozen calibration data, emitted by the fitting tool of the authors' research repository
+// (not public; tools/awe_plan.cpp `emit-coef`, at the paper's measurement revision;
 // docs/awe_moduli.md there describes the fit); do not edit by hand. Different values
 // change which moduli are selected, and thereby the results.
 static constexpr Oz2AweCoef OZ2_AWE_COEF[OZ2_AWE_COUNT][3] = {

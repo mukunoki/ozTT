@@ -1,5 +1,5 @@
-# Provenance of the library files. Research snapshot: mukunoki/ttgemm revision
-# 63e84a6c179bcf3e2865fb04e82b756aab55d3d6 (the paper-data snapshot).
+# Provenance of the library files. Research snapshot: the authors' research repository (not
+# public), revision 63e84a6c179bcf3e2865fb04e82b756aab55d3d6 (the paper-data snapshot).
 # Columns: library file, research file it was derived from, SHA-256 of the research file at that
 # revision. The library files are adapted (see ORIGIN.md); the hashes identify the originals only.
 library_file	research_file	research_sha256

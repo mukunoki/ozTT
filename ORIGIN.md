@@ -1,6 +1,6 @@
 # Source and copy boundaries
 
-This library was created from the research repository mukunoki/ttgemm (revision
+This library was created from the authors' research repository (not public; revision
 `a2f0301c3576c6c22345d9da928c764e05a40b1c`) and re-synchronized with its paper-data
 snapshot `63e84a6c179bcf3e2865fb04e82b756aab55d3d6`. It is a separate copy: there are
 no symlinks, includes, or build dependencies pointing back into the research
