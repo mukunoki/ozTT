@@ -34,7 +34,8 @@ does not produce:
 | Section V (error-free input bound 32 with LoFi, 63 with HiFi2 and above) and Table I (d_fmt = 16 of FP8): sweep of the largest integer multiplied exactly per format and fidelity; Section VI-D: FP32 tiles of DST used by one reconstruction | `ONLY='^probe_(fp8_digit\|dst)$' scripts/diagnose/probes.sh` | `fp8_probe`, `dst_probe` | `measure_logs/probe_fp8_digit.log`, `probe_dst.log` |
 | Table III, Figs. 2-4, phi experiment (also produced by the library) | `scripts/measure/performance.sh`, `scripts/measure/accuracy.sh`, `scripts/measure/exponent_adaptive.sh` | the 16 drivers | `measure_logs/cool_*.log`, `accuracy_logs/oz*.log`, `measure_logs/phi_nowin/63e84a6/*.log` |
 
-`ONLY` is a regular expression on the log name (`grep -E`); the patterns above select
+`ONLY` is a regular expression on the log name (`grep -E`; in the raw Markdown of this
+file the `|` inside the patterns is written `\|`); the patterns above select
 the items the paper's logs came from (the tile and design patterns also take in the same
 measurement at formats and sizes the paper did not keep). Every item ends up as one log under
 `measure_logs/` or `accuracy_logs/` (`measure_logs/bf16_verify/<rev7>/` and
@@ -45,8 +46,8 @@ digits of the commit of the directory the scripts run in).
 
 `scripts/measure/performance.sh`, `accuracy.sh`, `scripts/diagnose/probes.sh` and
 `design_comparisons.sh` print their items with `--list` (or `ONLY=... --list`) without
-touching the device: one line per item with the log name, the kind of check, and the
-exact command that is run inside the container (`cd /home/user/tt && <environment>
+touching the device: one line per item with the log name, a label, and the exact
+command that is run inside the container (`cd /home/user/tt && <environment>
 ./src/build/<program> <arguments>`). `exponent_adaptive.sh --commands` does the same;
 `exponent_adaptive.sh --list` and `bf16_accuracy.sh --list` print the log names only.
 The other scripts have no listing mode (they take sizes as arguments); their commands
@@ -55,9 +56,11 @@ are, with `N` in 3520 7040 14080:
     fidelity_comparison.sh        OZ_NOVERIFY=1 OZ_TIMING=steady OZ_FIDELITY={LoFi,HiFi2} ./src/build/ozaki1_bf16 N N N 10 9 1 3
                                   OZ_NOVERIFY=1 OZ_TIMING=steady OZ_FIDELITY={LoFi,HiFi2} ./src/build/gemm_bf16 14080 14080 14080 1 1 3 0 0 1 0
     reconstruction_components.sh  OZ_NOVERIFY=1 OZ_TIMING=steady OZ2_CRT_PROBE={0,1} OZ_RECON_PROBE={0,1} ./src/build/ozaki2_bfp8 14080 14080 14080 24 1 3
-    floating_decomposition.sh     ./src/build/gemm_bf16ext 14080 14080 14080 1 3 {1,3,6}      (3xBF16 is terms=3)
+    floating_decomposition.sh     ./src/build/gemm_bf16ext 14080 14080 14080 1 3 {1,3,6}      (3xBF16 is terms=3; the script
+                                  also runs the same with OZ_EXT_FMT=tf32 and with OZ_EXT_FMT=tf32 OZ_EXT_SIG=10)
     bf16_accuracy.sh              ./src/build/gemm_bf16 N N N 1 1 3 1 0 1 0
-    exponent_sweep.sh             OZ_PHI=<phi> [OZ_FP64=1 | OZ2_FP64=1 OZ2_PASSES=2] <driver> 4096 4096 4096 <p L | s> 1 1 for the 12 drivers
+    exponent_sweep.sh             OZ_MIN_BITS=1 OZ_PHI=<phi> <driver> 4096 4096 4096 <p L | s> 1 1 for the 12 drivers (fixed
+                                  p or s), and the same with OZ_FP64=1 (scheme I) or OZ2_FP64=1 OZ2_PASSES=2 (scheme II)
     cpu_dgemm_reference.sh        compiles tools/dgemmcheck.cpp against OpenBLAS in the Dockerfile's image and runs it (no device)
 
 These commands are what to run by hand in any TT-Metalium environment after building
@@ -88,8 +91,8 @@ output lines.
 
 The research repository's other parts (paper sources, figure scripts, the checker
 that matches the paper's text against these logs, tests, older experiments) are not
-included. Comments in the code and the scripts still refer to some of them
-(`docs/*.md`, `scripts/README.md`, `scripts/selftest.sh`, `scripts/tests/*`,
+included. Comments in the code and the scripts still refer to some of them (for
+example `docs/*.md`, `scripts/README.md`, `scripts/selftest.sh`, `scripts/tests/*`,
 `scripts/verify/*`, `scripts/rules/*`, `scripts/remeasure_all.sh`, `paper/*.tex`;
 `scripts/dgemm_ref.sh` is the former name of `scripts/measure/cpu_dgemm_reference.sh`).
 None of them is needed to build or to run the commands above.
@@ -139,21 +142,26 @@ temperature with `tt-smi` on the host, and every log starts with a provenance li
 (git revision, Metalium revision, image, board).
 
 To run them, copy this directory to the host that has the Blackhole and make the copy
-its own git repository (`git init && git add -A && git commit -m experiments`): the
-scripts record the HEAD of the repository they are in as `rev=` in every log and refuse
-to measure while `src/`, `scripts/` or `tools/` have uncommitted or untracked changes,
-and `cpu_dgemm_reference.sh` reads its sources with `git show`/`git archive` relative to
-the repository root, so they do not work while `experiments/` is a subdirectory of the
+its own git repository (`git init && git add -A && git commit -m experiments`; the
+`.gitignore` here keeps `src/build/` and the new logs out of the way): the scripts
+record the HEAD of the repository they are in as `rev=` in every log and refuse to
+measure while `src/`, `scripts/` or `tools/` have uncommitted or untracked changes, and
+`cpu_dgemm_reference.sh` reads its sources with `git show`/`git archive` relative to the
+repository root, so they do not work while `experiments/` is a subdirectory of the
 library's checkout. `rev=` in new logs is the copy's commit, not the research snapshot.
 Then build inside the container with
 
     ./scripts/run.sh "OZ_PROVENANCE='$(bash scripts/provenance.sh)' bash /home/user/tt/scripts/build_all.sh"
 
-and call the scripts of the table from the copy's root on the host (`exponent_sweep.sh`
-runs inside the container:
-`./scripts/run.sh "OZ_PROVENANCE='$(bash scripts/provenance.sh)' bash /home/user/tt/scripts/measure/exponent_sweep.sh [0.5]"`).
-The host needs podman, python3, flock and tt-smi. Logs are written to `measure_logs/`
-and `accuracy_logs/` of the copy (not into `paper_logs/`). Without that setup, run the
+and call the scripts of the table from the copy's root on the host. `exponent_sweep.sh`
+runs inside the container and prints to stdout; capture it (`mkdir -p accuracy_logs` first):
+
+    ./scripts/run.sh "OZ_PROVENANCE='$(bash scripts/provenance.sh)' bash /home/user/tt/scripts/measure/exponent_sweep.sh" > accuracy_logs/phi_sweep.log
+    ./scripts/run.sh "OZ_PROVENANCE='$(bash scripts/provenance.sh)' bash /home/user/tt/scripts/measure/exponent_sweep.sh 0.5" > accuracy_logs/phi_sweep_05.log
+
+The host needs podman, python3, flock and tt-smi. The other scripts write their logs to
+`measure_logs/` and `accuracy_logs/` of the copy themselves (not into `paper_logs/`).
+Without that setup, run the
 commands of "What the scripts run" by hand from the directory that holds `src/`
 (replace `/home/user/tt` by it).
 

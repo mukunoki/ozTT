@@ -68,4 +68,5 @@ Research argument parsing and environment-variable readers, benchmark drivers,
 telemetry, output dumps, forced configurations for experiments, host-side emulations
 and check programs, and everything related to the manuscript (the drivers, probes and
 check programs are in `experiments/`, outside the library build). No TT-Metalium source
-or binary is bundled, apart from the modified matmul kernel named in `NOTICE`.
+or binary is bundled, apart from the files derived from its matmul kernels and examples
+named in `NOTICE`.
