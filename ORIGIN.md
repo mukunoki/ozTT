@@ -12,7 +12,8 @@ maintained independently from here on (it was split out of that repository's
 `tools/`, the measurement scripts and the paper's logs) at the paper-data snapshot, kept
 to reproduce the paper's numbers that the library's evaluator does not produce. It is
 a second, independent implementation with its own Makefile; nothing in the library is
-built from it or includes it (`experiments/README.md`).
+built from it or includes it (`experiments/README.md`). The research code is the authors'
+own except four files derived from TT-Metalium's matmul kernels and examples (`NOTICE`).
 
 `SOURCE_MAP.tsv` lists, for every library file that has a research origin, the
 research file and its SHA-256 at the snapshot. The hashes identify the originals;
@@ -61,9 +62,10 @@ the library files are adapted as described below.
   stage loops a second time. The evaluator can fix scheme II to the paper's b = 54
   without changing the public API's input-dependent default.
 
-## What was left out
+## What was left out of the library
 
 Research argument parsing and environment-variable readers, benchmark drivers,
 telemetry, output dumps, forced configurations for experiments, host-side emulations
-and check programs, and everything related to the manuscript. No TT-Metalium source or
-binary is bundled.
+and check programs, and everything related to the manuscript (the drivers, probes and
+check programs are in `experiments/`, outside the library build). No TT-Metalium source
+or binary is bundled, apart from the modified matmul kernel named in `NOTICE`.

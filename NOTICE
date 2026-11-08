@@ -5,10 +5,17 @@ the authors' research repository (not public; paper-data snapshot, revision
 63e84a6c179bcf3e2865fb04e82b756aab55d3d6). The host interface, library build, and
 execution entry points were written for standalone use. All library source files carry
 Apache-2.0 SPDX identifiers. The directory experiments/ is a verbatim copy of the
-research programs, scripts and measurement logs at the same snapshot (the authors' own
-code, Apache-2.0; most of its source files carry the SPDX identifier, the rest are
-covered by this notice). See ORIGIN.md for what was taken and changed, and
-SOURCE_MAP.tsv for the original files and their SHA-256 values.
+research programs, scripts and measurement logs at the same snapshot (Apache-2.0; most
+of its source files carry the SPDX identifier, the rest are covered by this notice).
+See ORIGIN.md for what was taken and changed, and SOURCE_MAP.tsv for the original
+files and their SHA-256 values.
 
-TT-Metalium and its dependencies are external components, distributed separately
-under their respective licenses. Their source and binaries are not bundled here.
+Files derived from TT-Metalium (Copyright (c) 2023 Tenstorrent USA, Inc., Apache-2.0):
+the matmul kernel src/backend/common/kernels/bmm_int32_spill.cpp is a modified copy of
+tt-metal's bmm_large_block_zm.cpp; in experiments/, src/common/kernels/bmm_int32_spill.cpp
+(the same kernel), src/common/kernels/bmm_l1acc.cpp, src/baseline/gemm_bf16.cpp and
+src/baseline/gemm_bf16ext.cpp are derived from tt-metal's matmul kernels and examples.
+
+TT-Metalium and its dependencies are otherwise external components, distributed
+separately under their respective licenses. Their source and binaries are not bundled
+here.

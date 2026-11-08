@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+// Derived from bmm_large_block_zm.cpp of tt-metal, Copyright (c) 2023 Tenstorrent USA, Inc. (Apache-2.0).
 //
 // Matmul kernel whose read-back of the K spill is error-free (shared by all paths)
 // ---------------------------------------------------------------------------

@@ -208,11 +208,11 @@ runs. Parameters, timing definitions and output fields are described in
 
 The paper's other numbers (the bare BF16 GEMM baseline, the fidelity comparison,
 the 1-core tile products, the ablation runs, the choice of the slice counts, the
-integer-exactness checks, the hardware probes) were measured with the research
-programs, not with this library. [experiments/](experiments/README.md) contains
-that research code as it was run, the scripts, and the 215 logs the paper's numbers
-were checked against, with a table from each paper statement to the command that
-produced it.
+integer-exactness checks, the CPU DGEMM reference, the hardware probes) were measured
+with the research programs, not with this library. [experiments/](experiments/README.md)
+contains that research code as it was run, the scripts, and the 215 logs the paper's
+numbers were checked against, with a table from each paper statement to the command
+that produced it.
 
 ## Correctness checks
 

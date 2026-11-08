@@ -1,9 +1,6 @@
-# ttgemm manifest v1
-# run=pdp
-# rev=63e84a6c179bcf3e2865fb04e82b756aab55d3d6
-# checker=73b495803f4a9062dd2936f38f8e293222be63f2 dirty=0
-# docs=paper/pdp2027_paper_jp.tex:77f34cacb044d0a29c00a60ff51a57d8ed0e504fbc0a48dd2e294557be46429e paper/paper_full.tex:c510e24286b9a65f119de45d4df208068a452b718d5b5e742ab42571e75e2171
-# result=rc=0 items=668
+# Manifest of the paper logs: the 215 logs of research snapshot 63e84a6c179bcf3e2865fb04e82b756aab55d3d6
+# that the paper's numbers were checked against (the checker itself is not included).
+# Columns (tab-separated): sha256	size_bytes	path	revision_of_the_log	checker_rule_name
 # files=215
 420aa1bba92fb6cb6d1e66ee46165dd0f7975230d621d237f0129d41ad55e8c6	7441	accuracy_logs/dgemm_ref.log	63e84a6c179bcf3e2865fb04e82b756aab55d3d6	DGEMM 参照（accuracy_logs/dgemm_ref.log）
 1cc6b171fe981ef7243881312353d61a84fd89c2ed06ca3dc399357691ff1afc	9256	accuracy_logs/oz1bf16_14080.log	63e84a6c179bcf3e2865fb04e82b756aab55d3d6	acc
